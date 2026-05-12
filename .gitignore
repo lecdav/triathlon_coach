@@ -1,0 +1,8 @@
+# Credentials et données perso
+config/credentials.env
+data/cache/
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/

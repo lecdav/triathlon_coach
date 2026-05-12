@@ -1,0 +1,530 @@
+<!doctype html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Triathlon Dashboard",
+  "schemaVersion": 1,
+  "description": "Dashboard quotidien de coach triathlon — état de forme (CTL/ATL/TSB), charge, distribution réelle 4 semaines, plan hebdo polarisé 80/20. Snapshot embarqué statiquement (régénéré chaque matin par la tâche planifiée triathlon-daily-coach).",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Coach Triathlon — Dashboard</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1a1a1a;
+    background: transparent;
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 20px 32px; }
+  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 700; }
+  h2 { font-size: 16px; margin: 24px 0 12px; font-weight: 600; color: #333; border-bottom: 1px solid #e5e5e5; padding-bottom: 6px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
+  .form-banner {
+    padding: 16px 20px; border-radius: 12px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 16px;
+    border: 1px solid;
+  }
+  .form-banner .emoji { font-size: 32px; }
+  .form-banner .label { font-size: 18px; font-weight: 700; }
+  .form-banner .guidance { font-size: 13px; color: #555; margin-top: 2px; }
+  .form-banner .tsb { margin-left: auto; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .green { background: #e8f5e9; border-color: #a5d6a7; color: #1b5e20; }
+  .orange { background: #fff3e0; border-color: #ffcc80; color: #e65100; }
+  .red { background: #ffebee; border-color: #ef9a9a; color: #b71c1c; }
+  .grid {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    margin-bottom: 8px;
+  }
+  .kpi {
+    background: #fafafa; border: 1px solid #e5e5e5; border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .kpi .v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kpi .l { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi .h { font-size: 11px; color: #888; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { font-weight: 600; background: #fafafa; color: #333; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
+  td.day { font-weight: 600; white-space: nowrap; }
+  td.seance { white-space: nowrap; font-weight: 500; }
+  td.contenu { color: #444; font-size: 12.5px; }
+  td.intensite { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; color: #555; white-space: nowrap; }
+  td.tss { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+  tr.total-row { background: #f5f5f5; font-weight: 700; }
+  tr.total-row td { border-top: 2px solid #ccc; }
+  tr.next-row { background: #fff8e1; }
+  tr.next-row td.day::after { content: " ← demain"; color: #f57c00; font-weight: 500; font-size: 11px; }
+  details.justifs { margin-top: 12px; }
+  details.justifs summary { font-size: 13px; color: #555; font-weight: 600; cursor: pointer; }
+  details.justifs ul { font-size: 12.5px; color: #555; line-height: 1.6; }
+  .chip { display: inline-block; background: #eef; color: #336; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  .loading, .error { padding: 40px; text-align: center; color: #888; }
+  .error { color: #c62828; }
+  .meta { font-size: 11px; color: #999; margin-top: 24px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; font-size: 13px; color: #555; }
+  details ul { font-size: 12.5px; color: #555; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Coach Triathlon — David</h1>
+  <div class="sub" id="subtitle">Chargement…</div>
+  <div id="content"><div class="loading">Rendu en cours…</div></div>
+</div>
+
+<!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
+<script type="application/json" id="snapshot">
+{
+  "today": "2026-05-12",
+  "generated_at": "2026-05-12T20:04:25",
+  "week_monday": "2026-05-11",
+  "week_sunday": "2026-05-17",
+  "form": {
+    "label": "Neutre / productif",
+    "code": "NEUTRE",
+    "color": "green",
+    "emoji": "🟩",
+    "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
+  },
+  "metrics": {
+    "ctl": 39.89261,
+    "atl": 36.627636,
+    "tsb": 3.264973999999995,
+    "ramp_rate": -1.2272072,
+    "resting_hr": 55,
+    "sleep_hours": 6.416666666666667,
+    "hrv_status": "HRV stable autour de la moyenne 7j (54 ms)."
+  },
+  "thresholds": {
+    "resting_hr": 55,
+    "weight_kg": 78.0,
+    "ftp_watts": 250,
+    "power_zones_pct": [
+      55,
+      75,
+      90,
+      105,
+      120,
+      150,
+      999
+    ],
+    "hr_zones_bike": [
+      138,
+      153,
+      160,
+      171,
+      176,
+      181,
+      190
+    ],
+    "lthr": 168,
+    "hr_max": 190,
+    "threshold_pace_run_mps": 3.3898306,
+    "threshold_pace_run_str": "4:55/km",
+    "pace_zones_run_pct": [
+      77.5,
+      87.7,
+      94.3,
+      100.0,
+      103.4,
+      111.5,
+      999.0
+    ],
+    "hr_zones_run": [
+      142,
+      149,
+      158,
+      167,
+      172,
+      177,
+      190
+    ],
+    "threshold_pace_swim_mps": 0.8333333,
+    "threshold_pace_swim_str": "2:00/100m"
+  },
+  "load_7d": {
+    "total_load": 231,
+    "total_minutes": 302.95000000000005,
+    "by_sport": {
+      "Swim": {
+        "count": 2,
+        "minutes": 69.03333333333333,
+        "load": 32,
+        "distance_km": 3.025
+      },
+      "VirtualRide": {
+        "count": 3,
+        "minutes": 162.7,
+        "load": 141,
+        "distance_km": 0.0
+      },
+      "Run": {
+        "count": 2,
+        "minutes": 71.21666666666667,
+        "load": 58,
+        "distance_km": 9.77303
+      }
+    }
+  },
+  "load_28d": {
+    "total_load": 1011,
+    "total_minutes": 1003.5999999999999,
+    "by_sport": {
+      "Swim": {
+        "count": 4,
+        "minutes": 150.8,
+        "load": 70,
+        "distance_km": 6.55
+      },
+      "VirtualRide": {
+        "count": 9,
+        "minutes": 458.8999999999999,
+        "load": 458,
+        "distance_km": 0.0
+      },
+      "Run": {
+        "count": 10,
+        "minutes": 307.03333333333336,
+        "load": 351,
+        "distance_km": 50.382549999999995
+      },
+      "Transition": {
+        "count": 2,
+        "minutes": 1.15,
+        "load": 2,
+        "distance_km": 0.1719
+      },
+      "Ride": {
+        "count": 1,
+        "minutes": 85.71666666666667,
+        "load": 130,
+        "distance_km": 44.70342
+      }
+    }
+  },
+  "session_profile": {
+    "Swim": {
+      "count_4w": 4,
+      "per_week": 1.0,
+      "avg_minutes": 38,
+      "avg_distance_km": 1.6,
+      "avg_load": 18
+    },
+    "VirtualRide": {
+      "count_4w": 9,
+      "per_week": 2.2,
+      "avg_minutes": 51,
+      "avg_distance_km": 0.0,
+      "avg_load": 51
+    },
+    "Run": {
+      "count_4w": 10,
+      "per_week": 2.5,
+      "avg_minutes": 31,
+      "avg_distance_km": 5.0,
+      "avg_load": 35
+    },
+    "Transition": {
+      "count_4w": 2,
+      "per_week": 0.5,
+      "avg_minutes": 1,
+      "avg_distance_km": 0.1,
+      "avg_load": 1
+    },
+    "Ride": {
+      "count_4w": 1,
+      "per_week": 0.2,
+      "avg_minutes": 86,
+      "avg_distance_km": 44.7,
+      "avg_load": 130
+    }
+  },
+  "weekly_plan": [
+    {
+      "date": "2026-05-11",
+      "weekday": "Monday",
+      "weekday_fr": "Lundi",
+      "rel_day": -1,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Mobilité 15-20 min, étirements doux, marche.",
+      "zones": "",
+      "rationale": "Jour de repos défini dans ton profil — supercompensation.",
+      "tss_estimate": 0,
+      "status": "done",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-12",
+      "weekday": "Tuesday",
+      "weekday_fr": "Mardi",
+      "rel_day": 0,
+      "sport": "Run",
+      "type": "VO2max — intervalles courts",
+      "duration_min": 45,
+      "structure": "15' échauffement + 6 à 8 × 3' à allure 5km (5:04/km) r=2' trot + 10' retour calme.",
+      "zones": "Z5 — FC 92-97% FCmax",
+      "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
+      "tss_estimate": 54,
+      "status": "today",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-13",
+      "weekday": "Wednesday",
+      "weekday_fr": "Mercredi",
+      "rel_day": 1,
+      "sport": "Swim",
+      "type": "Endurance + technique",
+      "duration_min": 38,
+      "structure": "400 échauf. + 8×100 (2:00/100m) r=20s + 200 souple. Total ~1600 m.",
+      "zones": "Z3-Z4 (CSS = 2:00/100m)",
+      "rationale": "Densifier la fréquence natation : tu es à 1 séance/sem vs 2-3 cibles. CSS bloc principal.",
+      "tss_estimate": 29,
+      "status": "todo",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-14",
+      "weekday": "Thursday",
+      "weekday_fr": "Jeudi",
+      "rel_day": 2,
+      "sport": "VirtualRide",
+      "type": "Seuil — sweet spot",
+      "duration_min": 60,
+      "structure": "15' échauf. + 3×12' à 228-250 W r=4' + 8' calme.",
+      "zones": "Z4 (sweet spot 88-94% FTP)",
+      "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
+      "tss_estimate": 77,
+      "status": "todo",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-15",
+      "weekday": "Friday",
+      "weekday_fr": "Vendredi",
+      "rel_day": 3,
+      "sport": "Swim",
+      "type": "Technique + tolérance lactate",
+      "duration_min": 40,
+      "structure": "400 éducatifs + 6×50 vite/50 souple + 200 retour calme.",
+      "zones": "Z1 + sprints",
+      "rationale": "2e séance natation pour atteindre 2/sem. Charge basse — vendredi = pré-week-end.",
+      "tss_estimate": 26,
+      "status": "todo",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-16",
+      "weekday": "Saturday",
+      "weekday_fr": "Samedi",
+      "rel_day": 4,
+      "sport": "Brick (Bike+Run)",
+      "type": "Spécifique triathlon",
+      "duration_min": 95,
+      "structure": "Vélo 75' Z2 dont 2×8' tempo Z3 → transition rapide → CAP 20' Z2 (5:47/km).",
+      "zones": "Vélo Z2-Z3 / CAP Z2",
+      "rationale": "Brick hebdo obligatoire pour adapter la transition vélo→CAP (jambes lourdes). 1 brick/sem en build.",
+      "tss_estimate": 96,
+      "status": "todo",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-17",
+      "weekday": "Sunday",
+      "weekday_fr": "Dimanche",
+      "rel_day": 5,
+      "sport": "Run",
+      "type": "Sortie longue",
+      "duration_min": 60,
+      "structure": "60' continu en Z2 (5:47/km). Optionnel : derniers 10' à allure marathon.",
+      "zones": "Z2 — FC 75-85% LTHR",
+      "rationale": "Sortie longue dimanche (profil) — fondation aérobie, oxydation lipidique.",
+      "tss_estimate": 52,
+      "status": "todo",
+      "actual_activities": []
+    }
+  ],
+  "weekly_plan_totals": {
+    "total_minutes": 338,
+    "total_minutes_str": "~5h40",
+    "total_tss": 334
+  },
+  "weeks_to_race": 15,
+  "phase": "Préparation générale (base aérobie)",
+  "race_name": "Triathlon M de Quimperlé",
+  "race_date": "2026-08-30"
+}
+</script>
+
+<script>
+const SPORT_INFO = {
+  "Run":              ["🏃",   "CAP"],
+  "VirtualRide":      ["🚴",   "Vélo HT"],
+  "Ride":             ["🚴",   "Vélo"],
+  "Swim":             ["🏊",   "Natation"],
+  "Brick (Bike+Run)": ["🚴+🏃","Brick"],
+  "Repos":            ["💤",   "Repos"],
+};
+
+function formatSeance(p) {
+  const sport = p.sport || "";
+  if (sport === "Repos") return "💤 Repos total";
+  const [emoji, sportFr] = SPORT_INFO[sport] || ["", sport];
+  const typeStr = (p.type || "").split("—")[0].trim().toLowerCase();
+  if (!typeStr) return `${emoji} ${sportFr}`.trim();
+  return `${emoji} ${sportFr} ${typeStr}`.trim();
+}
+
+function formatContenu(p) {
+  const struct = p.structure || "—";
+  const dur = p.duration_min || 0;
+  if (dur > 0) return `(${dur}') ${struct}`;
+  return struct;
+}
+
+function formatTotalDuration(totalMin) {
+  if (totalMin <= 0) return "0h00";
+  const rounded = Math.round(totalMin / 5) * 5;
+  const h = Math.floor(rounded / 60);
+  const m = rounded % 60;
+  return `~${h}h${String(m).padStart(2, "0")}`;
+}
+
+function render(data) {
+  const c = document.getElementById("content");
+  const sub = document.getElementById("subtitle");
+
+  const today = data.today;
+  const form = data.form;
+  const m = data.metrics;
+  const th = data.thresholds;
+  const l7 = data.load_7d;
+  const l28 = data.load_28d;
+  const sp = data.session_profile;
+  const plan = data.weekly_plan || [];
+  const totals = data.weekly_plan_totals || null;
+
+  sub.textContent = `Snapshot du ${today} — généré ${(data.generated_at || "").replace("T", " à ").slice(0, 19)}`;
+
+  let html = "";
+
+  html += `<div class="form-banner ${form.color}">
+    <div class="emoji">${form.emoji || "•"}</div>
+    <div>
+      <div class="label">${form.label}</div>
+      <div class="guidance">${form.guidance}</div>
+    </div>
+    <div class="tsb">${m.tsb >= 0 ? "+" : ""}${m.tsb.toFixed(1)} <span style="font-size:12px;font-weight:400;color:#666">TSB</span></div>
+  </div>`;
+
+  html += `<h2>État de forme (PMC — Coggan)</h2><div class="grid">
+    <div class="kpi"><div class="l">CTL · forme</div><div class="v">${m.ctl.toFixed(1)}</div><div class="h">charge chronique 42j</div></div>
+    <div class="kpi"><div class="l">ATL · fatigue</div><div class="v">${m.atl.toFixed(1)}</div><div class="h">charge aigüe 7j</div></div>
+    <div class="kpi"><div class="l">Ramp rate</div><div class="v">${m.ramp_rate >= 0 ? "+" : ""}${m.ramp_rate.toFixed(1)}</div><div class="h">CTL/sem · sain &lt;5</div></div>
+    <div class="kpi"><div class="l">FC repos</div><div class="v">${m.resting_hr ?? "—"}</div><div class="h">réf ${th.resting_hr ?? 56} bpm</div></div>
+    ${m.sleep_hours ? `<div class="kpi"><div class="l">Sommeil</div><div class="v">${m.sleep_hours.toFixed(1)} h</div><div class="h">${m.sleep_hours >= 7 ? "OK" : "sous cible 7h"}</div></div>` : ""}
+  </div>`;
+
+  if (m.hrv_status) {
+    html += `<div style="font-size:13px;color:#555;margin-bottom:8px">📊 ${m.hrv_status}</div>`;
+  }
+
+  html += `<h2>Charge & contexte</h2><div class="grid">
+    <div class="kpi"><div class="l">Phase</div><div class="v" style="font-size:14px">${data.phase}</div>${data.weeks_to_race != null ? `<div class="h">${data.race_name} dans ${data.weeks_to_race} sem.</div>` : ""}</div>
+    <div class="kpi"><div class="l">Charge 7j</div><div class="v">${Math.round(l7.total_load)} TSS</div><div class="h">${Math.round(l7.total_minutes)} min</div></div>
+    <div class="kpi"><div class="l">Charge moy / sem (28j)</div><div class="v">${Math.round(l28.total_load/4)} TSS</div><div class="h">${Math.round(l28.total_minutes/4)} min</div></div>
+  </div>`;
+
+  html += `<h2>Distribution réelle (28 derniers jours)</h2>
+  <table><thead><tr><th>Discipline</th><th>Séances/sem</th><th>Durée moy</th><th>Distance moy</th><th>TSS moy</th></tr></thead><tbody>`;
+  for (const [sport, p] of Object.entries(sp)) {
+    html += `<tr><td>${sport}</td><td>${p.per_week}</td><td>${p.avg_minutes} min</td><td>${p.avg_distance_km} km</td><td>${p.avg_load}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+
+  html += `<h2>Plan de la semaine (J+1 → J+7) — polarisé 80/20</h2>
+  <table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu</th><th>Intensité</th><th>TSS</th></tr></thead><tbody>`;
+
+  let totalMin = 0;
+  let totalTss = 0;
+  for (const p of plan) {
+    const cls = p.rel_day === 1 ? "next-row" : "";
+    const jour = `${p.weekday_fr || p.weekday} <span style="color:#888;font-weight:400">(J+${p.rel_day ?? "?"})</span>`;
+    const seance = formatSeance(p);
+    const contenu = formatContenu(p);
+    const intensite = p.zones || "—";
+    const tss = p.tss_estimate || 0;
+    const tssStr = tss > 0 ? String(tss) : "—";
+    html += `<tr class="${cls}">
+      <td class="day">${jour}</td>
+      <td class="seance">${seance}</td>
+      <td class="contenu">${contenu}</td>
+      <td class="intensite">${intensite}</td>
+      <td class="tss">${tssStr}</td>
+    </tr>`;
+    totalMin += (p.duration_min || 0);
+    totalTss += tss;
+  }
+  const totalDur = totals?.total_minutes_str || formatTotalDuration(totalMin);
+  const totalTssDisplay = totals?.total_tss ?? totalTss;
+  html += `<tr class="total-row">
+    <td>Total semaine</td>
+    <td>${totalDur}</td>
+    <td></td>
+    <td></td>
+    <td class="tss">~${totalTssDisplay}</td>
+  </tr>`;
+  html += `</tbody></table>`;
+
+  const justifs = plan.filter(p => p.rationale);
+  if (justifs.length) {
+    html += `<details class="justifs"><summary>Justifications par séance</summary><ul>`;
+    for (const p of justifs) {
+      html += `<li><b>${p.weekday_fr || p.weekday} (J+${p.rel_day ?? "?"}) — ${formatSeance(p)}</b> : ${p.rationale}</li>`;
+    }
+    html += `</ul></details>`;
+  }
+
+  html += `<h2>Zones de référence (Intervals.icu)</h2><div class="grid">
+    <div class="kpi"><div class="l">FTP vélo</div><div class="v">${th.ftp_watts ?? "—"} W</div></div>
+    <div class="kpi"><div class="l">Seuil CAP</div><div class="v" style="font-size:16px">${th.threshold_pace_run_str ?? "—"}</div></div>
+    <div class="kpi"><div class="l">CSS natation</div><div class="v" style="font-size:16px">${th.threshold_pace_swim_str ?? "—"}</div></div>
+    <div class="kpi"><div class="l">LTHR / FCmax</div><div class="v" style="font-size:16px">${th.lthr ?? "—"} / ${th.hr_max ?? "—"}</div><div class="h">bpm</div></div>
+  </div>`;
+
+  html += `<details><summary>Notes scientifiques</summary><ul>
+    <li><b>80/20 polarisé</b> (Seiler 2010, Stöggl 2014) : majoritairement Z1-Z2 sous LT1, 15-20% en Z4-Z5 au-dessus de LT2, peu de Z3 hors blocs spécifiques.</li>
+    <li><b>Sweet spot</b> (88-94% FTP) : meilleur ratio gain CTL/coût ATL pour amateur 6-10 h/sem.</li>
+    <li><b>TSB</b> = forme prédictive ; pic course visé +5 à +20 (Coggan).</li>
+    <li><b>Ramp rate</b> &gt; +5-7 CTL/sem associé à risque blessure accru (Gabbett 2016).</li>
+    <li><b>TSS estimé</b> = (durée_h) × IF² × 100 (Coggan) ; IF inféré du libellé de séance (récup 0.50 → seuil 0.90).</li>
+  </ul></details>`;
+
+  html += `<div class="meta">Source : Intervals.icu · Snapshot embarqué dans cet artifact · Régénéré chaque matin par la tâche planifiée <code>triathlon-daily-coach</code>.</div>`;
+
+  c.innerHTML = html;
+}
+
+(function() {
+  try {
+    const snap = JSON.parse(document.getElementById("snapshot").textContent);
+    render(snap);
+  } catch (e) {
+    document.getElementById("content").innerHTML =
+      `<div class="error"><b>Erreur de rendu :</b> ${e.message || e}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
