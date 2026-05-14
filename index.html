@@ -99,28 +99,28 @@
 <!-- Snapshot embarqué par scripts/daily_coach.py — régénéré chaque matin -->
 <script type="application/json" id="snapshot">
 {
-  "today": "2026-05-13",
-  "generated_at": "2026-05-13T05:02:55",
+  "today": "2026-05-14",
+  "generated_at": "2026-05-14T16:08:28",
   "week_monday": "2026-05-11",
   "week_sunday": "2026-05-17",
   "form": {
-    "label": "Frais",
-    "code": "FRAIS",
+    "label": "Neutre / productif",
+    "code": "NEUTRE",
     "color": "green",
     "emoji": "🟩",
-    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
+    "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
   },
   "metrics": {
-    "ctl": 38.954002,
-    "atl": 31.751688,
-    "tsb": 7.202314000000001,
-    "ramp_rate": -1.9277115,
-    "resting_hr": 56,
-    "sleep_hours": null,
-    "hrv_status": null
+    "ctl": 39.496235,
+    "atl": 35.778408,
+    "tsb": 3.7178269999999998,
+    "ramp_rate": -1.2470932,
+    "resting_hr": 51,
+    "sleep_hours": 9.25,
+    "hrv_status": "HRV stable autour de la moyenne 7j (53 ms)."
   },
   "thresholds": {
-    "resting_hr": 56,
+    "resting_hr": 51,
     "weight_kg": 78.0,
     "ftp_watts": 250,
     "power_zones_pct": [
@@ -167,9 +167,15 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "load_7d": {
-    "total_load": 231,
-    "total_minutes": 302.95000000000005,
+    "total_load": 262,
+    "total_minutes": 314.6333333333333,
     "by_sport": {
+      "Run": {
+        "count": 3,
+        "minutes": 128.36666666666667,
+        "load": 120,
+        "distance_km": 19.00009
+      },
       "Swim": {
         "count": 2,
         "minutes": 69.03333333333333,
@@ -177,23 +183,23 @@
         "distance_km": 3.025
       },
       "VirtualRide": {
-        "count": 3,
-        "minutes": 162.7,
-        "load": 141,
-        "distance_km": 0.0
-      },
-      "Run": {
         "count": 2,
-        "minutes": 71.21666666666667,
-        "load": 58,
-        "distance_km": 9.77303
+        "minutes": 117.23333333333333,
+        "load": 110,
+        "distance_km": 0.0
       }
     }
   },
   "load_28d": {
-    "total_load": 959,
-    "total_minutes": 957.4833333333332,
+    "total_load": 1021,
+    "total_minutes": 1014.6333333333333,
     "by_sport": {
+      "Run": {
+        "count": 10,
+        "minutes": 318.06666666666666,
+        "load": 361,
+        "distance_km": 51.90907
+      },
       "Swim": {
         "count": 4,
         "minutes": 150.8,
@@ -205,12 +211,6 @@
         "minutes": 458.8999999999999,
         "load": 458,
         "distance_km": 0.0
-      },
-      "Run": {
-        "count": 9,
-        "minutes": 260.9166666666667,
-        "load": 299,
-        "distance_km": 42.68201
       },
       "Transition": {
         "count": 2,
@@ -227,6 +227,13 @@
     }
   },
   "session_profile": {
+    "Run": {
+      "count_4w": 10,
+      "per_week": 2.5,
+      "avg_minutes": 32,
+      "avg_distance_km": 5.2,
+      "avg_load": 36
+    },
     "Swim": {
       "count_4w": 4,
       "per_week": 1.0,
@@ -240,13 +247,6 @@
       "avg_minutes": 51,
       "avg_distance_km": 0.0,
       "avg_load": 51
-    },
-    "Run": {
-      "count_4w": 9,
-      "per_week": 2.2,
-      "avg_minutes": 29,
-      "avg_distance_km": 4.7,
-      "avg_load": 33
     },
     "Transition": {
       "count_4w": 2,
@@ -268,7 +268,7 @@
       "date": "2026-05-11",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -283,7 +283,7 @@
       "date": "2026-05-12",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -298,7 +298,7 @@
       "date": "2026-05-13",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 38,
@@ -306,14 +306,14 @@
       "zones": "Z3-Z4 (CSS = 2:00/100m)",
       "rationale": "Densifier la fréquence natation : tu es à 1 séance/sem vs 2-3 cibles. CSS bloc principal.",
       "tss_estimate": 29,
-      "status": "today",
+      "status": "past_missed",
       "actual_activities": []
     },
     {
       "date": "2026-05-14",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": 1,
+      "rel_day": 0,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
@@ -321,14 +321,14 @@
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
       "tss_estimate": 77,
-      "status": "todo",
+      "status": "today",
       "actual_activities": []
     },
     {
       "date": "2026-05-15",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": 2,
+      "rel_day": 1,
       "sport": "Swim",
       "type": "Technique + tolérance lactate",
       "duration_min": 40,
@@ -343,7 +343,7 @@
       "date": "2026-05-16",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 3,
+      "rel_day": 2,
       "sport": "Brick (Bike+Run)",
       "type": "Spécifique triathlon",
       "duration_min": 95,
@@ -358,7 +358,7 @@
       "date": "2026-05-17",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 4,
+      "rel_day": 3,
       "sport": "Run",
       "type": "Sortie longue",
       "duration_min": 60,
