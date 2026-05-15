@@ -66,80 +66,13 @@ def build_github_pages_dashboard(snapshot: dict) -> Path | None:
 
 
 def git_push_dashboard() -> bool:
-    """Commit et pousse index.html vers GitHub pour mettre à jour GitHub Pages.
+    """Push désactivé — maintenant géré par GitHub Actions (.github/workflows/daily_coach.yml).
 
-    Nécessite que git soit configuré et le remote 'origin' défini.
-    Retourne True si le push a réussi, False sinon.
+    Le workflow CI commit et pousse index.html automatiquement après chaque run.
+    Cette fonction est conservée pour rétrocompatibilité mais ne fait plus rien.
     """
-    import subprocess
-    today_str = date.today().isoformat()
-    git_cmd = ["git", "-C", str(ROOT)]
-
-    try:
-        # Vérifie qu'on est dans un repo git
-        result = subprocess.run(
-            git_cmd + ["rev-parse", "--is-inside-work-tree"],
-            capture_output=True, text=True, timeout=10
-        )
-        if result.returncode != 0:
-            print("⚠️  git push ignoré : pas de dépôt git initialisé.")
-            print("   → Suivez le guide de déploiement GitHub Pages pour initialiser le repo.")
-            return False
-
-        # Vérifie qu'un remote 'origin' est configuré
-        result = subprocess.run(
-            git_cmd + ["remote", "get-url", "origin"],
-            capture_output=True, text=True, timeout=10
-        )
-        if result.returncode != 0:
-            print("⚠️  git push ignoré : aucun remote 'origin' configuré.")
-            print("   → Ajoutez votre repo GitHub : git remote add origin https://github.com/...")
-            return False
-
-        # Stage uniquement index.html (+ rapport du jour si présent)
-        files_to_add = [str(GITHUB_PAGES_DASHBOARD)]
-        today_report = REPORT_DIR / f"{today_str}.md"
-        if today_report.exists():
-            files_to_add.append(str(today_report))
-
-        subprocess.run(git_cmd + ["add"] + files_to_add, check=True, timeout=15)
-
-        # Vérifie s'il y a vraiment des changements à commiter
-        result = subprocess.run(
-            git_cmd + ["diff", "--cached", "--quiet"],
-            capture_output=True, timeout=10
-        )
-        if result.returncode == 0:
-            print("ℹ️  Rien à commiter (dashboard inchangé).")
-            return True
-
-        # Commit
-        subprocess.run(
-            git_cmd + ["commit", "-m", f"chore: update dashboard {today_str}"],
-            check=True, timeout=15
-        )
-
-        # Push
-        result = subprocess.run(
-            git_cmd + ["push"],
-            capture_output=True, text=True, timeout=60
-        )
-        if result.returncode == 0:
-            print(f"✅  GitHub Pages mis à jour — dashboard publié pour {today_str}.")
-            return True
-        else:
-            print(f"⚠️  git push échoué : {result.stderr.strip()}")
-            return False
-
-    except subprocess.TimeoutExpired:
-        print("⚠️  git push timeout (>60s) — vérifiez votre connexion réseau.")
-        return False
-    except subprocess.CalledProcessError as e:
-        print(f"⚠️  git push erreur : {e}")
-        return False
-    except Exception as e:
-        print(f"⚠️  git push erreur inattendue : {e}")
-        return False
+    print("ℹ️  git push local désactivé — GitHub Actions s'en charge.")
+    return True
 
 
 def build_dashboard_html(snapshot: dict) -> Path:
