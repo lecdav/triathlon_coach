@@ -1,32 +1,32 @@
-<!doctype html>
+<!doctype html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Triathlon Dashboard",
+  "schemaVersion": 1,
+  "description": "Dashboard quotidien de coach triathlon — état de forme (CTL/ATL/TSB), charge, distribution réelle 4 semaines, plan hebdo polarisé 80/20. Snapshot embarqué statiquement (régénéré chaque matin par la tâche planifiée triathlon-daily-coach).",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Coach Triathlon — David</title>
+<title>Coach Triathlon — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
-  :root { color-scheme: light; }
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #1a1a1a;
-    background: #f7f8fa;
+    color: #e2e2e2;
+    background: transparent;
     line-height: 1.5;
     font-size: 14px;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
-  .page-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .page-header h1 { font-size: 22px; margin: 0 0 4px; font-weight: 700; }
-  .page-header .badge {
-    background: #e3f2fd; color: #1565c0; border-radius: 20px;
-    padding: 4px 12px; font-size: 12px; font-weight: 600;
-  }
-  h2 { font-size: 16px; margin: 24px 0 12px; font-weight: 600; color: #333; border-bottom: 1px solid #e5e5e5; padding-bottom: 6px; }
-  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 20px 32px; }
+  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 700; color: #f0f0f0; }
+  h2 { font-size: 16px; margin: 24px 0 12px; font-weight: 600; color: #b0b8c8; border-bottom: 1px solid #2e3440; padding-bottom: 6px; }
+  .sub { color: #6b7a90; font-size: 13px; margin-bottom: 16px; }
   .form-banner {
     padding: 16px 20px; border-radius: 12px; margin-bottom: 8px;
     display: flex; align-items: center; gap: 16px;
@@ -34,90 +34,99 @@
   }
   .form-banner .emoji { font-size: 32px; }
   .form-banner .label { font-size: 18px; font-weight: 700; }
-  .form-banner .guidance { font-size: 13px; color: #555; margin-top: 2px; }
+  .form-banner .guidance { font-size: 13px; margin-top: 2px; opacity: 0.8; }
   .form-banner .tsb { margin-left: auto; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .green { background: #e8f5e9; border-color: #a5d6a7; color: #1b5e20; }
-  .orange { background: #fff3e0; border-color: #ffcc80; color: #e65100; }
-  .red { background: #ffebee; border-color: #ef9a9a; color: #b71c1c; }
+  .green { background: #1a2e1e; border-color: #2e5c35; color: #6fcf7d; }
+  .orange { background: #2e2110; border-color: #5c3e10; color: #f0a050; }
+  .red { background: #2e1212; border-color: #5c2020; color: #e07070; }
   .grid {
     display: grid; gap: 12px;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     margin-bottom: 8px;
   }
   .kpi {
-    background: #fff; border: 1px solid #e5e5e5; border-radius: 10px;
+    background: #1e2533; border: 1px solid #2e3a4e; border-radius: 10px;
     padding: 12px 14px;
   }
-  .kpi .v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .kpi .l { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-  .kpi .h { font-size: 11px; color: #888; margin-top: 4px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 10px; overflow: hidden; }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
-  th { font-weight: 600; background: #fafafa; color: #333; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
-  td.day { font-weight: 600; white-space: nowrap; }
-  td.seance { white-space: nowrap; font-weight: 500; }
-  td.contenu { color: #444; font-size: 12.5px; }
-  td.intensite { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; color: #555; white-space: nowrap; }
-  td.tss { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
-  tr.total-row { background: #f5f5f5; font-weight: 700; }
-  tr.total-row td { border-top: 2px solid #ccc; }
-  tr.next-row { background: #fff8e1; }
-  tr.next-row td.day::after { content: " ← demain"; color: #f57c00; font-weight: 500; font-size: 11px; }
+  .kpi .v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: #f0f0f0; }
+  .kpi .l { font-size: 11px; color: #7a8a9e; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi .h { font-size: 11px; color: #5a6a7e; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #232d3e; vertical-align: top; }
+  th { font-weight: 600; background: #1a2030; color: #7a8a9e; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
+  td.day { font-weight: 600; white-space: nowrap; color: #c8d0dc; }
+  td.seance { white-space: nowrap; font-weight: 500; color: #d8e0ec; }
+  td.contenu { color: #8a9aac; font-size: 12.5px; }
+  td.intensite { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; color: #7a8e9e; white-space: nowrap; }
+  td.tss { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; color: #c8d0dc; }
+  tr.total-row { background: #1a2030; font-weight: 700; }
+  tr.total-row td { border-top: 2px solid #3a4860; color: #e0e8f4; }
+  tr.next-row { background: #2a2410; }
+  tr.next-row td.day::after { content: " ← aujourd'hui"; color: #f0a040; font-weight: 500; font-size: 11px; }
+  tr.done-row { background: #131e17; opacity: 0.85; }
+  tr.missed-row { background: #251a10; }
   details.justifs { margin-top: 12px; }
-  details.justifs summary { font-size: 13px; color: #555; font-weight: 600; cursor: pointer; }
-  details.justifs ul { font-size: 12.5px; color: #555; line-height: 1.6; }
-  .chip { display: inline-block; background: #eef; color: #336; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-  .loading, .error { padding: 40px; text-align: center; color: #888; }
-  .error { color: #c62828; }
-  .meta { font-size: 11px; color: #999; margin-top: 24px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+  details.justifs summary { font-size: 13px; color: #6b7a90; font-weight: 600; cursor: pointer; }
+  details.justifs ul { font-size: 12.5px; color: #6b7a90; line-height: 1.6; }
+  .chip { display: inline-block; background: #1e2a3e; color: #7ab0e8; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  .loading, .error { padding: 40px; text-align: center; color: #6b7a90; }
+  .error { color: #e07070; }
+  .meta { font-size: 11px; color: #4a5a70; margin-top: 24px; padding-top: 12px; border-top: 1px solid #1e2a3e; }
   details { margin-top: 12px; }
-  summary { cursor: pointer; font-weight: 600; font-size: 13px; color: #555; }
-  details ul { font-size: 12.5px; color: #555; }
-  .stale-banner {
-    background: #fff3e0; border: 1px solid #ffcc80; border-radius: 10px;
-    padding: 10px 16px; font-size: 13px; color: #e65100; margin-bottom: 12px;
+  summary { cursor: pointer; font-weight: 600; font-size: 13px; color: #6b7a90; }
+  details ul { font-size: 12.5px; color: #6b7a90; }
+  .coach-card {
+    background: linear-gradient(135deg, #1a2535 0%, #1e2d40 100%);
+    border: 1px solid #2e4060;
+    border-left: 4px solid #4da6ff;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #c8d8e8;
   }
-  @media (max-width: 600px) {
-    .grid { grid-template-columns: 1fr 1fr; }
-    td.intensite, td.contenu { display: none; }
-  }
+  .coach-card p { margin: 0 0 10px; }
+  .coach-card p:last-child { margin-bottom: 0; }
+  .coach-card strong { color: #7ab8f0; font-weight: 600; }
+  .pmc-chart-wrap { position: relative; width: 100%; height: 240px; margin-bottom: 8px; }
+  .pmc-legend { display: flex; gap: 16px; font-size: 12px; color: #6b7a90; margin-bottom: 16px; flex-wrap: wrap; }
+  .pmc-legend span { display: flex; align-items: center; gap: 5px; }
+  .pmc-legend i { display: inline-block; width: 24px; height: 3px; border-radius: 2px; }
+  .pmc-legend i.ctl { background: #4da6ff; }
+  .pmc-legend i.atl { background: #ff6b6b; }
+  .pmc-legend i.tsb { background: #6fcf7d; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="page-header">
-    <div>
-      <h1>🏊🚴🏃 Coach Triathlon — David</h1>
-      <div class="sub" id="subtitle">Chargement…</div>
-    </div>
-    <span class="badge" id="race-badge"></span>
-  </div>
-  <div id="stale-notice"></div>
+  <h1>Coach Triathlon — David</h1>
+  <div class="sub" id="subtitle">Chargement…</div>
   <div id="content"><div class="loading">Rendu en cours…</div></div>
 </div>
 
-<!-- Snapshot embarqué par scripts/daily_coach.py — régénéré chaque matin -->
+<!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
 <script type="application/json" id="snapshot">
 {
-  "today": "2026-05-14",
-  "generated_at": "2026-05-14T17:05:05",
+  "today": "2026-05-15",
+  "generated_at": "2026-05-15T15:17:49",
   "week_monday": "2026-05-11",
   "week_sunday": "2026-05-17",
   "form": {
-    "label": "Neutre / productif",
-    "code": "NEUTRE",
+    "label": "Frais",
+    "code": "FRAIS",
     "color": "green",
     "emoji": "🟩",
-    "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
+    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
   },
   "metrics": {
-    "ctl": 39.496235,
-    "atl": 35.778408,
-    "tsb": 3.7178269999999998,
-    "ramp_rate": -1.2470932,
-    "resting_hr": 51,
-    "sleep_hours": 9.25,
-    "hrv_status": "HRV stable autour de la moyenne 7j (53 ms)."
+    "ctl": 38.566956,
+    "atl": 31.01551,
+    "tsb": 7.5514459999999985,
+    "ramp_rate": -1.2177505,
+    "resting_hr": null,
+    "sleep_hours": null,
+    "hrv_status": null
   },
   "thresholds": {
     "resting_hr": 51,
@@ -167,12 +176,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-02-13",
-      "ctl": 31.3,
-      "atl": 41.1,
-      "tsb": -9.8
-    },
     {
       "date": "2026-02-14",
       "ctl": 30.56,
@@ -712,23 +715,29 @@
       "ctl": 39.5,
       "atl": 35.78,
       "tsb": 3.72
+    },
+    {
+      "date": "2026-05-15",
+      "ctl": 38.57,
+      "atl": 31.02,
+      "tsb": 7.55
     }
   ],
   "load_7d": {
-    "total_load": 262,
-    "total_minutes": 314.6333333333333,
+    "total_load": 227,
+    "total_minutes": 251.13333333333333,
     "by_sport": {
       "Run": {
-        "count": 3,
-        "minutes": 128.36666666666667,
-        "load": 120,
-        "distance_km": 19.00009
+        "count": 2,
+        "minutes": 96.71666666666667,
+        "load": 97,
+        "distance_km": 14.93328
       },
       "Swim": {
-        "count": 2,
-        "minutes": 69.03333333333333,
-        "load": 32,
-        "distance_km": 3.025
+        "count": 1,
+        "minutes": 37.18333333333333,
+        "load": 20,
+        "distance_km": 1.7
       },
       "VirtualRide": {
         "count": 2,
@@ -739,8 +748,8 @@
     }
   },
   "load_28d": {
-    "total_load": 1021,
-    "total_minutes": 1014.6333333333333,
+    "total_load": 964,
+    "total_minutes": 966.2166666666667,
     "by_sport": {
       "Run": {
         "count": 10,
@@ -755,9 +764,9 @@
         "distance_km": 6.55
       },
       "VirtualRide": {
-        "count": 9,
-        "minutes": 458.8999999999999,
-        "load": 458,
+        "count": 8,
+        "minutes": 410.48333333333323,
+        "load": 401,
         "distance_km": 0.0
       },
       "Transition": {
@@ -790,11 +799,11 @@
       "avg_load": 18
     },
     "VirtualRide": {
-      "count_4w": 9,
-      "per_week": 2.2,
+      "count_4w": 8,
+      "per_week": 2.0,
       "avg_minutes": 51,
       "avg_distance_km": 0.0,
-      "avg_load": 51
+      "avg_load": 50
     },
     "Transition": {
       "count_4w": 2,
@@ -816,7 +825,7 @@
       "date": "2026-05-11",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -3,
+      "rel_day": -4,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -831,7 +840,7 @@
       "date": "2026-05-12",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -839,14 +848,23 @@
       "zones": "Z5 — FC 92-97% FCmax",
       "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
       "tss_estimate": 54,
-      "status": "past_missed",
-      "actual_activities": []
+      "status": "done",
+      "sport_match": "approximate",
+      "actual_activities": [
+        {
+          "name": "Pool Swim",
+          "type": "Swim",
+          "duration_min": 37,
+          "distance_km": 1.7,
+          "tss": 20
+        }
+      ]
     },
     {
       "date": "2026-05-13",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -861,7 +879,7 @@
       "date": "2026-05-14",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
@@ -869,64 +887,75 @@
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
       "tss_estimate": 77,
-      "status": "today",
-      "actual_activities": []
+      "status": "done",
+      "sport_match": "approximate",
+      "actual_activities": [
+        {
+          "name": "Locarn - 50m 3x8' 95%LT",
+          "type": "Run",
+          "duration_min": 57,
+          "distance_km": 9.2,
+          "tss": 62
+        }
+      ]
     },
     {
       "date": "2026-05-15",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": 1,
-      "sport": "Run",
-      "type": "Récupération active",
-      "duration_min": 30,
-      "structure": "30' footing très léger en Z1 (5:47/km). Fréquence cardiaque < 70% FCmax.",
-      "zones": "Z1 — FC <70% FCmax",
-      "rationale": "Récupération active pré-week-end. Maintient le flux sanguin sans accumuler de fatigue (Seiler).",
-      "tss_estimate": 12,
-      "status": "todo",
+      "rel_day": 0,
+      "sport": "Strength",
+      "type": "Renforcement musculaire",
+      "duration_min": 45,
+      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+      "zones": "Force-endurance — pas de cardio",
+      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
+      "tss_estimate": 0,
+      "status": "today",
       "actual_activities": []
     },
     {
       "date": "2026-05-16",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 2,
-      "sport": "Brick (Bike+Run)",
-      "type": "Spécifique triathlon",
-      "duration_min": 95,
-      "structure": "Vélo 75' Z2 dont 2×8' tempo Z3 → transition rapide → CAP 20' Z2 (5:47/km).",
-      "zones": "Vélo Z2-Z3 / CAP Z2",
-      "rationale": "Brick hebdo obligatoire pour adapter la transition vélo→CAP (jambes lourdes). 1 brick/sem en build.",
-      "tss_estimate": 96,
-      "status": "todo",
+      "rel_day": 1,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+      "zones": "",
+      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
+      "tss_estimate": 0,
+      "status": "done",
       "actual_activities": []
     },
     {
       "date": "2026-05-17",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 3,
-      "sport": "Run",
-      "type": "Sortie longue",
-      "duration_min": 60,
-      "structure": "60' continu en Z2 (5:47/km). Optionnel : derniers 10' à allure marathon.",
-      "zones": "Z2 — FC 75-85% LTHR",
-      "rationale": "Sortie longue dimanche (profil) — fondation aérobie, oxydation lipidique.",
-      "tss_estimate": 52,
+      "rel_day": 2,
+      "sport": "VirtualRide",
+      "type": "Sortie longue vélo",
+      "duration_min": 90,
+      "structure": "Vélo 90' continu Z2 (140-188 W). Cadence 85-90 rpm, sans pic d'intensité.",
+      "zones": "Z2 — 140-188 W",
+      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
+      "tss_estimate": 78,
       "status": "todo",
       "actual_activities": []
     }
   ],
   "weekly_plan_totals": {
-    "total_minutes": 340,
-    "total_minutes_str": "~5h40",
-    "total_tss": 330
+    "total_minutes": 290,
+    "total_minutes_str": "~4h50",
+    "total_tss": 248
   },
+  "week_adaptations": [],
   "weeks_to_race": 15,
   "phase": "Préparation générale (base aérobie)",
   "race_name": "Triathlon M de Quimperlé",
-  "race_date": "2026-08-30"
+  "race_date": "2026-08-30",
+  "coach_message": "David, tu arrives à cette séance avec un TSB de +7.6 — tu es frais, bien récupéré. C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !\n\nCette semaine, tu as déjà coché 2 séances (Run, VirtualRide) pour environ 82 TSS réalisés. Une séance a été manquée (Mercredi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta capacité à encaisser un volume solide (241 tss/sem en moyenne sur 28j).\n— Ta ctl à 38.6 qui reflète un niveau de forme construit semaine après semaine — tu n'es pas là par hasard.\n— Ta progression maîtrisée (ramp rate -1.2 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~1.0 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Construire la base CTL** — Avec une CTL à 38.6, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** On est à 15 semaines de Triathlon M de Quimperlé. Phase de **Préparation générale (base aérobie)** : l'heure est à construire le moteur aérobie, pas à se presser. Chaque séance Z2 que tu poses maintenant sera du carburant en août. Le pic de charge est prévu dans ~9 semaines — on a le temps de faire les choses bien."
 }
 </script>
 
@@ -937,6 +966,7 @@ const SPORT_INFO = {
   "Ride":             ["🚴",   "Vélo"],
   "Swim":             ["🏊",   "Natation"],
   "Brick (Bike+Run)": ["🚴+🏃","Brick"],
+  "Strength":         ["💪",   "Muscu"],
   "Repos":            ["💤",   "Repos"],
 };
 
@@ -967,8 +997,6 @@ function formatTotalDuration(totalMin) {
 function render(data) {
   const c = document.getElementById("content");
   const sub = document.getElementById("subtitle");
-  const raceBadge = document.getElementById("race-badge");
-  const staleNotice = document.getElementById("stale-notice");
 
   const today = data.today;
   const form = data.form;
@@ -982,73 +1010,67 @@ function render(data) {
 
   sub.textContent = `Snapshot du ${today} — généré ${(data.generated_at || "").replace("T", " à ").slice(0, 19)}`;
 
-  // Badge course
-  if (data.race_name && data.weeks_to_race != null) {
-    raceBadge.textContent = `🏁 ${data.race_name} — J-${data.weeks_to_race * 7}`;
-  }
-
-  // Alerte si snapshot > 36h
-  if (data.generated_at) {
-    const generated = new Date(data.generated_at);
-    const now = new Date();
-    const diffH = (now - generated) / 3600000;
-    if (diffH > 36) {
-      staleNotice.innerHTML = `<div class="stale-banner">⚠️ Snapshot de plus de ${Math.round(diffH)}h — vérifiez que la tâche planifiée <code>triathlon-daily-coach</code> tourne correctement.</div>`;
-    }
-  }
-
   let html = "";
 
-  html += `<div class="form-banner ${form.color}">
-    <div class="emoji">${form.emoji || "•"}</div>
-    <div>
-      <div class="label">${form.label}</div>
-      <div class="guidance">${form.guidance}</div>
-    </div>
-    <div class="tsb">${m.tsb >= 0 ? "+" : ""}${m.tsb.toFixed(1)} <span style="font-size:12px;font-weight:400;color:#666">TSB</span></div>
-  </div>`;
+  html += `<h2>Plan de la semaine — polarisé 80/20</h2>`;
 
-  html += `<h2>État de forme (PMC — Coggan)</h2><div class="grid">
-    <div class="kpi"><div class="l">CTL · forme</div><div class="v">${m.ctl.toFixed(1)}</div><div class="h">charge chronique 42j</div></div>
-    <div class="kpi"><div class="l">ATL · fatigue</div><div class="v">${m.atl.toFixed(1)}</div><div class="h">charge aigüe 7j</div></div>
-    <div class="kpi"><div class="l">Ramp rate</div><div class="v">${m.ramp_rate >= 0 ? "+" : ""}${m.ramp_rate.toFixed(1)}</div><div class="h">CTL/sem · sain &lt;5</div></div>
-    <div class="kpi"><div class="l">FC repos</div><div class="v">${m.resting_hr ?? "—"}</div><div class="h">réf ${th.resting_hr ?? 56} bpm</div></div>
-    ${m.sleep_hours ? `<div class="kpi"><div class="l">Sommeil</div><div class="v">${m.sleep_hours.toFixed(1)} h</div><div class="h">${m.sleep_hours >= 7 ? "OK" : "sous cible 7h"}</div></div>` : ""}
-  </div>`;
-
-  if (m.hrv_status) {
-    html += `<div style="font-size:13px;color:#555;margin-bottom:8px">📊 ${m.hrv_status}</div>`;
+  const adaptations = data.week_adaptations || [];
+  if (adaptations.length > 0) {
+    html += `<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#5d4037;">`;
+    for (const a of adaptations) {
+      html += `<div style="margin-bottom:4px">${a}</div>`;
+    }
+    html += `</div>`;
   }
 
-  html += `<h2>Charge & contexte</h2><div class="grid">
-    <div class="kpi"><div class="l">Phase</div><div class="v" style="font-size:14px">${data.phase}</div>${data.weeks_to_race != null ? `<div class="h">${data.race_name} dans ${data.weeks_to_race} sem.</div>` : ""}</div>
-    <div class="kpi"><div class="l">Charge 7j</div><div class="v">${Math.round(l7.total_load)} TSS</div><div class="h">${Math.round(l7.total_minutes)} min</div></div>
-    <div class="kpi"><div class="l">Charge moy / sem (28j)</div><div class="v">${Math.round(l28.total_load/4)} TSS</div><div class="h">${Math.round(l28.total_minutes/4)} min</div></div>
-  </div>`;
+  html += `<table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu / Réalisé</th><th>Intensité</th><th>TSS</th></tr></thead><tbody>`;
 
-  html += `<h2>Distribution réelle (28 derniers jours)</h2>
-  <table><thead><tr><th>Discipline</th><th>Séances/sem</th><th>Durée moy</th><th>Distance moy</th><th>TSS moy</th></tr></thead><tbody>`;
-  for (const [sport, p] of Object.entries(sp)) {
-    html += `<tr><td>${sport}</td><td>${p.per_week}</td><td>${p.avg_minutes} min</td><td>${p.avg_distance_km} km</td><td>${p.avg_load}</td></tr>`;
-  }
-  html += `</tbody></table>`;
-
-  html += `<h2>Plan de la semaine (J+1 → J+7) — polarisé 80/20</h2>
-  <table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu</th><th>Intensité</th><th>TSS</th></tr></thead><tbody>`;
+  const STATUS_ICON = { done: "✅", today: "⏳", todo: "⬜", past_missed: "❌" };
 
   let totalMin = 0;
   let totalTss = 0;
   for (const p of plan) {
-    const cls = p.rel_day === 1 ? "next-row" : "";
-    const jour = `${p.weekday_fr || p.weekday} <span style="color:#888;font-weight:400">(J+${p.rel_day ?? "?"})</span>`;
+    const status = p.status || "todo";
+    const isDone = status === "done";
+    const isMissed = status === "past_missed";
+    const isToday = status === "today";
+
+    // Classe de ligne
+    let cls = "";
+    if (isToday || p.rel_day === 1) cls = "next-row";
+    else if (isDone) cls = "done-row";
+    else if (isMissed) cls = "missed-row";
+
+    const statusIcon = STATUS_ICON[status] || "⬜";
+    const jour = `${statusIcon} ${p.weekday_fr || p.weekday} <span style="color:#888;font-weight:400">(J${p.rel_day >= 0 ? "+" : ""}${p.rel_day ?? "?"})</span>`;
     const seance = formatSeance(p);
-    const contenu = formatContenu(p);
+
+    // Contenu : si done, afficher le réalisé en plus du prévu
+    let contenu = formatContenu(p);
+    if (isDone && p.actual_activities && p.actual_activities.length > 0) {
+      const acts = p.actual_activities.map(a => {
+        const parts = [];
+        if (a.duration_min) parts.push(`${a.duration_min} min`);
+        if (a.distance_km) parts.push(`${a.distance_km} km`);
+        if (a.tss) parts.push(`TSS ${a.tss}`);
+        return `<span style="color:#2e7d32;font-weight:500">${a.name || a.type}</span> — ${parts.join(" · ")}`;
+      }).join("<br>");
+      contenu = `<div style="color:#555;font-size:12px;margin-bottom:3px">${contenu}</div>
+        <div style="font-size:12px">${acts}</div>`;
+    } else if (isMissed) {
+      contenu = `<span style="color:#b71c1c;font-size:12px">${contenu}</span>`;
+    }
+
     const intensite = p.zones || "—";
     const tss = p.tss_estimate || 0;
     const tssStr = tss > 0 ? String(tss) : "—";
+    const adaptBadge = p.adaptation
+      ? `<div style="font-size:11px;color:#e65100;margin-top:3px">${p.adaptation}</div>`
+      : "";
+
     html += `<tr class="${cls}">
       <td class="day">${jour}</td>
-      <td class="seance">${seance}</td>
+      <td class="seance">${seance}${adaptBadge}</td>
       <td class="contenu">${contenu}</td>
       <td class="intensite">${intensite}</td>
       <td class="tss">${tssStr}</td>
@@ -1076,7 +1098,54 @@ function render(data) {
     html += `</ul></details>`;
   }
 
-  html += `<h2>Zones de référence (Intervals.icu)</h2><div class="grid">
+  html += `<div class="form-banner ${form.color}">
+    <div class="emoji">${form.emoji || "•"}</div>
+    <div>
+      <div class="label">${form.label}</div>
+      <div class="guidance">${form.guidance}</div>
+    </div>
+    <div class="tsb">${m.tsb >= 0 ? "+" : ""}${m.tsb.toFixed(1)} <span style="font-size:12px;font-weight:400;color:#666">TSB</span></div>
+  </div>`;
+
+  html += `<h2>Évolution PMC — 3 derniers mois</h2>
+  <div class="pmc-legend">
+    <span><i class="ctl"></i> CTL (forme)</span>
+    <span><i class="atl"></i> ATL (fatigue)</span>
+    <span><i class="tsb"></i> TSB (forme nette)</span>
+  </div>
+  <div class="pmc-chart-wrap"><canvas id="pmcChart"></canvas></div>`;
+
+  html += `<h2>État de forme (PMC — Coggan)</h2><div class="grid">
+    <div class="kpi"><div class="l">CTL · forme</div><div class="v">${m.ctl.toFixed(1)}</div><div class="h">charge chronique 42j</div></div>
+    <div class="kpi"><div class="l">ATL · fatigue</div><div class="v">${m.atl.toFixed(1)}</div><div class="h">charge aigüe 7j</div></div>
+    <div class="kpi"><div class="l">Ramp rate</div><div class="v">${m.ramp_rate >= 0 ? "+" : ""}${m.ramp_rate.toFixed(1)}</div><div class="h">CTL/sem · sain &lt;5</div></div>
+    <div class="kpi"><div class="l">FC repos</div><div class="v">${m.resting_hr ?? "—"}</div><div class="h">réf ${th.resting_hr ?? 56} bpm</div></div>
+    ${m.sleep_hours ? `<div class="kpi"><div class="l">Sommeil</div><div class="v">${m.sleep_hours.toFixed(1)} h</div><div class="h">${m.sleep_hours >= 7 ? "OK" : "sous cible 7h"}</div></div>` : ""}
+  </div>`;
+
+  if (m.hrv_status) {
+    html += `<div style="font-size:13px;color:#6b7a90;margin-bottom:8px">📊 ${m.hrv_status}</div>`;
+  }
+
+  html += `<h2>Charge & contexte</h2><div class="grid">
+    <div class="kpi"><div class="l">Phase</div><div class="v" style="font-size:14px">${data.phase}</div>${data.weeks_to_race != null ? `<div class="h">${data.race_name} dans ${data.weeks_to_race} sem.</div>` : ""}</div>
+    <div class="kpi"><div class="l">Charge 7j</div><div class="v">${Math.round(l7.total_load)} TSS</div><div class="h">${Math.round(l7.total_minutes)} min</div></div>
+    <div class="kpi"><div class="l">Charge moy / sem (28j)</div><div class="v">${Math.round(l28.total_load/4)} TSS</div><div class="h">${Math.round(l28.total_minutes/4)} min</div></div>
+  </div>`;
+
+  // --- Message coach ---
+  if (data.coach_message) {
+    // Convertit le markdown leger (**, \n\n) en HTML
+    const coachHtml = data.coach_message
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n\n/g, "</p><p>")
+      .replace(/\n/g, "<br>");
+    html += `<h2>Message de ton coach</h2>
+    <div class="coach-card"><p>${coachHtml}</p></div>`;
+  }
+
+  html += `<h2>Zones de référence</h2><div class="grid">
     <div class="kpi"><div class="l">FTP vélo</div><div class="v">${th.ftp_watts ?? "—"} W</div></div>
     <div class="kpi"><div class="l">Seuil CAP</div><div class="v" style="font-size:16px">${th.threshold_pace_run_str ?? "—"}</div></div>
     <div class="kpi"><div class="l">CSS natation</div><div class="v" style="font-size:16px">${th.threshold_pace_swim_str ?? "—"}</div></div>
@@ -1091,21 +1160,109 @@ function render(data) {
     <li><b>TSS estimé</b> = (durée_h) × IF² × 100 (Coggan) ; IF inféré du libellé de séance (récup 0.50 → seuil 0.90).</li>
   </ul></details>`;
 
-  html += `<div class="meta">Source : Intervals.icu · Snapshot embarqué statiquement · Régénéré chaque matin par la tâche planifiée <code>triathlon-daily-coach</code> via Cowork.</div>`;
+  html += `<div class="meta">Source : Intervals.icu · Snapshot embarqué dans cet artifact · Régénéré chaque matin par la tâche planifiée <code>triathlon-daily-coach</code>.</div>`;
 
   c.innerHTML = html;
+
+  // --- Graphique PMC ---
+  const pmc = data.pmc_history || [];
+  if (pmc.length > 0 && typeof Chart !== "undefined") {
+    const labels = pmc.map(d => d.date);
+    const ctlData = pmc.map(d => d.ctl);
+    const atlData = pmc.map(d => d.atl);
+    const tsbData = pmc.map(d => d.tsb);
+    const todayIdx = labels.indexOf(data.today);
+
+    const todayAnnotation = todayIdx >= 0 ? {
+      type: "line",
+      xMin: todayIdx, xMax: todayIdx,
+      borderColor: "rgba(0,0,0,0.25)", borderWidth: 1, borderDash: [4, 4],
+    } : null;
+
+    const zeroLine = {
+      type: "line",
+      yMin: 0, yMax: 0,
+      borderColor: "rgba(76,175,80,0.3)", borderWidth: 1,
+    };
+
+    new Chart(document.getElementById("pmcChart"), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "CTL", data: ctlData, yAxisID: "yLeft",
+            borderColor: "#2196f3", backgroundColor: "rgba(33,150,243,0.08)",
+            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: false, tension: 0.3,
+          },
+          {
+            label: "ATL", data: atlData, yAxisID: "yLeft",
+            borderColor: "#f44336", backgroundColor: "rgba(244,67,54,0.06)",
+            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: false, tension: 0.3,
+          },
+          {
+            label: "TSB", data: tsbData, yAxisID: "yRight",
+            borderColor: "#4caf50", backgroundColor: ctx => {
+              const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 240);
+              g.addColorStop(0, "rgba(76,175,80,0.18)");
+              g.addColorStop(1, "rgba(76,175,80,0.0)");
+              return g;
+            },
+            borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 4,
+            fill: "origin", tension: 0.3,
+          },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const v = ctx.parsed.y;
+                const sign = v >= 0 ? "+" : "";
+                return ` ${ctx.dataset.label}: ${ctx.dataset.label === "TSB" ? sign : ""}${v !== null ? v.toFixed(1) : "—"}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              maxTicksLimit: 7,
+              callback: (_, i) => {
+                const d = labels[i];
+                if (!d) return "";
+                const dt = new Date(d);
+                return dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+              },
+              font: { size: 11 }, color: "#5a6a7e",
+            },
+            grid: { color: "rgba(255,255,255,0.04)" },
+          },
+          yLeft: {
+            position: "left",
+            title: { display: true, text: "CTL / ATL", font: { size: 11 }, color: "#5a6a7e" },
+            ticks: { font: { size: 11 }, color: "#5a6a7e" },
+            grid: { color: "rgba(255,255,255,0.04)" },
+          },
+          yRight: {
+            position: "right",
+            title: { display: true, text: "TSB", font: { size: 11 }, color: "#5a6a7e" },
+            ticks: { font: { size: 11 }, color: "#5a6a7e" },
+            grid: { drawOnChartArea: false },
+          },
+        },
+      },
+    });
+  }
 }
 
 (function() {
   try {
-    const raw = document.getElementById("snapshot").textContent.trim();
-    const snap = JSON.parse(raw);
-    if (!snap || !snap.today) {
-      document.getElementById("content").innerHTML =
-        `<div class="error">⚠️ Snapshot vide ou absent. Le script <code>daily_coach.py</code> doit être exécuté pour populer le dashboard.</div>`;
-      document.getElementById("subtitle").textContent = "Aucune donnée disponible";
-      return;
-    }
+    const snap = JSON.parse(document.getElementById("snapshot").textContent);
     render(snap);
   } catch (e) {
     document.getElementById("content").innerHTML =

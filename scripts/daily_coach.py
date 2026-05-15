@@ -43,25 +43,18 @@ GITHUB_PAGES_DASHBOARD = ROOT / "index.html"
 
 
 def build_github_pages_dashboard(snapshot: dict) -> Path | None:
-    """Met à jour index.html (GitHub Pages) en injectant le snapshot JSON.
+    """Génère index.html (GitHub Pages) depuis le même template que le dashboard Cowork.
 
-    Ce fichier est la version web publique du dashboard, conçue pour
-    fonctionner comme page statique sur GitHub Pages.
+    index.html est écrasé entièrement à chaque run — c'est toujours
+    une copie exacte du template avec le snapshot du jour embarqué.
     """
-    if not GITHUB_PAGES_DASHBOARD.exists():
-        print(f"⚠️  index.html absent ({GITHUB_PAGES_DASHBOARD}) — GitHub Pages non mis à jour.")
+    if not DASHBOARD_TEMPLATE.exists():
+        print(f"⚠️  Template absent ({DASHBOARD_TEMPLATE}) — index.html non généré.")
         return None
-    html = GITHUB_PAGES_DASHBOARD.read_text(encoding="utf-8")
+    template = DASHBOARD_TEMPLATE.read_text(encoding="utf-8")
     snapshot_json = json.dumps(snapshot, indent=2, ensure_ascii=False, default=str)
-    # Remplace le contenu entre les balises <script type="application/json" id="snapshot">
-    import re
-    pattern = r'(<script type="application/json" id="snapshot">)\s*\{[^<]*\}\s*(</script>)'
-    replacement = r'\g<1>\n' + snapshot_json + r'\n\2'
-    new_html, count = re.subn(pattern, replacement, html, flags=re.DOTALL)
-    if count == 0:
-        print("⚠️  Balise snapshot introuvable dans index.html — mise à jour ignorée.")
-        return None
-    GITHUB_PAGES_DASHBOARD.write_text(new_html, encoding="utf-8")
+    html = template.replace("__SNAPSHOT_JSON__", snapshot_json)
+    GITHUB_PAGES_DASHBOARD.write_text(html, encoding="utf-8")
     return GITHUB_PAGES_DASHBOARD
 
 
