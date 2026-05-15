@@ -1,0 +1,69 @@
+name: Coach Triathlon — Plan hebdomadaire
+
+on:
+  schedule:
+    # Chaque lundi à 5h00 heure de Paris (UTC+2 en été → 03:00 UTC)
+    # Le plan de la semaine est envoyé avant le réveil
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    # Permet de relancer manuellement depuis l'onglet Actions de GitHub
+    inputs:
+      week:
+        description: "Semaine cible (YYYY-MM-DD, lundi). Vide = semaine courante."
+        required: false
+        default: ""
+      replace:
+        description: "Supprimer les séances existantes avant d'envoyer (évite les doublons)"
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: read   # lecture seule du repo — aucun push nécessaire
+
+jobs:
+  push-workouts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # 1. Récupère le code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Configure Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # 3. Installe les dépendances
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 4. Envoie le plan sur Intervals.icu
+      #    --replace est toujours activé en cron (évite les doublons si relance)
+      #    En workflow_dispatch, respecte le choix de l'utilisateur
+      - name: Push workouts to Intervals.icu
+        env:
+          INTERVALS_ATHLETE_ID: ${{ secrets.INTERVALS_ATHLETE_ID }}
+          INTERVALS_API_KEY: ${{ secrets.INTERVALS_API_KEY }}
+        run: |
+          ARGS="--replace"
+
+          # En déclenchement manuel, on peut passer une semaine cible
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            ARGS="$ARGS --week ${{ github.event.inputs.week }}"
+          fi
+
+          # En déclenchement manuel, on peut désactiver --replace
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && \
+             [ "${{ github.event.inputs.replace }}" = "false" ]; then
+            ARGS=""
+            if [ -n "${{ github.event.inputs.week }}" ]; then
+              ARGS="--week ${{ github.event.inputs.week }}"
+            fi
+          fi
+
+          python scripts/push_workouts.py $ARGS
