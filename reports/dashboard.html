@@ -11,21 +11,22 @@
 <head>
 <meta charset="utf-8">
 <title>Coach Triathlon — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
-  :root { color-scheme: light; }
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #1a1a1a;
+    color: #e2e2e2;
     background: transparent;
     line-height: 1.5;
     font-size: 14px;
   }
   .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 20px 32px; }
-  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 700; }
-  h2 { font-size: 16px; margin: 24px 0 12px; font-weight: 600; color: #333; border-bottom: 1px solid #e5e5e5; padding-bottom: 6px; }
-  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
+  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 700; color: #f0f0f0; }
+  h2 { font-size: 16px; margin: 24px 0 12px; font-weight: 600; color: #b0b8c8; border-bottom: 1px solid #2e3440; padding-bottom: 6px; }
+  .sub { color: #6b7a90; font-size: 13px; margin-bottom: 16px; }
   .form-banner {
     padding: 16px 20px; border-radius: 12px; margin-bottom: 8px;
     display: flex; align-items: center; gap: 16px;
@@ -33,45 +34,68 @@
   }
   .form-banner .emoji { font-size: 32px; }
   .form-banner .label { font-size: 18px; font-weight: 700; }
-  .form-banner .guidance { font-size: 13px; color: #555; margin-top: 2px; }
+  .form-banner .guidance { font-size: 13px; margin-top: 2px; opacity: 0.8; }
   .form-banner .tsb { margin-left: auto; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .green { background: #e8f5e9; border-color: #a5d6a7; color: #1b5e20; }
-  .orange { background: #fff3e0; border-color: #ffcc80; color: #e65100; }
-  .red { background: #ffebee; border-color: #ef9a9a; color: #b71c1c; }
+  .green { background: #1a2e1e; border-color: #2e5c35; color: #6fcf7d; }
+  .orange { background: #2e2110; border-color: #5c3e10; color: #f0a050; }
+  .red { background: #2e1212; border-color: #5c2020; color: #e07070; }
   .grid {
     display: grid; gap: 12px;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     margin-bottom: 8px;
   }
   .kpi {
-    background: #fafafa; border: 1px solid #e5e5e5; border-radius: 10px;
+    background: #1e2533; border: 1px solid #2e3a4e; border-radius: 10px;
     padding: 12px 14px;
   }
-  .kpi .v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .kpi .l { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-  .kpi .h { font-size: 11px; color: #888; margin-top: 4px; }
+  .kpi .v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: #f0f0f0; }
+  .kpi .l { font-size: 11px; color: #7a8a9e; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi .h { font-size: 11px; color: #5a6a7e; margin-top: 4px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
-  th { font-weight: 600; background: #fafafa; color: #333; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
-  td.day { font-weight: 600; white-space: nowrap; }
-  td.seance { white-space: nowrap; font-weight: 500; }
-  td.contenu { color: #444; font-size: 12.5px; }
-  td.intensite { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; color: #555; white-space: nowrap; }
-  td.tss { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
-  tr.total-row { background: #f5f5f5; font-weight: 700; }
-  tr.total-row td { border-top: 2px solid #ccc; }
-  tr.next-row { background: #fff8e1; }
-  tr.next-row td.day::after { content: " ← demain"; color: #f57c00; font-weight: 500; font-size: 11px; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #232d3e; vertical-align: top; }
+  th { font-weight: 600; background: #1a2030; color: #7a8a9e; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
+  td.day { font-weight: 600; white-space: nowrap; color: #c8d0dc; }
+  td.seance { white-space: nowrap; font-weight: 500; color: #d8e0ec; }
+  td.contenu { color: #8a9aac; font-size: 12.5px; }
+  td.intensite { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; color: #7a8e9e; white-space: nowrap; }
+  td.tss { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; color: #c8d0dc; }
+  tr.total-row { background: #1a2030; font-weight: 700; }
+  tr.total-row td { border-top: 2px solid #3a4860; color: #e0e8f4; }
+  tr.next-row { background: #2a2410; }
+  tr.next-row td.day::after { content: " ← aujourd'hui"; color: #f0a040; font-weight: 500; font-size: 11px; }
+  tr.done-row { background: #131e17; opacity: 0.85; }
+  tr.missed-row { background: #251a10; }
   details.justifs { margin-top: 12px; }
-  details.justifs summary { font-size: 13px; color: #555; font-weight: 600; cursor: pointer; }
-  details.justifs ul { font-size: 12.5px; color: #555; line-height: 1.6; }
-  .chip { display: inline-block; background: #eef; color: #336; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-  .loading, .error { padding: 40px; text-align: center; color: #888; }
-  .error { color: #c62828; }
-  .meta { font-size: 11px; color: #999; margin-top: 24px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+  details.justifs summary { font-size: 13px; color: #6b7a90; font-weight: 600; cursor: pointer; }
+  details.justifs ul { font-size: 12.5px; color: #6b7a90; line-height: 1.6; }
+  .chip { display: inline-block; background: #1e2a3e; color: #7ab0e8; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  .loading, .error { padding: 40px; text-align: center; color: #6b7a90; }
+  .error { color: #e07070; }
+  .meta { font-size: 11px; color: #4a5a70; margin-top: 24px; padding-top: 12px; border-top: 1px solid #1e2a3e; }
   details { margin-top: 12px; }
-  summary { cursor: pointer; font-weight: 600; font-size: 13px; color: #555; }
-  details ul { font-size: 12.5px; color: #555; }
+  summary { cursor: pointer; font-weight: 600; font-size: 13px; color: #6b7a90; }
+  details ul { font-size: 12.5px; color: #6b7a90; }
+  .coach-card {
+    background: linear-gradient(135deg, #1a2535 0%, #1e2d40 100%);
+    border: 1px solid #2e4060;
+    border-left: 4px solid #4da6ff;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #c8d8e8;
+  }
+  .coach-card p { margin: 0 0 10px; }
+  .coach-card p:last-child { margin-bottom: 0; }
+  .coach-card strong { color: #7ab8f0; font-weight: 600; }
+  .pmc-chart-wrap { position: relative; width: 100%; height: 240px; margin-bottom: 8px; }
+  .pmc-legend { display: flex; gap: 16px; font-size: 12px; color: #6b7a90; margin-bottom: 16px; flex-wrap: wrap; }
+  .pmc-legend span { display: flex; align-items: center; gap: 5px; }
+  .pmc-legend i { display: inline-block; width: 24px; height: 3px; border-radius: 2px; }
+  .pmc-legend i.ctl { background: #4da6ff; }
+  .pmc-legend i.atl { background: #ff6b6b; }
+  .pmc-legend i.tsb { background: #6fcf7d; }
 </style>
 </head>
 <body>
@@ -84,25 +108,25 @@
 <!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
 <script type="application/json" id="snapshot">
 {
-  "today": "2026-05-14",
-  "generated_at": "2026-05-14T16:08:28",
+  "today": "2026-05-15",
+  "generated_at": "2026-05-15T07:50:41",
   "week_monday": "2026-05-11",
   "week_sunday": "2026-05-17",
   "form": {
-    "label": "Neutre / productif",
-    "code": "NEUTRE",
+    "label": "Frais",
+    "code": "FRAIS",
     "color": "green",
     "emoji": "🟩",
-    "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
+    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
   },
   "metrics": {
-    "ctl": 39.496235,
-    "atl": 35.778408,
-    "tsb": 3.7178269999999998,
-    "ramp_rate": -1.2470932,
-    "resting_hr": 51,
-    "sleep_hours": 9.25,
-    "hrv_status": "HRV stable autour de la moyenne 7j (53 ms)."
+    "ctl": 38.566956,
+    "atl": 31.01551,
+    "tsb": 7.5514459999999985,
+    "ramp_rate": -1.2177505,
+    "resting_hr": null,
+    "sleep_hours": null,
+    "hrv_status": null
   },
   "thresholds": {
     "resting_hr": 51,
@@ -151,21 +175,569 @@
     "threshold_pace_swim_mps": 0.8333333,
     "threshold_pace_swim_str": "2:00/100m"
   },
+  "pmc_history": [
+    {
+      "date": "2026-02-14",
+      "ctl": 30.56,
+      "atl": 35.63,
+      "tsb": -5.07
+    },
+    {
+      "date": "2026-02-15",
+      "ctl": 33.32,
+      "atl": 50.59,
+      "tsb": -17.26
+    },
+    {
+      "date": "2026-02-16",
+      "ctl": 33.36,
+      "atl": 48.51,
+      "tsb": -15.15
+    },
+    {
+      "date": "2026-02-17",
+      "ctl": 33.99,
+      "atl": 50.04,
+      "tsb": -16.05
+    },
+    {
+      "date": "2026-02-18",
+      "ctl": 33.19,
+      "atl": 43.38,
+      "tsb": -10.19
+    },
+    {
+      "date": "2026-02-19",
+      "ctl": 34.2,
+      "atl": 47.72,
+      "tsb": -13.52
+    },
+    {
+      "date": "2026-02-20",
+      "ctl": 33.39,
+      "atl": 41.37,
+      "tsb": -7.98
+    },
+    {
+      "date": "2026-02-21",
+      "ctl": 36.3,
+      "atl": 56.76,
+      "tsb": -20.46
+    },
+    {
+      "date": "2026-02-22",
+      "ctl": 35.45,
+      "atl": 49.21,
+      "tsb": -13.76
+    },
+    {
+      "date": "2026-02-23",
+      "ctl": 36.52,
+      "atl": 53.44,
+      "tsb": -16.92
+    },
+    {
+      "date": "2026-02-24",
+      "ctl": 35.66,
+      "atl": 46.32,
+      "tsb": -10.66
+    },
+    {
+      "date": "2026-02-25",
+      "ctl": 36.35,
+      "atl": 48.81,
+      "tsb": -12.46
+    },
+    {
+      "date": "2026-02-26",
+      "ctl": 35.87,
+      "atl": 44.44,
+      "tsb": -8.57
+    },
+    {
+      "date": "2026-02-27",
+      "ctl": 35.52,
+      "atl": 41.32,
+      "tsb": -5.8
+    },
+    {
+      "date": "2026-02-28",
+      "ctl": 34.69,
+      "atl": 35.82,
+      "tsb": -1.14
+    },
+    {
+      "date": "2026-03-01",
+      "ctl": 37.59,
+      "atl": 52.09,
+      "tsb": -14.5
+    },
+    {
+      "date": "2026-03-02",
+      "ctl": 37.6,
+      "atl": 50.21,
+      "tsb": -12.61
+    },
+    {
+      "date": "2026-03-03",
+      "ctl": 38.99,
+      "atl": 56.44,
+      "tsb": -17.45
+    },
+    {
+      "date": "2026-03-04",
+      "ctl": 38.08,
+      "atl": 48.93,
+      "tsb": -10.85
+    },
+    {
+      "date": "2026-03-05",
+      "ctl": 37.18,
+      "atl": 42.41,
+      "tsb": -5.23
+    },
+    {
+      "date": "2026-03-06",
+      "ctl": 37.93,
+      "atl": 45.95,
+      "tsb": -8.02
+    },
+    {
+      "date": "2026-03-07",
+      "ctl": 37.3,
+      "atl": 41.3,
+      "tsb": -4.0
+    },
+    {
+      "date": "2026-03-08",
+      "ctl": 40.72,
+      "atl": 60.16,
+      "tsb": -19.44
+    },
+    {
+      "date": "2026-03-09",
+      "ctl": 40.28,
+      "atl": 55.08,
+      "tsb": -14.8
+    },
+    {
+      "date": "2026-03-10",
+      "ctl": 39.34,
+      "atl": 47.75,
+      "tsb": -8.41
+    },
+    {
+      "date": "2026-03-11",
+      "ctl": 39.94,
+      "atl": 50.05,
+      "tsb": -10.11
+    },
+    {
+      "date": "2026-03-12",
+      "ctl": 39.0,
+      "atl": 43.38,
+      "tsb": -4.38
+    },
+    {
+      "date": "2026-03-13",
+      "ctl": 39.33,
+      "atl": 44.66,
+      "tsb": -5.33
+    },
+    {
+      "date": "2026-03-14",
+      "ctl": 38.4,
+      "atl": 38.72,
+      "tsb": -0.31
+    },
+    {
+      "date": "2026-03-15",
+      "ctl": 40.54,
+      "atl": 50.74,
+      "tsb": -10.2
+    },
+    {
+      "date": "2026-03-16",
+      "ctl": 40.01,
+      "atl": 46.38,
+      "tsb": -6.37
+    },
+    {
+      "date": "2026-03-17",
+      "ctl": 41.06,
+      "atl": 51.52,
+      "tsb": -10.46
+    },
+    {
+      "date": "2026-03-18",
+      "ctl": 40.1,
+      "atl": 44.66,
+      "tsb": -4.56
+    },
+    {
+      "date": "2026-03-19",
+      "ctl": 39.39,
+      "atl": 40.05,
+      "tsb": -0.66
+    },
+    {
+      "date": "2026-03-20",
+      "ctl": 39.92,
+      "atl": 42.97,
+      "tsb": -3.05
+    },
+    {
+      "date": "2026-03-21",
+      "ctl": 38.98,
+      "atl": 37.25,
+      "tsb": 1.73
+    },
+    {
+      "date": "2026-03-22",
+      "ctl": 41.74,
+      "atl": 53.06,
+      "tsb": -11.32
+    },
+    {
+      "date": "2026-03-23",
+      "ctl": 40.75,
+      "atl": 45.99,
+      "tsb": -5.24
+    },
+    {
+      "date": "2026-03-24",
+      "ctl": 41.65,
+      "atl": 50.39,
+      "tsb": -8.74
+    },
+    {
+      "date": "2026-03-25",
+      "ctl": 42.74,
+      "atl": 55.4,
+      "tsb": -12.65
+    },
+    {
+      "date": "2026-03-26",
+      "ctl": 41.97,
+      "atl": 49.35,
+      "tsb": -7.38
+    },
+    {
+      "date": "2026-03-27",
+      "ctl": 40.99,
+      "atl": 42.78,
+      "tsb": -1.8
+    },
+    {
+      "date": "2026-03-28",
+      "ctl": 40.37,
+      "atl": 39.08,
+      "tsb": 1.29
+    },
+    {
+      "date": "2026-03-29",
+      "ctl": 43.57,
+      "atl": 57.31,
+      "tsb": -13.75
+    },
+    {
+      "date": "2026-03-30",
+      "ctl": 43.93,
+      "atl": 57.54,
+      "tsb": -13.61
+    },
+    {
+      "date": "2026-03-31",
+      "ctl": 42.89,
+      "atl": 49.88,
+      "tsb": -6.98
+    },
+    {
+      "date": "2026-04-01",
+      "ctl": 43.04,
+      "atl": 49.76,
+      "tsb": -6.72
+    },
+    {
+      "date": "2026-04-02",
+      "ctl": 42.03,
+      "atl": 43.14,
+      "tsb": -1.11
+    },
+    {
+      "date": "2026-04-03",
+      "ctl": 42.97,
+      "atl": 48.31,
+      "tsb": -5.34
+    },
+    {
+      "date": "2026-04-04",
+      "ctl": 41.96,
+      "atl": 41.88,
+      "tsb": 0.08
+    },
+    {
+      "date": "2026-04-05",
+      "ctl": 44.66,
+      "atl": 57.2,
+      "tsb": -12.54
+    },
+    {
+      "date": "2026-04-06",
+      "ctl": 43.61,
+      "atl": 49.59,
+      "tsb": -5.98
+    },
+    {
+      "date": "2026-04-07",
+      "ctl": 44.49,
+      "atl": 53.77,
+      "tsb": -9.28
+    },
+    {
+      "date": "2026-04-08",
+      "ctl": 43.89,
+      "atl": 49.14,
+      "tsb": -5.25
+    },
+    {
+      "date": "2026-04-09",
+      "ctl": 42.86,
+      "atl": 42.6,
+      "tsb": 0.26
+    },
+    {
+      "date": "2026-04-10",
+      "ctl": 43.73,
+      "atl": 47.58,
+      "tsb": -3.85
+    },
+    {
+      "date": "2026-04-11",
+      "ctl": 46.56,
+      "atl": 63.08,
+      "tsb": -16.51
+    },
+    {
+      "date": "2026-04-12",
+      "ctl": 45.47,
+      "atl": 54.68,
+      "tsb": -9.21
+    },
+    {
+      "date": "2026-04-13",
+      "ctl": 44.4,
+      "atl": 47.4,
+      "tsb": -3.0
+    },
+    {
+      "date": "2026-04-14",
+      "ctl": 44.58,
+      "atl": 48.01,
+      "tsb": -3.44
+    },
+    {
+      "date": "2026-04-15",
+      "ctl": 43.53,
+      "atl": 41.62,
+      "tsb": 1.91
+    },
+    {
+      "date": "2026-04-16",
+      "ctl": 43.84,
+      "atl": 43.67,
+      "tsb": 0.18
+    },
+    {
+      "date": "2026-04-17",
+      "ctl": 43.31,
+      "atl": 40.65,
+      "tsb": 2.66
+    },
+    {
+      "date": "2026-04-18",
+      "ctl": 42.29,
+      "atl": 35.24,
+      "tsb": 7.05
+    },
+    {
+      "date": "2026-04-19",
+      "ctl": 43.86,
+      "atl": 45.06,
+      "tsb": -1.2
+    },
+    {
+      "date": "2026-04-20",
+      "ctl": 42.83,
+      "atl": 39.06,
+      "tsb": 3.77
+    },
+    {
+      "date": "2026-04-21",
+      "ctl": 43.02,
+      "atl": 40.65,
+      "tsb": 2.37
+    },
+    {
+      "date": "2026-04-22",
+      "ctl": 42.01,
+      "atl": 35.24,
+      "tsb": 6.77
+    },
+    {
+      "date": "2026-04-23",
+      "ctl": 41.86,
+      "atl": 35.34,
+      "tsb": 6.52
+    },
+    {
+      "date": "2026-04-24",
+      "ctl": 41.28,
+      "atl": 32.9,
+      "tsb": 8.38
+    },
+    {
+      "date": "2026-04-25",
+      "ctl": 40.31,
+      "atl": 28.52,
+      "tsb": 11.79
+    },
+    {
+      "date": "2026-04-26",
+      "ctl": 41.45,
+      "atl": 36.57,
+      "tsb": 4.88
+    },
+    {
+      "date": "2026-04-27",
+      "ctl": 40.48,
+      "atl": 31.7,
+      "tsb": 8.78
+    },
+    {
+      "date": "2026-04-28",
+      "ctl": 40.44,
+      "atl": 32.67,
+      "tsb": 7.77
+    },
+    {
+      "date": "2026-04-29",
+      "ctl": 39.49,
+      "atl": 28.32,
+      "tsb": 11.17
+    },
+    {
+      "date": "2026-04-30",
+      "ctl": 38.56,
+      "atl": 24.55,
+      "tsb": 14.01
+    },
+    {
+      "date": "2026-05-01",
+      "ctl": 38.36,
+      "atl": 25.28,
+      "tsb": 13.08
+    },
+    {
+      "date": "2026-05-02",
+      "ctl": 38.16,
+      "atl": 25.91,
+      "tsb": 12.26
+    },
+    {
+      "date": "2026-05-03",
+      "ctl": 43.13,
+      "atl": 55.61,
+      "tsb": -12.48
+    },
+    {
+      "date": "2026-05-04",
+      "ctl": 42.11,
+      "atl": 48.2,
+      "tsb": -6.09
+    },
+    {
+      "date": "2026-05-05",
+      "ctl": 41.12,
+      "atl": 41.79,
+      "tsb": -0.67
+    },
+    {
+      "date": "2026-05-06",
+      "ctl": 40.88,
+      "atl": 40.35,
+      "tsb": 0.53
+    },
+    {
+      "date": "2026-05-07",
+      "ctl": 40.74,
+      "atl": 39.64,
+      "tsb": 1.11
+    },
+    {
+      "date": "2026-05-08",
+      "ctl": 39.78,
+      "atl": 34.36,
+      "tsb": 5.42
+    },
+    {
+      "date": "2026-05-09",
+      "ctl": 40.19,
+      "atl": 37.38,
+      "tsb": 2.81
+    },
+    {
+      "date": "2026-05-10",
+      "ctl": 40.07,
+      "atl": 37.06,
+      "tsb": 3.01
+    },
+    {
+      "date": "2026-05-11",
+      "ctl": 40.37,
+      "atl": 39.18,
+      "tsb": 1.19
+    },
+    {
+      "date": "2026-05-12",
+      "ctl": 39.89,
+      "atl": 36.63,
+      "tsb": 3.26
+    },
+    {
+      "date": "2026-05-13",
+      "ctl": 38.95,
+      "atl": 31.75,
+      "tsb": 7.2
+    },
+    {
+      "date": "2026-05-14",
+      "ctl": 39.5,
+      "atl": 35.78,
+      "tsb": 3.72
+    },
+    {
+      "date": "2026-05-15",
+      "ctl": 38.57,
+      "atl": 31.02,
+      "tsb": 7.55
+    }
+  ],
   "load_7d": {
-    "total_load": 262,
-    "total_minutes": 314.6333333333333,
+    "total_load": 227,
+    "total_minutes": 251.13333333333333,
     "by_sport": {
       "Run": {
-        "count": 3,
-        "minutes": 128.36666666666667,
-        "load": 120,
-        "distance_km": 19.00009
+        "count": 2,
+        "minutes": 96.71666666666667,
+        "load": 97,
+        "distance_km": 14.93328
       },
       "Swim": {
-        "count": 2,
-        "minutes": 69.03333333333333,
-        "load": 32,
-        "distance_km": 3.025
+        "count": 1,
+        "minutes": 37.18333333333333,
+        "load": 20,
+        "distance_km": 1.7
       },
       "VirtualRide": {
         "count": 2,
@@ -176,8 +748,8 @@
     }
   },
   "load_28d": {
-    "total_load": 1021,
-    "total_minutes": 1014.6333333333333,
+    "total_load": 964,
+    "total_minutes": 966.2166666666667,
     "by_sport": {
       "Run": {
         "count": 10,
@@ -192,9 +764,9 @@
         "distance_km": 6.55
       },
       "VirtualRide": {
-        "count": 9,
-        "minutes": 458.8999999999999,
-        "load": 458,
+        "count": 8,
+        "minutes": 410.48333333333323,
+        "load": 401,
         "distance_km": 0.0
       },
       "Transition": {
@@ -227,11 +799,11 @@
       "avg_load": 18
     },
     "VirtualRide": {
-      "count_4w": 9,
-      "per_week": 2.2,
+      "count_4w": 8,
+      "per_week": 2.0,
       "avg_minutes": 51,
       "avg_distance_km": 0.0,
-      "avg_load": 51
+      "avg_load": 50
     },
     "Transition": {
       "count_4w": 2,
@@ -253,7 +825,7 @@
       "date": "2026-05-11",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -3,
+      "rel_day": -4,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -268,7 +840,7 @@
       "date": "2026-05-12",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -276,21 +848,30 @@
       "zones": "Z5 — FC 92-97% FCmax",
       "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
       "tss_estimate": 54,
-      "status": "past_missed",
-      "actual_activities": []
+      "status": "done",
+      "sport_match": "approximate",
+      "actual_activities": [
+        {
+          "name": "Pool Swim",
+          "type": "Swim",
+          "duration_min": 37,
+          "distance_km": 1.7,
+          "tss": 20
+        }
+      ]
     },
     {
       "date": "2026-05-13",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "Swim",
       "type": "Endurance + technique",
-      "duration_min": 38,
-      "structure": "400 échauf. + 8×100 (2:00/100m) r=20s + 200 souple. Total ~1600 m.",
+      "duration_min": 50,
+      "structure": "400 échauf. + 10×100 (2:00/100m) r=20s + 200 souple. Total ~2000 m.",
       "zones": "Z3-Z4 (CSS = 2:00/100m)",
-      "rationale": "Densifier la fréquence natation : tu es à 1 séance/sem vs 2-3 cibles. CSS bloc principal.",
-      "tss_estimate": 29,
+      "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
+      "tss_estimate": 39,
       "status": "past_missed",
       "actual_activities": []
     },
@@ -298,7 +879,7 @@
       "date": "2026-05-14",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
@@ -306,64 +887,75 @@
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
       "tss_estimate": 77,
-      "status": "today",
-      "actual_activities": []
+      "status": "done",
+      "sport_match": "approximate",
+      "actual_activities": [
+        {
+          "name": "Locarn - 50m 3x8' 95%LT",
+          "type": "Run",
+          "duration_min": 57,
+          "distance_km": 9.2,
+          "tss": 62
+        }
+      ]
     },
     {
       "date": "2026-05-15",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": 1,
-      "sport": "Swim",
-      "type": "Technique + tolérance lactate",
-      "duration_min": 40,
-      "structure": "400 éducatifs + 6×50 vite/50 souple + 200 retour calme.",
-      "zones": "Z1 + sprints",
-      "rationale": "2e séance natation pour atteindre 2/sem. Charge basse — vendredi = pré-week-end.",
-      "tss_estimate": 26,
-      "status": "todo",
+      "rel_day": 0,
+      "sport": "Strength",
+      "type": "Renforcement musculaire",
+      "duration_min": 45,
+      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+      "zones": "Force-endurance — pas de cardio",
+      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
+      "tss_estimate": 0,
+      "status": "today",
       "actual_activities": []
     },
     {
       "date": "2026-05-16",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 2,
-      "sport": "Brick (Bike+Run)",
-      "type": "Spécifique triathlon",
-      "duration_min": 95,
-      "structure": "Vélo 75' Z2 dont 2×8' tempo Z3 → transition rapide → CAP 20' Z2 (5:47/km).",
-      "zones": "Vélo Z2-Z3 / CAP Z2",
-      "rationale": "Brick hebdo obligatoire pour adapter la transition vélo→CAP (jambes lourdes). 1 brick/sem en build.",
-      "tss_estimate": 96,
-      "status": "todo",
+      "rel_day": 1,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+      "zones": "",
+      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
+      "tss_estimate": 0,
+      "status": "done",
       "actual_activities": []
     },
     {
       "date": "2026-05-17",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 3,
-      "sport": "Run",
-      "type": "Sortie longue",
-      "duration_min": 60,
-      "structure": "60' continu en Z2 (5:47/km). Optionnel : derniers 10' à allure marathon.",
-      "zones": "Z2 — FC 75-85% LTHR",
-      "rationale": "Sortie longue dimanche (profil) — fondation aérobie, oxydation lipidique.",
-      "tss_estimate": 52,
+      "rel_day": 2,
+      "sport": "VirtualRide",
+      "type": "Sortie longue vélo",
+      "duration_min": 90,
+      "structure": "Vélo 90' continu Z2 (140-188 W). Cadence 85-90 rpm, sans pic d'intensité.",
+      "zones": "Z2 — 140-188 W",
+      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
+      "tss_estimate": 78,
       "status": "todo",
       "actual_activities": []
     }
   ],
   "weekly_plan_totals": {
-    "total_minutes": 338,
-    "total_minutes_str": "~5h40",
-    "total_tss": 334
+    "total_minutes": 290,
+    "total_minutes_str": "~4h50",
+    "total_tss": 248
   },
+  "week_adaptations": [],
   "weeks_to_race": 15,
   "phase": "Préparation générale (base aérobie)",
   "race_name": "Triathlon M de Quimperlé",
-  "race_date": "2026-08-30"
+  "race_date": "2026-08-30",
+  "coach_message": "David, tu arrives à cette séance avec un TSB de +7.6 — tu es frais, bien récupéré. C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !\n\nCette semaine, tu as déjà coché 2 séances (VirtualRide, Run) pour environ 82 TSS réalisés. Une séance a été manquée (Mercredi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta capacité à encaisser un volume solide (241 tss/sem en moyenne sur 28j).\n— Ta ctl à 38.6 qui reflète un niveau de forme construit semaine après semaine — tu n'es pas là par hasard.\n— Ta progression maîtrisée (ramp rate -1.2 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~1.0 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Construire la base CTL** — Avec une CTL à 38.6, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** On est à 15 semaines de Triathlon M de Quimperlé. Phase de **Préparation générale (base aérobie)** : l'heure est à construire le moteur aérobie, pas à se presser. Chaque séance Z2 que tu poses maintenant sera du carburant en août. Le pic de charge est prévu dans ~9 semaines — on a le temps de faire les choses bien."
 }
 </script>
 
@@ -374,6 +966,7 @@ const SPORT_INFO = {
   "Ride":             ["🚴",   "Vélo"],
   "Swim":             ["🏊",   "Natation"],
   "Brick (Bike+Run)": ["🚴+🏃","Brick"],
+  "Strength":         ["💪",   "Muscu"],
   "Repos":            ["💤",   "Repos"],
 };
 
@@ -419,56 +1012,65 @@ function render(data) {
 
   let html = "";
 
-  html += `<div class="form-banner ${form.color}">
-    <div class="emoji">${form.emoji || "•"}</div>
-    <div>
-      <div class="label">${form.label}</div>
-      <div class="guidance">${form.guidance}</div>
-    </div>
-    <div class="tsb">${m.tsb >= 0 ? "+" : ""}${m.tsb.toFixed(1)} <span style="font-size:12px;font-weight:400;color:#666">TSB</span></div>
-  </div>`;
+  html += `<h2>Plan de la semaine — polarisé 80/20</h2>`;
 
-  html += `<h2>État de forme (PMC — Coggan)</h2><div class="grid">
-    <div class="kpi"><div class="l">CTL · forme</div><div class="v">${m.ctl.toFixed(1)}</div><div class="h">charge chronique 42j</div></div>
-    <div class="kpi"><div class="l">ATL · fatigue</div><div class="v">${m.atl.toFixed(1)}</div><div class="h">charge aigüe 7j</div></div>
-    <div class="kpi"><div class="l">Ramp rate</div><div class="v">${m.ramp_rate >= 0 ? "+" : ""}${m.ramp_rate.toFixed(1)}</div><div class="h">CTL/sem · sain &lt;5</div></div>
-    <div class="kpi"><div class="l">FC repos</div><div class="v">${m.resting_hr ?? "—"}</div><div class="h">réf ${th.resting_hr ?? 56} bpm</div></div>
-    ${m.sleep_hours ? `<div class="kpi"><div class="l">Sommeil</div><div class="v">${m.sleep_hours.toFixed(1)} h</div><div class="h">${m.sleep_hours >= 7 ? "OK" : "sous cible 7h"}</div></div>` : ""}
-  </div>`;
-
-  if (m.hrv_status) {
-    html += `<div style="font-size:13px;color:#555;margin-bottom:8px">📊 ${m.hrv_status}</div>`;
+  const adaptations = data.week_adaptations || [];
+  if (adaptations.length > 0) {
+    html += `<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#5d4037;">`;
+    for (const a of adaptations) {
+      html += `<div style="margin-bottom:4px">${a}</div>`;
+    }
+    html += `</div>`;
   }
 
-  html += `<h2>Charge & contexte</h2><div class="grid">
-    <div class="kpi"><div class="l">Phase</div><div class="v" style="font-size:14px">${data.phase}</div>${data.weeks_to_race != null ? `<div class="h">${data.race_name} dans ${data.weeks_to_race} sem.</div>` : ""}</div>
-    <div class="kpi"><div class="l">Charge 7j</div><div class="v">${Math.round(l7.total_load)} TSS</div><div class="h">${Math.round(l7.total_minutes)} min</div></div>
-    <div class="kpi"><div class="l">Charge moy / sem (28j)</div><div class="v">${Math.round(l28.total_load/4)} TSS</div><div class="h">${Math.round(l28.total_minutes/4)} min</div></div>
-  </div>`;
+  html += `<table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu / Réalisé</th><th>Intensité</th><th>TSS</th></tr></thead><tbody>`;
 
-  html += `<h2>Distribution réelle (28 derniers jours)</h2>
-  <table><thead><tr><th>Discipline</th><th>Séances/sem</th><th>Durée moy</th><th>Distance moy</th><th>TSS moy</th></tr></thead><tbody>`;
-  for (const [sport, p] of Object.entries(sp)) {
-    html += `<tr><td>${sport}</td><td>${p.per_week}</td><td>${p.avg_minutes} min</td><td>${p.avg_distance_km} km</td><td>${p.avg_load}</td></tr>`;
-  }
-  html += `</tbody></table>`;
-
-  html += `<h2>Plan de la semaine (J+1 → J+7) — polarisé 80/20</h2>
-  <table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu</th><th>Intensité</th><th>TSS</th></tr></thead><tbody>`;
+  const STATUS_ICON = { done: "✅", today: "⏳", todo: "⬜", past_missed: "❌" };
 
   let totalMin = 0;
   let totalTss = 0;
   for (const p of plan) {
-    const cls = p.rel_day === 1 ? "next-row" : "";
-    const jour = `${p.weekday_fr || p.weekday} <span style="color:#888;font-weight:400">(J+${p.rel_day ?? "?"})</span>`;
+    const status = p.status || "todo";
+    const isDone = status === "done";
+    const isMissed = status === "past_missed";
+    const isToday = status === "today";
+
+    // Classe de ligne
+    let cls = "";
+    if (isToday || p.rel_day === 1) cls = "next-row";
+    else if (isDone) cls = "done-row";
+    else if (isMissed) cls = "missed-row";
+
+    const statusIcon = STATUS_ICON[status] || "⬜";
+    const jour = `${statusIcon} ${p.weekday_fr || p.weekday} <span style="color:#888;font-weight:400">(J${p.rel_day >= 0 ? "+" : ""}${p.rel_day ?? "?"})</span>`;
     const seance = formatSeance(p);
-    const contenu = formatContenu(p);
+
+    // Contenu : si done, afficher le réalisé en plus du prévu
+    let contenu = formatContenu(p);
+    if (isDone && p.actual_activities && p.actual_activities.length > 0) {
+      const acts = p.actual_activities.map(a => {
+        const parts = [];
+        if (a.duration_min) parts.push(`${a.duration_min} min`);
+        if (a.distance_km) parts.push(`${a.distance_km} km`);
+        if (a.tss) parts.push(`TSS ${a.tss}`);
+        return `<span style="color:#2e7d32;font-weight:500">${a.name || a.type}</span> — ${parts.join(" · ")}`;
+      }).join("<br>");
+      contenu = `<div style="color:#555;font-size:12px;margin-bottom:3px">${contenu}</div>
+        <div style="font-size:12px">${acts}</div>`;
+    } else if (isMissed) {
+      contenu = `<span style="color:#b71c1c;font-size:12px">${contenu}</span>`;
+    }
+
     const intensite = p.zones || "—";
     const tss = p.tss_estimate || 0;
     const tssStr = tss > 0 ? String(tss) : "—";
+    const adaptBadge = p.adaptation
+      ? `<div style="font-size:11px;color:#e65100;margin-top:3px">${p.adaptation}</div>`
+      : "";
+
     html += `<tr class="${cls}">
       <td class="day">${jour}</td>
-      <td class="seance">${seance}</td>
+      <td class="seance">${seance}${adaptBadge}</td>
       <td class="contenu">${contenu}</td>
       <td class="intensite">${intensite}</td>
       <td class="tss">${tssStr}</td>
@@ -496,7 +1098,54 @@ function render(data) {
     html += `</ul></details>`;
   }
 
-  html += `<h2>Zones de référence (Intervals.icu)</h2><div class="grid">
+  html += `<div class="form-banner ${form.color}">
+    <div class="emoji">${form.emoji || "•"}</div>
+    <div>
+      <div class="label">${form.label}</div>
+      <div class="guidance">${form.guidance}</div>
+    </div>
+    <div class="tsb">${m.tsb >= 0 ? "+" : ""}${m.tsb.toFixed(1)} <span style="font-size:12px;font-weight:400;color:#666">TSB</span></div>
+  </div>`;
+
+  html += `<h2>Évolution PMC — 3 derniers mois</h2>
+  <div class="pmc-legend">
+    <span><i class="ctl"></i> CTL (forme)</span>
+    <span><i class="atl"></i> ATL (fatigue)</span>
+    <span><i class="tsb"></i> TSB (forme nette)</span>
+  </div>
+  <div class="pmc-chart-wrap"><canvas id="pmcChart"></canvas></div>`;
+
+  html += `<h2>État de forme (PMC — Coggan)</h2><div class="grid">
+    <div class="kpi"><div class="l">CTL · forme</div><div class="v">${m.ctl.toFixed(1)}</div><div class="h">charge chronique 42j</div></div>
+    <div class="kpi"><div class="l">ATL · fatigue</div><div class="v">${m.atl.toFixed(1)}</div><div class="h">charge aigüe 7j</div></div>
+    <div class="kpi"><div class="l">Ramp rate</div><div class="v">${m.ramp_rate >= 0 ? "+" : ""}${m.ramp_rate.toFixed(1)}</div><div class="h">CTL/sem · sain &lt;5</div></div>
+    <div class="kpi"><div class="l">FC repos</div><div class="v">${m.resting_hr ?? "—"}</div><div class="h">réf ${th.resting_hr ?? 56} bpm</div></div>
+    ${m.sleep_hours ? `<div class="kpi"><div class="l">Sommeil</div><div class="v">${m.sleep_hours.toFixed(1)} h</div><div class="h">${m.sleep_hours >= 7 ? "OK" : "sous cible 7h"}</div></div>` : ""}
+  </div>`;
+
+  if (m.hrv_status) {
+    html += `<div style="font-size:13px;color:#6b7a90;margin-bottom:8px">📊 ${m.hrv_status}</div>`;
+  }
+
+  html += `<h2>Charge & contexte</h2><div class="grid">
+    <div class="kpi"><div class="l">Phase</div><div class="v" style="font-size:14px">${data.phase}</div>${data.weeks_to_race != null ? `<div class="h">${data.race_name} dans ${data.weeks_to_race} sem.</div>` : ""}</div>
+    <div class="kpi"><div class="l">Charge 7j</div><div class="v">${Math.round(l7.total_load)} TSS</div><div class="h">${Math.round(l7.total_minutes)} min</div></div>
+    <div class="kpi"><div class="l">Charge moy / sem (28j)</div><div class="v">${Math.round(l28.total_load/4)} TSS</div><div class="h">${Math.round(l28.total_minutes/4)} min</div></div>
+  </div>`;
+
+  // --- Message coach ---
+  if (data.coach_message) {
+    // Convertit le markdown leger (**, \n\n) en HTML
+    const coachHtml = data.coach_message
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n\n/g, "</p><p>")
+      .replace(/\n/g, "<br>");
+    html += `<h2>Message de ton coach</h2>
+    <div class="coach-card"><p>${coachHtml}</p></div>`;
+  }
+
+  html += `<h2>Zones de référence</h2><div class="grid">
     <div class="kpi"><div class="l">FTP vélo</div><div class="v">${th.ftp_watts ?? "—"} W</div></div>
     <div class="kpi"><div class="l">Seuil CAP</div><div class="v" style="font-size:16px">${th.threshold_pace_run_str ?? "—"}</div></div>
     <div class="kpi"><div class="l">CSS natation</div><div class="v" style="font-size:16px">${th.threshold_pace_swim_str ?? "—"}</div></div>
@@ -514,6 +1163,101 @@ function render(data) {
   html += `<div class="meta">Source : Intervals.icu · Snapshot embarqué dans cet artifact · Régénéré chaque matin par la tâche planifiée <code>triathlon-daily-coach</code>.</div>`;
 
   c.innerHTML = html;
+
+  // --- Graphique PMC ---
+  const pmc = data.pmc_history || [];
+  if (pmc.length > 0 && typeof Chart !== "undefined") {
+    const labels = pmc.map(d => d.date);
+    const ctlData = pmc.map(d => d.ctl);
+    const atlData = pmc.map(d => d.atl);
+    const tsbData = pmc.map(d => d.tsb);
+    const todayIdx = labels.indexOf(data.today);
+
+    const todayAnnotation = todayIdx >= 0 ? {
+      type: "line",
+      xMin: todayIdx, xMax: todayIdx,
+      borderColor: "rgba(0,0,0,0.25)", borderWidth: 1, borderDash: [4, 4],
+    } : null;
+
+    const zeroLine = {
+      type: "line",
+      yMin: 0, yMax: 0,
+      borderColor: "rgba(76,175,80,0.3)", borderWidth: 1,
+    };
+
+    new Chart(document.getElementById("pmcChart"), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "CTL", data: ctlData, yAxisID: "yLeft",
+            borderColor: "#2196f3", backgroundColor: "rgba(33,150,243,0.08)",
+            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: false, tension: 0.3,
+          },
+          {
+            label: "ATL", data: atlData, yAxisID: "yLeft",
+            borderColor: "#f44336", backgroundColor: "rgba(244,67,54,0.06)",
+            borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: false, tension: 0.3,
+          },
+          {
+            label: "TSB", data: tsbData, yAxisID: "yRight",
+            borderColor: "#4caf50", backgroundColor: ctx => {
+              const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 240);
+              g.addColorStop(0, "rgba(76,175,80,0.18)");
+              g.addColorStop(1, "rgba(76,175,80,0.0)");
+              return g;
+            },
+            borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 4,
+            fill: "origin", tension: 0.3,
+          },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const v = ctx.parsed.y;
+                const sign = v >= 0 ? "+" : "";
+                return ` ${ctx.dataset.label}: ${ctx.dataset.label === "TSB" ? sign : ""}${v !== null ? v.toFixed(1) : "—"}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              maxTicksLimit: 7,
+              callback: (_, i) => {
+                const d = labels[i];
+                if (!d) return "";
+                const dt = new Date(d);
+                return dt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+              },
+              font: { size: 11 }, color: "#5a6a7e",
+            },
+            grid: { color: "rgba(255,255,255,0.04)" },
+          },
+          yLeft: {
+            position: "left",
+            title: { display: true, text: "CTL / ATL", font: { size: 11 }, color: "#5a6a7e" },
+            ticks: { font: { size: 11 }, color: "#5a6a7e" },
+            grid: { color: "rgba(255,255,255,0.04)" },
+          },
+          yRight: {
+            position: "right",
+            title: { display: true, text: "TSB", font: { size: 11 }, color: "#5a6a7e" },
+            ticks: { font: { size: 11 }, color: "#5a6a7e" },
+            grid: { drawOnChartArea: false },
+          },
+        },
+      },
+    });
+  }
 }
 
 (function() {

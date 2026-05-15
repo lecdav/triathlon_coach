@@ -1,8 +1,17 @@
-# Credentials et données perso
+# Credentials — NE JAMAIS COMMITER
 config/credentials.env
+
+# Cache local (régénéré à chaque run)
 data/cache/
+
+# OS / IDE
 .DS_Store
-__pycache__/
-*.pyc
 .venv/
 venv/
+__pycache__/
+*.pyc
+
+# Le dashboard HTML autonome (reports/dashboard.html) n'est pas commité
+# car il contient le snapshot avec des données perso ; seul index.html
+# (version GitHub Pages) est poussé par le workflow CI.
+reports/dashboard.html

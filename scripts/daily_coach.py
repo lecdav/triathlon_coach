@@ -38,6 +38,109 @@ DASHBOARD_OUTPUT = ROOT / "reports" / "dashboard.html"
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
+# Chemin vers le dashboard public GitHub Pages
+GITHUB_PAGES_DASHBOARD = ROOT / "index.html"
+
+
+def build_github_pages_dashboard(snapshot: dict) -> Path | None:
+    """Met à jour index.html (GitHub Pages) en injectant le snapshot JSON.
+
+    Ce fichier est la version web publique du dashboard, conçue pour
+    fonctionner comme page statique sur GitHub Pages.
+    """
+    if not GITHUB_PAGES_DASHBOARD.exists():
+        print(f"⚠️  index.html absent ({GITHUB_PAGES_DASHBOARD}) — GitHub Pages non mis à jour.")
+        return None
+    html = GITHUB_PAGES_DASHBOARD.read_text(encoding="utf-8")
+    snapshot_json = json.dumps(snapshot, indent=2, ensure_ascii=False, default=str)
+    # Remplace le contenu entre les balises <script type="application/json" id="snapshot">
+    import re
+    pattern = r'(<script type="application/json" id="snapshot">)\s*\{[^<]*\}\s*(</script>)'
+    replacement = r'\g<1>\n' + snapshot_json + r'\n\2'
+    new_html, count = re.subn(pattern, replacement, html, flags=re.DOTALL)
+    if count == 0:
+        print("⚠️  Balise snapshot introuvable dans index.html — mise à jour ignorée.")
+        return None
+    GITHUB_PAGES_DASHBOARD.write_text(new_html, encoding="utf-8")
+    return GITHUB_PAGES_DASHBOARD
+
+
+def git_push_dashboard() -> bool:
+    """Commit et pousse index.html vers GitHub pour mettre à jour GitHub Pages.
+
+    Nécessite que git soit configuré et le remote 'origin' défini.
+    Retourne True si le push a réussi, False sinon.
+    """
+    import subprocess
+    today_str = date.today().isoformat()
+    git_cmd = ["git", "-C", str(ROOT)]
+
+    try:
+        # Vérifie qu'on est dans un repo git
+        result = subprocess.run(
+            git_cmd + ["rev-parse", "--is-inside-work-tree"],
+            capture_output=True, text=True, timeout=10
+        )
+        if result.returncode != 0:
+            print("⚠️  git push ignoré : pas de dépôt git initialisé.")
+            print("   → Suivez le guide de déploiement GitHub Pages pour initialiser le repo.")
+            return False
+
+        # Vérifie qu'un remote 'origin' est configuré
+        result = subprocess.run(
+            git_cmd + ["remote", "get-url", "origin"],
+            capture_output=True, text=True, timeout=10
+        )
+        if result.returncode != 0:
+            print("⚠️  git push ignoré : aucun remote 'origin' configuré.")
+            print("   → Ajoutez votre repo GitHub : git remote add origin https://github.com/...")
+            return False
+
+        # Stage uniquement index.html (+ rapport du jour si présent)
+        files_to_add = [str(GITHUB_PAGES_DASHBOARD)]
+        today_report = REPORT_DIR / f"{today_str}.md"
+        if today_report.exists():
+            files_to_add.append(str(today_report))
+
+        subprocess.run(git_cmd + ["add"] + files_to_add, check=True, timeout=15)
+
+        # Vérifie s'il y a vraiment des changements à commiter
+        result = subprocess.run(
+            git_cmd + ["diff", "--cached", "--quiet"],
+            capture_output=True, timeout=10
+        )
+        if result.returncode == 0:
+            print("ℹ️  Rien à commiter (dashboard inchangé).")
+            return True
+
+        # Commit
+        subprocess.run(
+            git_cmd + ["commit", "-m", f"chore: update dashboard {today_str}"],
+            check=True, timeout=15
+        )
+
+        # Push
+        result = subprocess.run(
+            git_cmd + ["push"],
+            capture_output=True, text=True, timeout=60
+        )
+        if result.returncode == 0:
+            print(f"✅  GitHub Pages mis à jour — dashboard publié pour {today_str}.")
+            return True
+        else:
+            print(f"⚠️  git push échoué : {result.stderr.strip()}")
+            return False
+
+    except subprocess.TimeoutExpired:
+        print("⚠️  git push timeout (>60s) — vérifiez votre connexion réseau.")
+        return False
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️  git push erreur : {e}")
+        return False
+    except Exception as e:
+        print(f"⚠️  git push erreur inattendue : {e}")
+        return False
+
 
 def build_dashboard_html(snapshot: dict) -> Path:
     """Injecte le snapshot JSON dans le template HTML et écrit
@@ -71,6 +174,7 @@ SPORT_INFO = {
     "Ride": ("🚴", "Vélo"),
     "Swim": ("🏊", "Natation"),
     "Brick (Bike+Run)": ("🚴+🏃", "Brick"),
+    "Strength": ("💪", "Muscu"),
     "Repos": ("💤", "Repos"),
 }
 
@@ -98,7 +202,7 @@ def estimate_tss(sport: str, type_str: str, duration_min: int) -> int:
     L'IF est inféré du libellé de la séance (VO2max, sweet spot, etc.).
     Pour la natation et le vélo HT, le calcul reste équivalent (sTSS / TSS).
     """
-    if sport == "Repos" or duration_min <= 0:
+    if sport in ("Repos", "Strength") or duration_min <= 0:
         return 0
     type_lower = (type_str or "").lower()
     if_val = 0.70  # défaut endurance
@@ -250,9 +354,10 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
 
     Logique :
       - Lundi = repos (selon athlete_profile)
-      - Dimanche = sortie longue
-      - 80% endurance Z1-Z2, 20% intensité (1 séance VO2/seuil + 1 fartlek/intervalles)
-      - Brick (vélo+CAP) le samedi
+      - Samedi = repos
+      - Dimanche = sortie longue vélo ou CAP (alternée par semaine ISO)
+      - Max 5 séances/sem dont 1 séance renforcement musculaire (vendredi)
+      - 80% endurance Z1-Z2, 20% intensité (1 séance VO2/seuil + 1 seuil vélo)
       - Volume calé sur les moyennes 4 semaines de l'athlète
     """
     avg_run = profile.get("Run", {"avg_minutes": 35, "avg_distance_km": 6})
@@ -326,20 +431,14 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                             rationale="Bloc 80/20 : la séance dure du haut du spectre, "
                                       "stimulation VO2max (Helgerud 2007).")
         elif weekday == "wednesday":
-            if "Swim" in profile:
-                item.update(sport="Swim", type="Endurance + technique",
-                            duration_min=avg_swim["avg_minutes"],
-                            structure=f"400 échauf. + 8×100 ({p_swim_thr}) r=20s + 200 souple. "
-                                      f"Total ~{avg_swim['avg_distance_km']*1000:.0f} m.",
-                            zones=f"Z3-Z4 (CSS = {p_swim_thr})",
-                            rationale="Densifier la fréquence natation : tu es à 1 séance/sem "
-                                      "vs 2-3 cibles. CSS bloc principal.")
-            else:
-                item.update(sport="Swim", type="Endurance",
-                            duration_min=40,
-                            structure=f"30 min nage continue confortable ({p_swim_easy}).",
-                            zones="Z2",
-                            rationale="Construire le volume natation.")
+            # 1 seule séance natation par semaine, ~50 min, le mercredi
+            item.update(sport="Swim", type="Endurance + technique",
+                        duration_min=50,
+                        structure=f"400 échauf. + 10×100 ({p_swim_thr}) r=20s + 200 souple. "
+                                  f"Total ~2000 m.",
+                        zones=f"Z3-Z4 (CSS = {p_swim_thr})",
+                        rationale="Séance natation hebdomadaire unique (~50 min). "
+                                  "CSS bloc principal pour maintenir la technique et l'endurance spécifique.")
         elif weekday == "thursday":
             # Vélo seuil sur HT
             if deload:
@@ -356,34 +455,62 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                             rationale="Travail seuil = pilier triathlon M. "
                                       "Sweet spot = bon ratio stimulus/coût (Seiler).")
         elif weekday == "friday":
-            # Récup active OU 2e nat
-            item.update(sport="Swim", type="Technique + tolérance lactate",
-                        duration_min=40,
-                        structure="400 éducatifs + 6×50 vite/50 souple + 200 retour calme.",
-                        zones="Z1 + sprints",
-                        rationale="2e séance natation pour atteindre 2/sem. "
-                                  "Charge basse — vendredi = pré-week-end.")
+            # Renforcement musculaire — 1 séance obligatoire/sem (profil athlete_profile)
+            # Plasmé le vendredi : charge faible, prépare le week-end sans créer de fatigue cardio
+            item.update(sport="Strength", type="Renforcement musculaire",
+                        duration_min=45,
+                        structure="Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · "
+                                  "Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · "
+                                  "Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+                        zones="Force-endurance — pas de cardio",
+                        rationale="Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie "
+                                  "de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, "
+                                  "laisse le week-end libre pour les séances aérobies longues.")
         elif weekday == "saturday":
-            # Brick : vélo + CAP enchaînés
-            bike_min = max(avg_bike["avg_minutes"], 75)
-            run_min = 20
-            item.update(sport="Brick (Bike+Run)", type="Spécifique triathlon",
-                        duration_min=bike_min + run_min,
-                        structure=f"Vélo {bike_min}' Z2 dont 2×8' tempo Z3 → "
-                                  f"transition rapide → CAP {run_min}' Z2 ({p_run_easy}).",
-                        zones=f"Vélo Z2-Z3 / CAP Z2",
-                        rationale="Brick hebdo obligatoire pour adapter la transition "
-                                  "vélo→CAP (jambes lourdes). 1 brick/sem en build.")
+            # Repos le samedi
+            item.update(sport="Repos", type="Récupération",
+                        structure="Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+                        rationale="Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.")
         elif weekday == "sunday":
-            # Sortie longue
-            long_min = max(avg_run["avg_minutes"] * 1.6, 60)
-            item.update(sport="Run", type="Sortie longue",
-                        duration_min=int(long_min),
-                        structure=f"{int(long_min)}' continu en Z2 ({p_run_easy}). "
-                                  f"Optionnel : derniers 10' à allure marathon.",
-                        zones="Z2 — FC 75-85% LTHR",
-                        rationale="Sortie longue dimanche (profil) — "
-                                  "fondation aérobie, oxydation lipidique.")
+            long_run_min = int(max(avg_run["avg_minutes"] * 1.6, 60))
+            long_bike_min = max(avg_bike["avg_minutes"] * 1.5, 90)
+            bike_brick_min = max(avg_bike["avg_minutes"], 75)
+            run_brick_min = 20
+
+            if weeks_to_race is not None and weeks_to_race <= 10:
+                # Phase build/spécifique : brick vélo+CAP
+                item.update(sport="Brick (Bike+Run)", type="Spécifique triathlon",
+                            duration_min=bike_brick_min + run_brick_min,
+                            structure=f"Vélo {bike_brick_min}' Z2 dont 2×8' tempo Z3 → "
+                                      f"transition rapide → CAP {run_brick_min}' Z2 ({p_run_easy}).",
+                            zones="Vélo Z2-Z3 / CAP Z2",
+                            rationale="Brick dominical : adaptation neuromusculaire à la transition "
+                                      "vélo→CAP, spécifique triathlon M (Hausswirth 2010).")
+            else:
+                # Phase de base : alterner sortie longue CAP et vélo selon le numéro de semaine ISO.
+                # Semaine paire → longue vélo (compense le manque de volume vélo en semaine)
+                # Semaine impaire → longue CAP (fondation aérobie et endurance course à pied)
+                iso_week = week_monday.isocalendar()[1]
+                # Comptage des TSS vélo vs CAP sur 7j pour affiner : si l'un est < 60% de l'autre, on le privilégie
+                run_load_7d = sum(
+                    a.get("icu_training_load", 0) for a in []  # activités non disponibles ici, fallback sur semaine ISO
+                )
+                if iso_week % 2 == 0:
+                    item.update(sport="VirtualRide", type="Sortie longue vélo",
+                                duration_min=int(long_bike_min),
+                                structure=f"Vélo {int(long_bike_min)}' continu Z2 ({z2_low}-{z2_high} W). "
+                                          f"Cadence 85-90 rpm, sans pic d'intensité.",
+                                zones=f"Z2 — {z2_low}-{z2_high} W",
+                                rationale="Sortie longue vélo dominicale (semaine paire) — volume aérobie "
+                                          "spécifique triathlon, développement du moteur lipidique à vélo.")
+                else:
+                    item.update(sport="Run", type="Sortie longue CAP",
+                                duration_min=long_run_min,
+                                structure=f"{long_run_min}' continu en Z2 ({p_run_easy}). "
+                                          f"Optionnel : derniers 10' à allure marathon ({p_run_thr}).",
+                                zones="Z2 — FC 75-85% LTHR",
+                                rationale="Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, "
+                                          "oxydation lipidique (Seiler). Unique sortie longue de la semaine.")
         # Estimation TSS uniformément après le remplissage de l'item
         item["tss_estimate"] = estimate_tss(item["sport"], item["type"], item["duration_min"])
         plan.append(item)
@@ -400,6 +527,7 @@ SPORT_MATCH = {
     "Ride": {"Ride", "VirtualRide", "GravelRide"},
     "Swim": {"Swim", "OpenWaterSwim"},
     "Brick (Bike+Run)": {"VirtualRide", "Ride", "Run", "GravelRide"},
+    "Strength": {"WeightTraining", "Workout", "Crossfit", "Yoga", "Pilates"},
     "Repos": set(),
 }
 
@@ -407,20 +535,34 @@ SPORT_MATCH = {
 def match_activities_to_plan(plan: list[dict], activities: list[dict]) -> list[dict]:
     """Croise les activités téléchargées avec le plan de la semaine.
 
-    Règles :
-    - "done" : une activité du bon sport a été enregistrée le même jour
-    - "today" : c'est le jour courant, pas encore d'activité correspondante
-    - "todo" : jour futur sans activité
-    - "past_missed" : jour passé sans activité (sport non Repos)
-    Les activités réelles sont embarquées dans `actual_activities`.
+    Règles de matching (par priorité) :
+    1. "done_exact" → activité du bon sport ce jour-là
+    2. "done_any"   → n'importe quelle activité sportive ce jour-là (sport décalé)
+    3. Jours passés sans aucune activité → "past_missed"
+    4. Jour courant sans activité → "today"
+    5. Futur → "todo"
+
+    Note : on accepte qu'un athlète fasse le Run planifié un autre jour ou
+    intervertisse deux séances dans la semaine — l'important est qu'une
+    séance ait bien eu lieu.
     """
     today = date.today()
-    # Index activités par date
+
+    # Index activités par date (toutes disciplines)
     acts_by_date: dict[str, list[dict]] = defaultdict(list)
     for a in activities:
         d_str = a.get("start_date_local", "")[:10]
         if d_str:
             acts_by_date[d_str].append(a)
+
+    def fmt_activity(a: dict) -> dict:
+        return {
+            "name": a.get("name"),
+            "type": a.get("type"),
+            "duration_min": round((a.get("moving_time") or 0) / 60),
+            "distance_km": round((a.get("distance") or 0) / 1000, 1),
+            "tss": a.get("icu_training_load"),
+        }
 
     for item in plan:
         d = date.fromisoformat(item["date"])
@@ -428,26 +570,26 @@ def match_activities_to_plan(plan: list[dict], activities: list[dict]) -> list[d
         planned_sport = item.get("sport") or ""
         compatible_types = SPORT_MATCH.get(planned_sport, set())
 
-        # Activités du jour compatibles avec le sport planifié
-        matching = [a for a in day_acts if a.get("type") in compatible_types]
+        # Activités du jour compatibles avec le sport planifié (match exact)
+        exact_match = [a for a in day_acts if a.get("type") in compatible_types]
+        # Toutes activités sportives du jour (match souple — sport interverti)
+        any_sport = [a for a in day_acts if a.get("type") not in {"", None}
+                     and a.get("icu_training_load", 0) > 0]
 
         if planned_sport == "Repos":
-            # Repos : toujours considéré fait (sauf si activité intensive ce jour)
-            heavy = [a for a in day_acts if a.get("icu_training_load", 0) > 30]
-            item["status"] = "done" if not heavy else "done"  # repos = ok
-            item["actual_activities"] = []
-        elif matching:
+            # Repos : toujours considéré fait
             item["status"] = "done"
-            item["actual_activities"] = [
-                {
-                    "name": a.get("name"),
-                    "type": a.get("type"),
-                    "duration_min": round((a.get("moving_time") or 0) / 60),
-                    "distance_km": round((a.get("distance") or 0) / 1000, 1),
-                    "tss": a.get("icu_training_load"),
-                }
-                for a in matching
-            ]
+            item["actual_activities"] = []
+        elif exact_match:
+            # Bon sport, bon jour ✅
+            item["status"] = "done"
+            item["sport_match"] = "exact"
+            item["actual_activities"] = [fmt_activity(a) for a in exact_match]
+        elif any_sport and d <= today:
+            # Une séance a bien été réalisée ce jour, mais sport différent du plan
+            item["status"] = "done"
+            item["sport_match"] = "approximate"
+            item["actual_activities"] = [fmt_activity(a) for a in any_sport]
         elif d == today:
             item["status"] = "today"
             item["actual_activities"] = []
@@ -471,6 +613,287 @@ def pace_per100_pct(mps: float | None, pct: float) -> str:
     if not mps:
         return "n/a"
     return pace_mps_to_per100m(mps * pct)
+
+
+# ---------- Adaptation dynamique du plan ----------
+
+# Séances considérées "clés" — prioritaires pour récupération si manquées
+KEY_SESSION_TYPES = {"VO2max", "Seuil", "Spécifique triathlon", "Sortie longue"}
+
+def adapt_plan_to_week(plan: list[dict], atl: float, ctl: float,
+                       tss_target_week: int) -> list[dict]:
+    """Adapte les séances futures de la semaine en fonction de ce qui a déjà été réalisé.
+
+    Règles (par ordre de priorité) :
+    1. Surcharge hebdo (TSS réalisé > 80% cible) → passer les séances restantes en Z2 endurance
+    2. Fatigue accumulée (ATL > CTL + 10) → remplacer toute intensité par endurance
+    3. Séance clé manquée (❌ passé) → la récupérer sur le prochain jour libre (Repos futur)
+    4. Séance déjà faite aujourd'hui → marquer comme done, laisser le lendemain inchangé
+    """
+    today = date.today()
+
+    # --- Calcul de la charge réelle accumulée cette semaine ---
+    tss_done = sum(
+        sum(a.get("tss", 0) or 0 for a in item.get("actual_activities", []))
+        for item in plan
+        if item.get("status") == "done" and item.get("sport") != "Repos"
+    )
+    overload = tss_done >= tss_target_week * 0.80
+    fatigue_spike = atl > ctl + 10
+
+    # --- Identification des séances futures et des jours de repos disponibles ---
+    future_items = [p for p in plan
+                    if date.fromisoformat(p["date"]) > today
+                    and p.get("status") == "todo"]
+    free_slots = [p for p in future_items if p.get("sport") == "Repos"]
+
+    # --- Séances clés manquées (passées et non réalisées) ---
+    missed_key = [
+        p for p in plan
+        if p.get("status") == "past_missed"
+        and p.get("sport") not in (None, "Repos")
+        and any(kw.lower() in (p.get("type") or "").lower() for kw in KEY_SESSION_TYPES)
+    ]
+
+    adaptations = []  # log des ajustements pour affichage dans le dashboard
+
+    # --- Règle 1 & 2 : surcharge ou pic de fatigue → tout en endurance ---
+    if overload or fatigue_spike:
+        reason = (
+            f"TSS réalisé ({tss_done:.0f}) ≥ 80% de la cible hebdo ({tss_target_week})"
+            if overload else
+            f"Pic de fatigue (ATL {atl:.1f} > CTL {ctl:.1f} + 10)"
+        )
+        for item in future_items:
+            if item.get("sport") in ("Repos", None):
+                continue
+            sport = item["sport"]
+            original_type = item.get("type", "")
+            # Ne pas toucher les séances déjà légères
+            if any(kw in (original_type or "").lower()
+                   for kw in ("récupération", "endurance souple", "sortie longue")):
+                continue
+            item["type"] = "Endurance souple"
+            item["zones"] = "Z1-Z2 — FC <80% LTHR"
+            item["structure"] = (
+                f"{item.get('duration_min', 40)}' continu très léger Z1-Z2. "
+                f"Effort conversationnel, aucune intensité."
+            )
+            item["adaptation"] = f"⚠️ Adapté : {reason}. Séance originale : {original_type}."
+            item["tss_estimate"] = estimate_tss(sport, "Endurance souple", item.get("duration_min", 40))
+        if overload or fatigue_spike:
+            adaptations.append(f"⚠️ {reason} → séances futures allégées en Z1-Z2.")
+
+    # --- Règle 3 : récupérer une séance clé manquée sur le prochain jour libre ---
+    elif missed_key and free_slots:
+        missed = missed_key[0]   # on récupère la première séance clé manquée
+        slot = free_slots[0]     # sur le premier jour de repos à venir
+
+        slot["sport"] = missed["sport"]
+        slot["type"] = missed["type"]
+        slot["duration_min"] = missed["duration_min"]
+        slot["structure"] = missed["structure"]
+        slot["zones"] = missed["zones"]
+        slot["tss_estimate"] = missed["tss_estimate"]
+        slot["adaptation"] = (
+            f"🔄 Récupération de la séance manquée du {missed['weekday_fr']} "
+            f"({missed['type']})."
+        )
+        adaptations.append(
+            f"🔄 Séance '{missed['type']}' du {missed['weekday_fr']} manquée → "
+            f"reportée au {slot['weekday_fr']}."
+        )
+
+    return plan, adaptations
+
+
+# ---------- Message coach motivationnel ----------
+
+def generate_coach_message(snapshot: dict) -> str:
+    """Génère un texte coach personnalisé embarqué dans le snapshot.
+
+    Structure :
+      1. Accroche sur la forme du jour
+      2. Bilan du travail réalisé cette semaine (séances faites/manquées)
+      3. Points forts identifiés sur les 4 dernières semaines
+      4. Axes de progression + comment on va s'y prendre
+      5. Positionnement dans le macro-plan (phase, semaines restantes)
+    """
+    m = snapshot["metrics"]
+    form = snapshot["form"]
+    plan = snapshot["weekly_plan"]
+    phase = snapshot["phase"]
+    weeks_to_race = snapshot.get("weeks_to_race")
+    race_name = snapshot.get("race_name", "ta course objectif")
+    ctl = m["ctl"]
+    atl = m["atl"]
+    tsb = m["tsb"]
+    ramp = m["ramp_rate"]
+    load_7 = snapshot["load_7d"]
+    load_28 = snapshot["load_28d"]
+    sp = snapshot["session_profile"]
+    th = snapshot["thresholds"]
+    ftp = th.get("ftp_watts", 230)
+
+    # --- Séances réalisées / manquées cette semaine ---
+    done_sessions = [p for p in plan if p.get("status") == "done" and p.get("sport") != "Repos"]
+    missed_sessions = [p for p in plan if p.get("status") == "past_missed"]
+    total_sport = [p for p in plan if p.get("sport") not in ("Repos", None, "Strength")]
+    nb_done = len(done_sessions)
+    nb_missed = len(missed_sessions)
+    tss_done = sum(
+        sum(a.get("tss", 0) or 0 for a in p.get("actual_activities", []))
+        for p in done_sessions
+    )
+
+    # --- Sports présents dans le profil 4 semaines ---
+    has_run = "Run" in sp
+    has_bike = "VirtualRide" in sp or "Ride" in sp
+    has_swim = "Swim" in sp
+    run_sessions_pw = sp.get("Run", {}).get("per_week_float", sp.get("Run", {}).get("per_week", 0))
+    swim_sessions_pw = sp.get("Swim", {}).get("per_week_float", sp.get("Swim", {}).get("per_week", 0))
+
+    lines = []
+
+    # 1. Accroche forme du jour
+    if form["code"] == "FRAIS":
+        lines.append(
+            f"David, tu arrives à cette séance avec un TSB de {tsb:+.1f} — tu es frais, bien récupéré. "
+            f"C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !"
+        )
+    elif form["code"] == "NEUTRE":
+        lines.append(
+            f"TSB à {tsb:+.1f} — tu es dans une zone neutre, ni surchargé ni sous-entraîné. "
+            f"C'est le quotidien du triathlete qui construit sérieusement. On continue."
+        )
+    elif form["code"] == "FATIGUE":
+        lines.append(
+            f"TSB à {tsb:+.1f} — la fatigue s'accumule, c'est normal dans une phase de charge. "
+            f"Ça signifie que le travail est là. Aujourd'hui on gère intelligemment, pas à fond."
+        )
+    else:
+        lines.append(
+            f"TSB à {tsb:+.1f} — attention, la fatigue est marquée cette semaine. "
+            f"On reste disciplinés : c'est la récupération qui transforme l'entraînement en progrès."
+        )
+    lines.append("")
+
+    # 2. Bilan de la semaine en cours
+    bilan_parts = []
+    if nb_done > 0:
+        disciplines_done = list({p["sport"] for p in done_sessions})
+        bilan_parts.append(
+            f"Cette semaine, tu as déjà coché {nb_done} séance{'s' if nb_done > 1 else ''} "
+            f"({', '.join(disciplines_done)}) pour environ {tss_done} TSS réalisés."
+        )
+    if nb_missed > 0:
+        missed_names = [p.get("weekday_fr", "") for p in missed_sessions]
+        bilan_parts.append(
+            f"{'Une séance' if nb_missed == 1 else str(nb_missed) + ' séances'} "
+            f"{'a été manquée' if nb_missed == 1 else 'ont été manquées'} "
+            f"({', '.join(missed_names)}) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour."
+        )
+    if bilan_parts:
+        lines.append(" ".join(bilan_parts))
+        lines.append("")
+
+    # 3. Points forts
+    points_forts = []
+    tss_28_per_week = load_28["total_load"] / 4 if load_28["total_load"] else 0
+    if tss_28_per_week >= 180:
+        points_forts.append(
+            f"ta capacité à encaisser un volume solide ({round(tss_28_per_week)} TSS/sem en moyenne sur 28j)"
+        )
+    if ctl >= 35:
+        points_forts.append(
+            f"ta CTL à {ctl:.1f} qui reflète un niveau de forme construit semaine après semaine — tu n'es pas là par hasard"
+        )
+    if abs(ramp) < 3:
+        points_forts.append(
+            f"ta progression maîtrisée (ramp rate {ramp:+.1f} CTL/sem) : tu sais doser l'effort sans te cramer"
+        )
+    if has_bike and has_run and has_swim:
+        points_forts.append(
+            "ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon"
+        )
+
+    if points_forts:
+        lines.append("**Tes points forts :**")
+        for pf in points_forts:
+            lines.append(f"— {pf.capitalize()}.")
+        lines.append("")
+
+    # 4. Axes de progression
+    axes = []
+    run_pw = float(str(sp.get("Run", {}).get("per_week", "0")).replace("/sem", "").strip()) if has_run else 0
+    swim_pw = float(str(sp.get("Swim", {}).get("per_week", "0")).replace("/sem", "").strip()) if has_swim else 0
+
+    if swim_pw < 1.5:
+        axes.append((
+            "Densifier la natation",
+            f"Tu tournes à ~{sp.get('Swim', {}).get('per_week', '1')} séance nat/sem. "
+            f"Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps "
+            f"sans coût physique élevé. On vise 2 séances/sem en build. "
+            f"La CSS cible reste {th.get('threshold_pace_swim_str', '2:00/100m')} — les répétitions de 100m à CSS sont ta priorité."
+        ))
+    if run_pw < 2.5 and has_run:
+        axes.append((
+            "Solidifier le running",
+            f"La CAP est ta discipline qui supporte le plus de blessures si on monte trop vite. "
+            f"On va augmenter progressivement la fréquence des sorties courtes en Z1-Z2 "
+            f"avant d'ajouter du volume. Allure cible endurance : autour de {th.get('threshold_pace_run_str', '4:55/km')} −20%."
+        ))
+    if ctl < 45:
+        axes.append((
+            "Construire la base CTL",
+            f"Avec une CTL à {ctl:.1f}, il y a de la marge pour progresser d'ici la course. "
+            f"L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. "
+            f"On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte."
+        ))
+    axes.append((
+        "Renforcement musculaire",
+        "La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. "
+        "Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run "
+        "et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !"
+    ))
+
+    if axes:
+        lines.append("**Axes de progression :**")
+        for titre, explication in axes:
+            lines.append(f"**{titre}** — {explication}")
+            lines.append("")
+
+    # 5. Macro-plan
+    if weeks_to_race is not None:
+        if weeks_to_race > 12:
+            macro = (
+                f"On est à {weeks_to_race} semaines de {race_name}. "
+                f"Phase de **{phase}** : l'heure est à construire le moteur aérobie, pas à se presser. "
+                f"Chaque séance Z2 que tu poses maintenant sera du carburant en août. "
+                f"Le pic de charge est prévu dans ~{max(weeks_to_race - 6, 3)} semaines — on a le temps de faire les choses bien."
+            )
+        elif weeks_to_race > 6:
+            macro = (
+                f"{weeks_to_race} semaines avant {race_name}. "
+                f"On entre progressivement en **{phase}**. "
+                f"Les séances spécifiques (bricks, seuil vélo, allures de course) vont prendre plus de place. "
+                f"Le volume global reste stable — on travaille la qualité et la spécificité."
+            )
+        elif weeks_to_race > 2:
+            macro = (
+                f"Plus que {weeks_to_race} semaines avant {race_name} ! "
+                f"**{phase}** : on réduit le volume, on maintient quelques piques d'intensité, "
+                f"le corps va supercompenser. Fais confiance au travail déjà accompli — il est là."
+            )
+        else:
+            macro = (
+                f"C'est la semaine de {race_name}. Repos, activation légère, confiance. "
+                f"L'entraînement est fait. Tu es prêt."
+            )
+        lines.append(f"**Là où on en est :** {macro}")
+        lines.append("")
+
+    return "\n".join(lines).strip()
 
 
 # ---------- Rapport Markdown ----------
@@ -639,7 +1062,10 @@ def run() -> dict:
 
     # Données API
     thresholds = client.get_thresholds()
-    wellness = client.wellness(today - timedelta(days=14))
+    # 90j pour le graphique PMC ; 14j suffisent pour les métriques du jour
+    wellness_90d = client.wellness(today - timedelta(days=90))
+    wellness = [w for w in wellness_90d
+                if w.get("id", "") >= (today - timedelta(days=14)).isoformat()]
     # Récupère 42j pour CTL/profil + toute la semaine courante pour le croisement
     week_monday = today - timedelta(days=today.weekday())
     oldest_fetch = min(today - timedelta(days=42), week_monday)
@@ -675,6 +1101,10 @@ def run() -> dict:
     # Croisement plan ↔ activités réellement effectuées cette semaine
     plan = match_activities_to_plan(plan, activities)
 
+    # Adaptation dynamique : ajuste les séances futures selon la charge réalisée
+    plan_total_tss_target = sum(p.get("tss_estimate", 0) for p in plan)
+    plan, week_adaptations = adapt_plan_to_week(plan, atl, ctl, plan_total_tss_target)
+
     # Totaux du plan hebdo (pour la ligne "Total semaine")
     plan_total_min = sum(p.get("duration_min", 0) for p in plan)
     plan_total_tss = sum(p.get("tss_estimate", 0) for p in plan)
@@ -686,6 +1116,19 @@ def run() -> dict:
 
     week_sunday = week_monday + timedelta(days=6)
 
+    # Historique PMC 90j pour le graphique CTL/ATL/TSB
+    pmc_history = [
+        {
+            "date": w["id"],
+            "ctl": round(w["ctl"], 2) if w.get("ctl") is not None else None,
+            "atl": round(w["atl"], 2) if w.get("atl") is not None else None,
+            "tsb": round(w["ctl"] - w["atl"], 2)
+                   if w.get("ctl") is not None and w.get("atl") is not None else None,
+        }
+        for w in wellness_90d
+        if w.get("ctl") is not None
+    ]
+
     snapshot = {
         "today": today.isoformat(),
         "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -694,6 +1137,7 @@ def run() -> dict:
         "form": form,
         "metrics": metrics,
         "thresholds": thresholds,
+        "pmc_history": pmc_history,
         "load_7d": {"total_load": load_7["total_load"], "total_minutes": load_7["total_minutes"],
                     "by_sport": load_7["by_sport"]},
         "load_28d": {"total_load": load_28["total_load"], "total_minutes": load_28["total_minutes"],
@@ -701,11 +1145,15 @@ def run() -> dict:
         "session_profile": session_profile,
         "weekly_plan": plan,
         "weekly_plan_totals": plan_totals,
+        "week_adaptations": week_adaptations,
         "weeks_to_race": weeks_to_race,
         "phase": phase,
         "race_name": race.get("name"),
         "race_date": race.get("date"),
     }
+
+    # Message coach généré après le snapshot complet (a besoin du plan enrichi)
+    snapshot["coach_message"] = generate_coach_message(snapshot)
 
     # Sortie : Markdown + JSON cache
     md = render_markdown(snapshot)
@@ -719,11 +1167,17 @@ def run() -> dict:
     # l'artifact Cowork par la tâche planifiée.
     dashboard_path = build_dashboard_html(snapshot)
 
+    # Dashboard GitHub Pages — met à jour index.html et pousse sur GitHub
+    gh_pages_path = build_github_pages_dashboard(snapshot)
+
     print(md)
     print(f"\n---\nRapport sauvegardé : {md_path}")
     print(f"Cache JSON : {cache_path}")
     if dashboard_path:
-        print(f"Dashboard HTML : {dashboard_path}")
+        print(f"Dashboard Cowork : {dashboard_path}")
+    if gh_pages_path:
+        print(f"Dashboard GitHub Pages : {gh_pages_path}")
+        git_push_dashboard()
     return snapshot
 
 

@@ -19,11 +19,24 @@ API_BASE = "https://intervals.icu/api/v1"
 
 
 def load_credentials() -> tuple[str, str]:
-    """Lit athlete_id et api_key depuis config/credentials.env."""
+    """Lit athlete_id et api_key.
+
+    Priorité :
+      1. Variables d'environnement INTERVALS_ATHLETE_ID / INTERVALS_API_KEY
+         (utilisées par GitHub Actions via les Secrets du repo)
+      2. Fichier config/credentials.env (usage local, jamais commité)
+    """
+    # 1. Variables d'environnement (GitHub Actions Secrets)
+    env_id = os.environ.get("INTERVALS_ATHLETE_ID")
+    env_key = os.environ.get("INTERVALS_API_KEY")
+    if env_id and env_key:
+        return env_id, env_key
+
+    # 2. Fichier local credentials.env
     if not CREDENTIALS_FILE.exists():
         raise FileNotFoundError(
-            f"credentials.env introuvable à {CREDENTIALS_FILE}. "
-            "Créer le fichier avec INTERVALS_ATHLETE_ID et INTERVALS_API_KEY."
+            f"Credentials introuvables : ni variables d'environnement "
+            f"INTERVALS_ATHLETE_ID / INTERVALS_API_KEY, ni fichier {CREDENTIALS_FILE}."
         )
     creds: dict[str, str] = {}
     for line in CREDENTIALS_FILE.read_text().splitlines():

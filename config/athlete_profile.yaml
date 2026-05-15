@@ -1,0 +1,48 @@
+# Profil athlète — David
+# Mis à jour automatiquement à chaque nouveau test (FTP, seuil CAP, FC max)
+# Modifiable à la main si besoin
+
+athlete:
+  name: David
+  birth_year: 1987            # ~38-39 ans (FCmax théorique de fallback : ~181-182)
+  weight_kg: 78
+
+# Capteurs disponibles par discipline
+sensors:
+  bike:
+    power: true               # capteur de puissance vélo
+    heart_rate: true
+  run:
+    pace: true                # entraînement à l'allure prioritaire
+    heart_rate: true          # zones FC en complément
+  swim:
+    pace: true
+
+# Zones d'entraînement
+# Synchronisées automatiquement depuis Intervals.icu par daily_coach.py
+zones:
+  ftp_watts: 230              # Functional Threshold Power vélo
+  threshold_pace_run: "4:55/km"   # allure seuil CAP
+  threshold_pace_swim: "2:00/100m" # CSS / T-pace nat
+  hr_max: 190
+  hr_threshold: 172           # FC seuil (LTHR)
+  hr_resting: 56
+  last_synced: null           # rempli par le script à chaque run
+
+# Objectif principal
+race:
+  name: "Triathlon M de Quimperlé"
+  date: "2026-08-30"
+  distances:
+    swim_m: 1500
+    bike_km: 40
+    run_km: 10
+  goal_time: null             # objectif chrono total si tu en as un (ex: "2:30:00")
+
+# Préférences d'entraînement
+training:
+  methodology: "polarized_80_20"   # Seiler : 80 % bas, 20 % haut, peu de zone tempo
+  weekly_sessions_target: 5         # max 5 séances/sem (hors repos) dont 1 muscu
+  strength_sessions_per_week: 1     # 1 séance renforcement musculaire obligatoire/sem
+  rest_day: "monday"
+  long_session_day: "sunday"
