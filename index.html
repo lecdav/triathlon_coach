@@ -108,8 +108,8 @@
 <!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
 <script type="application/json" id="snapshot">
 {
-  "today": "2026-05-15",
-  "generated_at": "2026-05-15T15:17:49",
+  "today": "2026-05-16",
+  "generated_at": "2026-05-16T06:38:53",
   "week_monday": "2026-05-11",
   "week_sunday": "2026-05-17",
   "form": {
@@ -120,16 +120,16 @@
     "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
   },
   "metrics": {
-    "ctl": 38.566956,
-    "atl": 31.01551,
-    "tsb": 7.5514459999999985,
-    "ramp_rate": -1.2177505,
-    "resting_hr": null,
+    "ctl": 37.65954,
+    "atl": 26.886662,
+    "tsb": 10.772877999999999,
+    "ramp_rate": -2.5302162,
+    "resting_hr": 54,
     "sleep_hours": null,
     "hrv_status": null
   },
   "thresholds": {
-    "resting_hr": 51,
+    "resting_hr": 54,
     "weight_kg": 78.0,
     "ftp_watts": 250,
     "power_zones_pct": [
@@ -176,12 +176,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-02-14",
-      "ctl": 30.56,
-      "atl": 35.63,
-      "tsb": -5.07
-    },
     {
       "date": "2026-02-15",
       "ctl": 33.32,
@@ -721,6 +715,12 @@
       "ctl": 38.57,
       "atl": 31.02,
       "tsb": 7.55
+    },
+    {
+      "date": "2026-05-16",
+      "ctl": 37.66,
+      "atl": 26.89,
+      "tsb": 10.77
     }
   ],
   "load_7d": {
@@ -748,8 +748,8 @@
     }
   },
   "load_28d": {
-    "total_load": 964,
-    "total_minutes": 966.2166666666667,
+    "total_load": 943,
+    "total_minutes": 922.1666666666667,
     "by_sport": {
       "Run": {
         "count": 10,
@@ -758,10 +758,10 @@
         "distance_km": 51.90907
       },
       "Swim": {
-        "count": 4,
-        "minutes": 150.8,
-        "load": 70,
-        "distance_km": 6.55
+        "count": 3,
+        "minutes": 106.75,
+        "load": 49,
+        "distance_km": 4.625
       },
       "VirtualRide": {
         "count": 8,
@@ -792,11 +792,11 @@
       "avg_load": 36
     },
     "Swim": {
-      "count_4w": 4,
-      "per_week": 1.0,
-      "avg_minutes": 38,
-      "avg_distance_km": 1.6,
-      "avg_load": 18
+      "count_4w": 3,
+      "per_week": 0.8,
+      "avg_minutes": 36,
+      "avg_distance_km": 1.5,
+      "avg_load": 16
     },
     "VirtualRide": {
       "count_4w": 8,
@@ -825,7 +825,7 @@
       "date": "2026-05-11",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -4,
+      "rel_day": -5,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -840,7 +840,7 @@
       "date": "2026-05-12",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -3,
+      "rel_day": -4,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -864,7 +864,7 @@
       "date": "2026-05-13",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -879,7 +879,7 @@
       "date": "2026-05-14",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
@@ -903,7 +903,7 @@
       "date": "2026-05-15",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -911,14 +911,14 @@
       "zones": "Force-endurance — pas de cardio",
       "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
       "tss_estimate": 0,
-      "status": "today",
+      "status": "past_missed",
       "actual_activities": []
     },
     {
       "date": "2026-05-16",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 1,
+      "rel_day": 0,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -933,7 +933,7 @@
       "date": "2026-05-17",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 2,
+      "rel_day": 1,
       "sport": "VirtualRide",
       "type": "Sortie longue vélo",
       "duration_min": 90,
@@ -955,7 +955,7 @@
   "phase": "Préparation générale (base aérobie)",
   "race_name": "Triathlon M de Quimperlé",
   "race_date": "2026-08-30",
-  "coach_message": "David, tu arrives à cette séance avec un TSB de +7.6 — tu es frais, bien récupéré. C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !\n\nCette semaine, tu as déjà coché 2 séances (Run, VirtualRide) pour environ 82 TSS réalisés. Une séance a été manquée (Mercredi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta capacité à encaisser un volume solide (241 tss/sem en moyenne sur 28j).\n— Ta ctl à 38.6 qui reflète un niveau de forme construit semaine après semaine — tu n'es pas là par hasard.\n— Ta progression maîtrisée (ramp rate -1.2 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~1.0 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Construire la base CTL** — Avec une CTL à 38.6, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** On est à 15 semaines de Triathlon M de Quimperlé. Phase de **Préparation générale (base aérobie)** : l'heure est à construire le moteur aérobie, pas à se presser. Chaque séance Z2 que tu poses maintenant sera du carburant en août. Le pic de charge est prévu dans ~9 semaines — on a le temps de faire les choses bien."
+  "coach_message": "David, tu arrives à cette séance avec un TSB de +10.8 — tu es frais, bien récupéré. C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !\n\nCette semaine, tu as déjà coché 2 séances (Run, VirtualRide) pour environ 82 TSS réalisés. 2 séances ont été manquées (Mercredi, Vendredi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta capacité à encaisser un volume solide (236 tss/sem en moyenne sur 28j).\n— Ta ctl à 37.7 qui reflète un niveau de forme construit semaine après semaine — tu n'es pas là par hasard.\n— Ta progression maîtrisée (ramp rate -2.5 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~0.8 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Construire la base CTL** — Avec une CTL à 37.7, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** On est à 15 semaines de Triathlon M de Quimperlé. Phase de **Préparation générale (base aérobie)** : l'heure est à construire le moteur aérobie, pas à se presser. Chaque séance Z2 que tu poses maintenant sera du carburant en août. Le pic de charge est prévu dans ~9 semaines — on a le temps de faire les choses bien."
 }
 </script>
 
