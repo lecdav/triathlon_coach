@@ -103,6 +103,44 @@ class IntervalsClient:
             newest=newest.isoformat(),
         )
 
+    def create_event(self, event: dict) -> dict:
+        """Crée un événement (séance structurée) sur le calendrier Intervals.icu.
+
+        L'event doit contenir au minimum :
+          - start_date_local : "YYYY-MM-DD"
+          - category        : "WORKOUT"
+          - name            : titre de la séance
+          - type            : "Run" | "Ride" | "Swim" | "VirtualRide" | ...
+          - description     : texte libre (structure de la séance)
+          - workout_doc     : dict avec les steps structurés (optionnel mais recommandé)
+
+        Retourne le dict de l'événement créé (avec son id).
+        """
+        url = f"{API_BASE}/athlete/{self.athlete_id}/events"
+        r = self.session.post(url, json=event, timeout=30)
+        r.raise_for_status()
+        return r.json()
+
+    def delete_event(self, event_id: int) -> None:
+        """Supprime un événement du calendrier par son id."""
+        url = f"{API_BASE}/athlete/{self.athlete_id}/events/{event_id}"
+        r = self.session.delete(url, timeout=30)
+        r.raise_for_status()
+
+    def delete_week_workouts(self, week_monday: date) -> list[int]:
+        """Supprime toutes les séances planifiées (category=WORKOUT) de la semaine ISO.
+
+        Retourne la liste des ids supprimés.
+        """
+        week_sunday = week_monday + timedelta(days=6)
+        existing = self.events(week_monday, week_sunday)
+        deleted = []
+        for ev in existing:
+            if ev.get("category") == "WORKOUT":
+                self.delete_event(ev["id"])
+                deleted.append(ev["id"])
+        return deleted
+
     def fitness(self, oldest: date, newest: date | None = None) -> list[dict]:
         """Évolution CTL/ATL/TSB jour par jour."""
         if newest is None:

@@ -11,6 +11,7 @@
 <head>
 <meta charset="utf-8">
 <title>Coach Triathlon — Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cfilter id='gc'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3Cfilter id='gm'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3Cfilter id='gg'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Crect width='32' height='32' rx='5' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%2300ffea' stroke-width='1.6' filter='url(%23gc)'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23ff2fff' stroke-width='1.6' filter='url(%23gm)'/%3E%3Ccircle cx='16' cy='16' r='4' fill='none' stroke='%23aaff00' stroke-width='1.6' filter='url(%23gg)'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
   :root { color-scheme: dark; }
@@ -100,7 +101,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Coach Triathlon — David</h1>
+  <h1>Coach Triathlon</h1>
   <div class="sub" id="subtitle">Chargement…</div>
   <div id="content"><div class="loading">Rendu en cours…</div></div>
 </div>
@@ -188,7 +189,7 @@ function render(data) {
 
     // Classe de ligne
     let cls = "";
-    if (isToday || p.rel_day === 1) cls = "next-row";
+    if (isToday) cls = "next-row";
     else if (isDone) cls = "done-row";
     else if (isMissed) cls = "missed-row";
 

@@ -462,15 +462,16 @@ def match_activities_to_plan(plan: list[dict], activities: list[dict]) -> list[d
     """Croise les activités téléchargées avec le plan de la semaine.
 
     Règles de matching (par priorité) :
-    1. "done_exact" → activité du bon sport ce jour-là
-    2. "done_any"   → n'importe quelle activité sportive ce jour-là (sport décalé)
-    3. Jours passés sans aucune activité → "past_missed"
-    4. Jour courant sans activité → "today"
-    5. Futur → "todo"
+    1. "done_exact"  → activité du bon sport ce jour-là
+    2. "done_any"    → n'importe quelle activité sportive ce jour-là (sport interverti)
+    3. "done_weekly" → le sport planifié a été fait un autre jour de la semaine (séance déplacée)
+    4. Jours passés sans aucune activité → "past_missed"
+    5. Jour courant sans activité → "today"
+    6. Futur → "todo"
 
-    Note : on accepte qu'un athlète fasse le Run planifié un autre jour ou
-    intervertisse deux séances dans la semaine — l'important est qu'une
-    séance ait bien eu lieu.
+    Le pass "weekly" (règle 3) évite de marquer comme manquée une séance simplement
+    déplacée d'un jour : si Pool Swim est fait le mardi alors que le plan le met mercredi,
+    le mercredi est marqué "done" (déplacé) plutôt que "past_missed".
     """
     today = date.today()
 
@@ -490,41 +491,117 @@ def match_activities_to_plan(plan: list[dict], activities: list[dict]) -> list[d
             "tss": a.get("icu_training_load"),
         }
 
+    # --- Pass 1a : matching exact par date (bon sport, bon jour) ---
+    # On marque d'abord les matches exacts, et on note les activités consommées.
+    exact_used: set = set()  # clés (name, type) des activités déjà matchées en exact
+
     for item in plan:
         d = date.fromisoformat(item["date"])
         day_acts = acts_by_date.get(item["date"], [])
         planned_sport = item.get("sport") or ""
         compatible_types = SPORT_MATCH.get(planned_sport, set())
 
-        # Activités du jour compatibles avec le sport planifié (match exact)
-        exact_match = [a for a in day_acts if a.get("type") in compatible_types]
-        # Toutes activités sportives du jour (match souple — sport interverti)
-        any_sport = [a for a in day_acts if a.get("type") not in {"", None}
-                     and a.get("icu_training_load", 0) > 0]
-
         if planned_sport == "Repos":
-            # Repos : toujours considéré fait
-            item["status"] = "done"
+            item["status"] = "done" if d <= today else "todo"
             item["actual_activities"] = []
-        elif exact_match:
-            # Bon sport, bon jour ✅
+            continue
+
+        exact_match = [a for a in day_acts if a.get("type") in compatible_types]
+        if exact_match:
             item["status"] = "done"
             item["sport_match"] = "exact"
             item["actual_activities"] = [fmt_activity(a) for a in exact_match]
-        elif any_sport and d <= today:
-            # Une séance a bien été réalisée ce jour, mais sport différent du plan
+            for a in exact_match:
+                exact_used.add((a.get("name"), a.get("type")))
+        else:
+            # Statut temporaire — résolu dans les passes suivantes
+            item["status"] = "_pending"
+            item["actual_activities"] = []
+
+    # --- Pass 1b : matching hebdomadaire optimal (même sport, autre jour) ---
+    # Pour chaque activité passée de la semaine non encore matchée (exact_used),
+    # on cherche le jour planifié du même sport le plus proche temporellement.
+    # On résout le problème comme une affectation gloutonne triée par distance minimale,
+    # ce qui évite qu'une activité "vole" un meilleur slot plus tard dans la semaine.
+    week_start = date.fromisoformat(plan[0]["date"])
+    week_end = date.fromisoformat(plan[-1]["date"])
+    displaced_used: set = set()
+
+    # Construire la liste des activités semaine non encore consommées
+    week_acts_unmatched = []
+    for a in activities:
+        a_date_str = a.get("start_date_local", "")[:10]
+        if not a_date_str:
+            continue
+        a_date = date.fromisoformat(a_date_str)
+        if not (week_start <= a_date <= min(today, week_end)):
+            continue
+        key = (a.get("name"), a.get("type"))
+        if key in exact_used:
+            continue
+        if a.get("icu_training_load", 0) <= 0:
+            continue
+        week_acts_unmatched.append(a)
+
+    # Construire les paires (item_plan_pending, activité_compatible, distance_jours)
+    candidates = []
+    for item in plan:
+        if item.get("status") != "_pending":
+            continue
+        d = date.fromisoformat(item["date"])
+        if d > today:
+            continue
+        planned_sport = item.get("sport") or ""
+        compatible_types = SPORT_MATCH.get(planned_sport, set())
+        for a in week_acts_unmatched:
+            if a.get("type") not in compatible_types:
+                continue
+            a_date = date.fromisoformat(a.get("start_date_local", "")[:10])
+            if a_date.isoformat() == item["date"]:
+                continue  # même jour déjà traité
+            dist = abs((a_date - d).days)
+            candidates.append((dist, id(item), id(a), item, a))
+
+    # Trier par distance croissante et attribuer goulûment
+    candidates.sort(key=lambda x: x[0])
+    assigned_items: set = set()
+    for dist, iid, aid, item, a in candidates:
+        if iid in assigned_items:
+            continue
+        key = (a.get("name"), a.get("type"))
+        if key in displaced_used:
+            continue
+        a_date_str = a.get("start_date_local", "")[:10]
+        item["status"] = "done"
+        item["sport_match"] = "displaced"
+        item["actual_activities"] = [fmt_activity(a)]
+        item["displacement_note"] = f"Séance réalisée le {a_date_str} (déplacée)"
+        displaced_used.add(key)
+        assigned_items.add(iid)
+
+    # --- Pass 1c : matching approximate (n'importe quelle activité ce jour-là) ---
+    # Dernier recours pour les jours passés sans match sport : on prend toute séance sportive.
+    all_used = exact_used | displaced_used
+    for item in plan:
+        if item.get("status") != "_pending":
+            continue
+        d = date.fromisoformat(item["date"])
+        day_acts = acts_by_date.get(item["date"], [])
+        any_sport = [a for a in day_acts
+                     if a.get("type") not in {"", None}
+                     and a.get("icu_training_load", 0) > 0
+                     and (a.get("name"), a.get("type")) not in all_used]
+
+        if any_sport and d <= today:
             item["status"] = "done"
             item["sport_match"] = "approximate"
             item["actual_activities"] = [fmt_activity(a) for a in any_sport]
         elif d == today:
             item["status"] = "today"
-            item["actual_activities"] = []
         elif d < today:
             item["status"] = "past_missed"
-            item["actual_activities"] = []
         else:
             item["status"] = "todo"
-            item["actual_activities"] = []
 
     return plan
 
@@ -635,16 +712,97 @@ def adapt_plan_to_week(plan: list[dict], atl: float, ctl: float,
 
 # ---------- Message coach motivationnel ----------
 
-def generate_coach_message(snapshot: dict) -> str:
-    """Génère un texte coach personnalisé embarqué dans le snapshot.
+def _build_coach_prompt(snapshot: dict) -> str:
+    """Construit le prompt envoyé à Claude Haiku pour générer le message coach."""
+    m = snapshot["metrics"]
+    form = snapshot["form"]
+    plan = snapshot["weekly_plan"]
+    th = snapshot["thresholds"]
+    sp = snapshot["session_profile"]
+    load_7 = snapshot["load_7d"]
+    load_28 = snapshot["load_28d"]
 
-    Structure :
-      1. Accroche sur la forme du jour
-      2. Bilan du travail réalisé cette semaine (séances faites/manquées)
-      3. Points forts identifiés sur les 4 dernières semaines
-      4. Axes de progression + comment on va s'y prendre
-      5. Positionnement dans le macro-plan (phase, semaines restantes)
+    done = [p for p in plan if p.get("status") == "done" and p.get("sport") not in ("Repos", None)]
+    missed = [p for p in plan if p.get("status") == "past_missed"]
+    today_session = next((p for p in plan if p.get("status") == "today"), None)
+    tss_done = sum(
+        sum(a.get("tss", 0) or 0 for a in p.get("actual_activities", []))
+        for p in done
+    )
+
+    done_str = ", ".join(
+        f"{p['weekday_fr']} ({p.get('sport','')} — {p.get('type','')})" for p in done
+    ) or "aucune"
+    missed_str = ", ".join(
+        f"{p['weekday_fr']} ({p.get('type','')})" for p in missed
+    ) or "aucune"
+    today_str = (
+        f"{today_session.get('sport','')} — {today_session.get('type','')} "
+        f"({today_session.get('duration_min',0)} min) : {today_session.get('structure','')}"
+        if today_session else "repos"
+    )
+    disciplines = list(sp.keys())
+
+    return f"""Tu es le coach triathlon de David (38 ans, {th.get('weight_kg', 78)} kg).
+Tu parles directement à David, en français, avec le ton chaleureux et direct d'un vrai coach sportif.
+Tu t'appuies sur les données réelles ci-dessous pour personnaliser ton message.
+
+DONNÉES DU JOUR ({snapshot['today']}) :
+- Forme : {form['label']} (TSB {m['tsb']:+.1f} — {form['guidance']})
+- CTL {m['ctl']:.1f} / ATL {m['atl']:.1f} / Ramp rate {m['ramp_rate']:+.1f} CTL/sem
+- Charge 7j : {round(load_7['total_load'])} TSS / {round(load_7['total_minutes'])} min
+- Charge moy 28j : {round(load_28['total_load']/4)} TSS/sem
+- FC repos : {m.get('resting_hr', '—')} bpm
+
+SEMAINE EN COURS :
+- Séances réalisées : {done_str} ({tss_done} TSS)
+- Séances manquées : {missed_str}
+- Séance du jour : {today_str}
+
+PROFIL & OBJECTIF :
+- Course : {snapshot.get('race_name')} dans {snapshot.get('weeks_to_race')} semaines ({snapshot.get('race_date')})
+- Phase : {snapshot['phase']}
+- Disciplines actives (28j) : {', '.join(disciplines)}
+- FTP vélo : {th.get('ftp_watts')} W | Seuil CAP : {th.get('threshold_pace_run_str')} | CSS nat : {th.get('threshold_pace_swim_str')}
+
+INSTRUCTIONS :
+Rédige un message coach de 15 à 20 lignes maximum structuré ainsi :
+1. Une accroche percutante sur la forme du jour (1-2 phrases)
+2. Bilan honnête de la semaine en cours (séances faites, éventuelles séances manquées)
+3. 2-3 points forts concrets basés sur les données (pas de généralités)
+4. 2-3 axes de progression prioritaires avec des conseils précis et actionnables
+5. Positionnement dans le macro-plan : où on en est, ce qui reste à faire, l'objectif à court terme
+
+Utilise **gras** pour les titres de section. Sois direct, motivant, sans être creux.
+Ne répète pas les chiffres bruts déjà affichés dans le dashboard — interprète-les."""
+
+
+def generate_coach_message(snapshot: dict) -> str:
+    """Génère le message coach via Claude Haiku (API Anthropic) si disponible,
+    sinon fallback sur la version Python statique.
+
+    La clé ANTHROPIC_API_KEY est lue depuis les variables d'environnement
+    (GitHub Actions Secret ou export local).
     """
+    import os
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if api_key:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=api_key)
+            prompt = _build_coach_prompt(snapshot)
+            response = client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=1024,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            message = response.content[0].text.strip()
+            print("✅  Message coach généré par Claude Haiku (API Anthropic).")
+            return message
+        except Exception as e:
+            print(f"⚠️  API Anthropic indisponible ({e}) — fallback sur génération Python.")
+
+    # --- Fallback Python statique ---
     m = snapshot["metrics"]
     form = snapshot["form"]
     plan = snapshot["weekly_plan"]
