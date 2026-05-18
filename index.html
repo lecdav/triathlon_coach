@@ -11,7 +11,7 @@
 <head>
 <meta charset="utf-8">
 <title>Coach Triathlon — Dashboard</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cfilter id='gc'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3Cfilter id='gm'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3Cfilter id='gg'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Crect width='32' height='32' rx='5' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%2300ffea' stroke-width='1.6' filter='url(%23gc)'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23ff2fff' stroke-width='1.6' filter='url(%23gm)'/%3E%3Ccircle cx='16' cy='16' r='4' fill='none' stroke='%23aaff00' stroke-width='1.6' filter='url(%23gg)'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
   :root { color-scheme: dark; }
@@ -109,10 +109,10 @@
 <!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
 <script type="application/json" id="snapshot">
 {
-  "today": "2026-05-17",
-  "generated_at": "2026-05-17T07:19:53",
-  "week_monday": "2026-05-11",
-  "week_sunday": "2026-05-17",
+  "today": "2026-05-18",
+  "generated_at": "2026-05-18T08:29:49",
+  "week_monday": "2026-05-18",
+  "week_sunday": "2026-05-24",
   "form": {
     "label": "Frais",
     "code": "FRAIS",
@@ -121,16 +121,16 @@
     "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
   },
   "metrics": {
-    "ctl": 36.77347,
-    "atl": 23.307453,
-    "tsb": 13.466017000000004,
-    "ramp_rate": -3.294178,
-    "resting_hr": 52,
-    "sleep_hours": 7.85,
-    "hrv_status": "HRV nettement basse (-9%) — signal de fatigue parasympathique."
+    "ctl": 37.81516,
+    "atl": 29.782965,
+    "tsb": 8.032194999999998,
+    "ramp_rate": -2.5567665,
+    "resting_hr": 54,
+    "sleep_hours": null,
+    "hrv_status": null
   },
   "thresholds": {
-    "resting_hr": 52,
+    "resting_hr": 54,
     "weight_kg": 78.0,
     "ftp_watts": 250,
     "power_zones_pct": [
@@ -177,12 +177,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-02-16",
-      "ctl": 33.36,
-      "atl": 48.51,
-      "tsb": -15.15
-    },
     {
       "date": "2026-02-17",
       "ctl": 33.99,
@@ -719,56 +713,62 @@
     },
     {
       "date": "2026-05-17",
-      "ctl": 36.77,
-      "atl": 23.31,
-      "tsb": 13.47
+      "ctl": 38.73,
+      "atl": 34.36,
+      "tsb": 4.37
+    },
+    {
+      "date": "2026-05-18",
+      "ctl": 37.82,
+      "atl": 29.78,
+      "tsb": 8.03
     }
   ],
   "load_7d": {
-    "total_load": 170,
-    "total_minutes": 188.14999999999998,
+    "total_load": 218,
+    "total_minutes": 270.73333333333335,
     "by_sport": {
-      "Run": {
+      "VirtualRide": {
         "count": 2,
-        "minutes": 96.71666666666667,
-        "load": 97,
-        "distance_km": 14.93328
+        "minutes": 144.46666666666667,
+        "load": 119,
+        "distance_km": 0.0
       },
       "Swim": {
-        "count": 1,
-        "minutes": 37.18333333333333,
-        "load": 20,
-        "distance_km": 1.7
+        "count": 2,
+        "minutes": 69.11666666666666,
+        "load": 37,
+        "distance_km": 3.075
       },
-      "VirtualRide": {
+      "Run": {
         "count": 1,
-        "minutes": 54.25,
-        "load": 53,
-        "distance_km": 0.0
+        "minutes": 57.15,
+        "load": 62,
+        "distance_km": 9.22706
       }
     }
   },
   "load_28d": {
-    "total_load": 943,
-    "total_minutes": 922.1666666666667,
+    "total_load": 917,
+    "total_minutes": 949.9666666666667,
     "by_sport": {
-      "Run": {
-        "count": 10,
-        "minutes": 318.06666666666666,
-        "load": 361,
-        "distance_km": 51.90907
-      },
-      "Swim": {
-        "count": 3,
-        "minutes": 106.75,
-        "load": 49,
-        "distance_km": 4.625
-      },
       "VirtualRide": {
         "count": 8,
-        "minutes": 410.48333333333323,
-        "load": 401,
+        "minutes": 422.41666666666663,
+        "load": 383,
         "distance_km": 0.0
+      },
+      "Swim": {
+        "count": 4,
+        "minutes": 138.68333333333334,
+        "load": 66,
+        "distance_km": 6.0
+      },
+      "Run": {
+        "count": 9,
+        "minutes": 302.0,
+        "load": 336,
+        "distance_km": 48.88059
       },
       "Transition": {
         "count": 2,
@@ -785,26 +785,26 @@
     }
   },
   "session_profile": {
-    "Run": {
-      "count_4w": 10,
-      "per_week": 2.5,
-      "avg_minutes": 32,
-      "avg_distance_km": 5.2,
-      "avg_load": 36
-    },
-    "Swim": {
-      "count_4w": 3,
-      "per_week": 0.8,
-      "avg_minutes": 36,
-      "avg_distance_km": 1.5,
-      "avg_load": 16
-    },
     "VirtualRide": {
       "count_4w": 8,
       "per_week": 2.0,
-      "avg_minutes": 51,
+      "avg_minutes": 53,
       "avg_distance_km": 0.0,
-      "avg_load": 50
+      "avg_load": 48
+    },
+    "Swim": {
+      "count_4w": 4,
+      "per_week": 1.0,
+      "avg_minutes": 35,
+      "avg_distance_km": 1.5,
+      "avg_load": 16
+    },
+    "Run": {
+      "count_4w": 9,
+      "per_week": 2.2,
+      "avg_minutes": 34,
+      "avg_distance_km": 5.4,
+      "avg_load": 37
     },
     "Transition": {
       "count_4w": 2,
@@ -823,10 +823,10 @@
   },
   "weekly_plan": [
     {
-      "date": "2026-05-11",
+      "date": "2026-05-18",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -6,
+      "rel_day": 0,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -838,10 +838,10 @@
       "actual_activities": []
     },
     {
-      "date": "2026-05-12",
+      "date": "2026-05-19",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -5,
+      "rel_day": 1,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -849,24 +849,14 @@
       "zones": "Z5 — FC 92-97% FCmax",
       "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
       "tss_estimate": 54,
-      "status": "done",
-      "actual_activities": [
-        {
-          "name": "Locarn - 50m 3x8' 95%LT",
-          "type": "Run",
-          "duration_min": 57,
-          "distance_km": 9.2,
-          "tss": 62
-        }
-      ],
-      "sport_match": "displaced",
-      "displacement_note": "Séance réalisée le 2026-05-14 (déplacée)"
+      "status": "todo",
+      "actual_activities": []
     },
     {
-      "date": "2026-05-13",
+      "date": "2026-05-20",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": -4,
+      "rel_day": 2,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -874,24 +864,14 @@
       "zones": "Z3-Z4 (CSS = 2:00/100m)",
       "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
       "tss_estimate": 39,
-      "status": "done",
-      "actual_activities": [
-        {
-          "name": "Pool Swim",
-          "type": "Swim",
-          "duration_min": 37,
-          "distance_km": 1.7,
-          "tss": 20
-        }
-      ],
-      "sport_match": "displaced",
-      "displacement_note": "Séance réalisée le 2026-05-12 (déplacée)"
+      "status": "todo",
+      "actual_activities": []
     },
     {
-      "date": "2026-05-14",
+      "date": "2026-05-21",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": -3,
+      "rel_day": 3,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
@@ -899,24 +879,14 @@
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
       "tss_estimate": 77,
-      "status": "done",
-      "actual_activities": [
-        {
-          "name": "55m 3x8' 90%FTP",
-          "type": "VirtualRide",
-          "duration_min": 54,
-          "distance_km": 0.0,
-          "tss": 53
-        }
-      ],
-      "sport_match": "displaced",
-      "displacement_note": "Séance réalisée le 2026-05-11 (déplacée)"
+      "status": "todo",
+      "actual_activities": []
     },
     {
-      "date": "2026-05-15",
+      "date": "2026-05-22",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": -2,
+      "rel_day": 4,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -924,14 +894,14 @@
       "zones": "Force-endurance — pas de cardio",
       "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
       "tss_estimate": 0,
-      "status": "past_missed",
+      "status": "todo",
       "actual_activities": []
     },
     {
-      "date": "2026-05-16",
+      "date": "2026-05-23",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": -1,
+      "rel_day": 5,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -939,36 +909,36 @@
       "zones": "",
       "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
       "tss_estimate": 0,
-      "status": "done",
+      "status": "todo",
       "actual_activities": []
     },
     {
-      "date": "2026-05-17",
+      "date": "2026-05-24",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 0,
-      "sport": "VirtualRide",
-      "type": "Sortie longue vélo",
-      "duration_min": 90,
-      "structure": "Vélo 90' continu Z2 (140-188 W). Cadence 85-90 rpm, sans pic d'intensité.",
-      "zones": "Z2 — 140-188 W",
-      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
-      "tss_estimate": 78,
-      "status": "today",
+      "rel_day": 6,
+      "sport": "Run",
+      "type": "Sortie longue CAP",
+      "duration_min": 60,
+      "structure": "60' continu en Z2 (5:47/km). Optionnel : derniers 10' à allure marathon (4:55/km).",
+      "zones": "Z2 — FC 75-85% LTHR",
+      "rationale": "Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, oxydation lipidique (Seiler). Unique sortie longue de la semaine.",
+      "tss_estimate": 52,
+      "status": "todo",
       "actual_activities": []
     }
   ],
   "weekly_plan_totals": {
-    "total_minutes": 290,
-    "total_minutes_str": "~4h50",
-    "total_tss": 248
+    "total_minutes": 260,
+    "total_minutes_str": "~4h20",
+    "total_tss": 222
   },
   "week_adaptations": [],
-  "weeks_to_race": 15,
+  "weeks_to_race": 14,
   "phase": "Préparation générale (base aérobie)",
   "race_name": "Triathlon M de Quimperlé",
   "race_date": "2026-08-30",
-  "coach_message": "# Message Coach — David, 17 mai 2026\n\n**Tu es en pleine forme, c'est LE moment d'accélérer.** Avec un TSB à +13.5, tu as une fenêtre parfaite pour progresser — profites-en tant qu'elle dure.\n\n**Bilan de la semaine : 7/10, mais tu as raté du renforcement.**\nTrois bonnes séances (VO2 mardi, technique swim mercredi, seuil vélo jeudi à 135 TSS) — du travail de qualité. Le défaut ? Le renforcement musculaire de vendredi absent. À 38 ans, c'est pas du luxe pour tenir 15 semaines sans casse.\n\n**Ce qui marche :** Ton endurance aérobie est solide (CTL 36.8 en phase de base) et ta FC repos à 52 bpm parle d'elle-même — tu récupères bien. La variété des disciplines cette semaine (run, swim, vélo) montre que tu sais varier. Et les intensités ciblées (VO2, seuil) sont pertinentes.\n\n**Deux choses à corriger :**\n1. **Le renforcement, c'est pas optionnel.** Ajoute 2 × 30 min/semaine de gainage + renforcement legs — mardi et vendredi idéalement. Ça te protègera sur la durée.\n2. **Attention à la décente de charge** (CTL baisse de 3.3/sem). Tu dois remonter progressivement vers 250+ TSS/semaine pour être prêt en août. Cette semaine, la sortie longue d'aujourd'hui est parfaite pour ça.\n\n**Macro-plan :** Tu es en prépa générale, c'est le moment de bâtir ta base aérobie solide pour passer à la spécifique en 6-7 semaines. Quimperlé à 15 semaines, ça laisse de la marge — mais faut pas traîner sur le renforcement et la progression de charge.\n\n**Allez, attaque ta sortie de 90' aujourd'hui en confiance.** 💪"
+  "coach_message": "# Message Coach – David, 18 mai 2026\n\n**Tu es frais comme une rose, mec.** TSB à +8, c'est exactement le moment où ton corps crie « balance-moi une séance qui envoie du lourd ». On a une fenêtre parfaite, on ne la loupe pas.\n\n**Sur la semaine** : zéro séance à ce jour, mais pas de manquement non plus. Tu es en repos programmé, c'est bon. Cela dit, avec 218 TSS sur 7 jours et ta moyenne à 229/semaine, tu tournes légèrement en dessous de ton rythme de croisière.\n\n**Ce qui roule bien** : ta FC repos à 54 bpm, c'est du très solide — ça montre une vraie base aérobie. Tes 5 disciplines activées depuis 4 semaines prouvent que tu tiens la discipline et que tu as la tête dans le truc. Et ta charge moyenne stable (229 TSS/sem) ? C'est le signe que tu construis sans basculer dans les excès.\n\n**Où il faut progresser** : (1) Ton CTL baisse légèrement (-2.6/sem) — tu dois remonter en volume dès maintenant pour préparer la période de surcharge avant Quimperlé. (2) À 14 semaines de la course, tu dois passer des petits tests de seuil pour vérifier tes repères actuels (FTP, CSS, allure seuil CAP).\n\n**Demain, on y va fort.** VO2max ou seuil au choix : 2×8 min vélo autour de 280W avec 4 min easy entre les deux, ça va te remettre la tête dedans. Tu vas sentir l'explosivité revenir. Puis enchaîne avec ta semaine normale — on monte graduellement vers la charge cible.\n\n**Le plan** : phase générale jusqu'à fin juin, puis montée en intensité jusqu'en août. Quimperlé, ça te tend les bras. Allons-y."
 }
 </script>
 
