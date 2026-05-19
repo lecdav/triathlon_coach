@@ -109,25 +109,25 @@
 <!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
 <script type="application/json" id="snapshot">
 {
-  "today": "2026-05-18",
-  "generated_at": "2026-05-18T08:29:49",
+  "today": "2026-05-19",
+  "generated_at": "2026-05-19T08:00:47",
   "week_monday": "2026-05-18",
   "week_sunday": "2026-05-24",
   "form": {
-    "label": "Frais",
-    "code": "FRAIS",
+    "label": "Neutre / productif",
+    "code": "NEUTRE",
     "color": "green",
     "emoji": "🟩",
-    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
+    "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
   },
   "metrics": {
-    "ctl": 37.81516,
-    "atl": 29.782965,
-    "tsb": 8.032194999999998,
-    "ramp_rate": -2.5567665,
+    "ctl": 38.579613,
+    "atl": 34.127037,
+    "tsb": 4.4525760000000005,
+    "ramp_rate": -1.3129959,
     "resting_hr": 54,
-    "sleep_hours": null,
-    "hrv_status": null
+    "sleep_hours": 6.083333333333333,
+    "hrv_status": "HRV stable autour de la moyenne 7j (51 ms)."
   },
   "thresholds": {
     "resting_hr": 54,
@@ -177,12 +177,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-02-17",
-      "ctl": 33.99,
-      "atl": 50.04,
-      "tsb": -16.05
-    },
     {
       "date": "2026-02-18",
       "ctl": 33.19,
@@ -719,19 +713,25 @@
     },
     {
       "date": "2026-05-18",
-      "ctl": 37.82,
-      "atl": 29.78,
-      "tsb": 8.03
+      "ctl": 39.51,
+      "atl": 39.37,
+      "tsb": 0.14
+    },
+    {
+      "date": "2026-05-19",
+      "ctl": 38.58,
+      "atl": 34.13,
+      "tsb": 4.45
     }
   ],
   "load_7d": {
-    "total_load": 218,
-    "total_minutes": 270.73333333333335,
+    "total_load": 237,
+    "total_minutes": 276.8,
     "by_sport": {
       "VirtualRide": {
         "count": 2,
-        "minutes": 144.46666666666667,
-        "load": 119,
+        "minutes": 150.53333333333333,
+        "load": 138,
         "distance_km": 0.0
       },
       "Swim": {
@@ -749,13 +749,13 @@
     }
   },
   "load_28d": {
-    "total_load": 917,
-    "total_minutes": 949.9666666666667,
+    "total_load": 989,
+    "total_minutes": 1010.2833333333334,
     "by_sport": {
       "VirtualRide": {
-        "count": 8,
-        "minutes": 422.41666666666663,
-        "load": 383,
+        "count": 9,
+        "minutes": 482.73333333333335,
+        "load": 455,
         "distance_km": 0.0
       },
       "Swim": {
@@ -786,11 +786,11 @@
   },
   "session_profile": {
     "VirtualRide": {
-      "count_4w": 8,
-      "per_week": 2.0,
-      "avg_minutes": 53,
+      "count_4w": 9,
+      "per_week": 2.2,
+      "avg_minutes": 54,
       "avg_distance_km": 0.0,
-      "avg_load": 48
+      "avg_load": 51
     },
     "Swim": {
       "count_4w": 4,
@@ -826,7 +826,7 @@
       "date": "2026-05-18",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -841,7 +841,7 @@
       "date": "2026-05-19",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": 1,
+      "rel_day": 0,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -849,14 +849,14 @@
       "zones": "Z5 — FC 92-97% FCmax",
       "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
       "tss_estimate": 54,
-      "status": "todo",
+      "status": "today",
       "actual_activities": []
     },
     {
       "date": "2026-05-20",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": 2,
+      "rel_day": 1,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -871,7 +871,7 @@
       "date": "2026-05-21",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": 3,
+      "rel_day": 2,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
@@ -886,7 +886,7 @@
       "date": "2026-05-22",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": 4,
+      "rel_day": 3,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -901,7 +901,7 @@
       "date": "2026-05-23",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 5,
+      "rel_day": 4,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -916,7 +916,7 @@
       "date": "2026-05-24",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 6,
+      "rel_day": 5,
       "sport": "Run",
       "type": "Sortie longue CAP",
       "duration_min": 60,
@@ -938,7 +938,7 @@
   "phase": "Préparation générale (base aérobie)",
   "race_name": "Triathlon M de Quimperlé",
   "race_date": "2026-08-30",
-  "coach_message": "# Message Coach – David, 18 mai 2026\n\n**Tu es frais comme une rose, mec.** TSB à +8, c'est exactement le moment où ton corps crie « balance-moi une séance qui envoie du lourd ». On a une fenêtre parfaite, on ne la loupe pas.\n\n**Sur la semaine** : zéro séance à ce jour, mais pas de manquement non plus. Tu es en repos programmé, c'est bon. Cela dit, avec 218 TSS sur 7 jours et ta moyenne à 229/semaine, tu tournes légèrement en dessous de ton rythme de croisière.\n\n**Ce qui roule bien** : ta FC repos à 54 bpm, c'est du très solide — ça montre une vraie base aérobie. Tes 5 disciplines activées depuis 4 semaines prouvent que tu tiens la discipline et que tu as la tête dans le truc. Et ta charge moyenne stable (229 TSS/sem) ? C'est le signe que tu construis sans basculer dans les excès.\n\n**Où il faut progresser** : (1) Ton CTL baisse légèrement (-2.6/sem) — tu dois remonter en volume dès maintenant pour préparer la période de surcharge avant Quimperlé. (2) À 14 semaines de la course, tu dois passer des petits tests de seuil pour vérifier tes repères actuels (FTP, CSS, allure seuil CAP).\n\n**Demain, on y va fort.** VO2max ou seuil au choix : 2×8 min vélo autour de 280W avec 4 min easy entre les deux, ça va te remettre la tête dedans. Tu vas sentir l'explosivité revenir. Puis enchaîne avec ta semaine normale — on monte graduellement vers la charge cible.\n\n**Le plan** : phase générale jusqu'à fin juin, puis montée en intensité jusqu'en août. Quimperlé, ça te tend les bras. Allons-y."
+  "coach_message": "# 📋 Message Coach — David — 19 mai 2026\n\n**🎯 Forme du jour : C'est le moment de frapper !**\nTu arrives en forme positive (TSB +4.5) avec les réserves fraîches — c'est exactement ce qu'il faut pour progresser sur du VO2max. La séance d'aujourd'hui est une belle opportunité.\n\n**📊 Bilan semaine : Feuille blanche, c'est à toi de l'écrire**\nZéro séance jusqu'à présent. Aucune excuse, c'est juste qu'on débute. Tu entres dans ta semaine forte avec un capital repos bien géré — profite-en.\n\n**💪 Ce qui roule chez toi :**\n- Ta FC repos à 54 bpm parle d'elle-même : tu es bien récupéré et basiquement solide.\n- Sur 4 semaines, tu maintiens ~250 TSS/sem sans fatigue accumulée — c'est de la constance saine.\n- Ton équilibre entre natation, vélo et CAP reste varié : tu construis une vraie polyvalence.\n\n**🔧 Sur quoi bosser maintenant :**\n1. **VO2max réguliérement** : Tes 6-8 × 3' à 5:04/km aujourd'hui, c'est du travail sérieux. À tenir 2-3 fois par mois jusqu'à août pour garder ta puissance cardiovasculaire.\n2. **Charge progressive** : Tu es à 247 TSS/sem en moyenne — on va monter progressivement vers 280-300 TSS/sem d'ici juin pour préparer le pic de juillet. Pas d'à-coup.\n3. **Qualité natation** : CSS à 2:00/100m c'est correct, mais on peut grignoter 3-4 secondes avant août avec du travail de technique + seuil.\n\n**📍 Où tu en es :**\n14 semaines avant Quimperlé, tu es en phase de construction. Les prochaines 8 semaines = intensité progressive + volume steady. Pas de panique, on prépare un triathlon M bien taillé pour toi.\n\nAllez, lance-toi sur ces 8 × 3' et fais-les vibrer. 💪"
 }
 </script>
 
