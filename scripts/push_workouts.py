@@ -81,13 +81,13 @@ SPORT_PREFIX: dict[str, str] = {
 }
 
 
-def build_workout_name(item: dict, workout_doc: dict | None, thresholds: dict) -> str:
+def build_workout_name(item: dict, workout_text: str | None, thresholds: dict) -> str:
     """Génère un nom compact style 'BIKE 60' 3×12' 88-94%FTP'.
 
     Exemples :
       BIKE 60' 3×12' 88-94%FTP
-      RUN 45' 7×3' Z5
-      SWIM 3×600m
+      RUN 45' 7×3' 105%Pace
+      SWIM 10×100m
       GYM 45'
       BIKE 90' Z2
     """
@@ -95,78 +95,40 @@ def build_workout_name(item: dict, workout_doc: dict | None, thresholds: dict) -
     wtype     = item.get("type", "")
     total_min = item.get("duration_min", 0)
     prefix    = SPORT_PREFIX.get(sport, sport.upper())
-    ftp       = thresholds.get("ftp_watts") or 230
-
-    # ---- Natation : distance totale ou structure de blocs ----
-    if sport == "Swim" and workout_doc:
-        steps = workout_doc.get("steps", [])
-        # Cherche le step intervalle principal
-        main = next((s for s in steps if s.get("type") == "interval"), None)
-        if main and main.get("distance") and main.get("reps"):
-            dist_m = main["distance"] * main["reps"]
-            # + warmup + cooldown
-            for s in steps:
-                if s.get("type") in ("warmup", "cooldown") and s.get("distance"):
-                    dist_m += s["distance"]
-            return f"SWIM {main['reps']}×{main['distance']}m"
-        elif total_min:
-            return f"SWIM {total_min}'"
-        return "SWIM"
 
     # ---- GYM / Renforcement ----
     if sport == "Strength":
         return f"GYM {total_min}'" if total_min else "GYM"
 
+    # ---- Natation ----
+    if sport == "Swim":
+        return "SWIM 10×100m"
+
     # ---- Brick ----
-    if sport == "Brick (Bike+Run)" and workout_doc:
-        steps = workout_doc.get("steps", [])
-        bike_step = next((s for s in steps if s.get("type") == "interval"), None)
-        bike_min  = round(bike_step["duration"] / 60) if bike_step else 0
-        run_min   = total_min - bike_min - 10 if bike_min else 0
+    if sport == "Brick (Bike+Run)":
+        bike_min = max(int(total_min * 0.8), 45)
+        run_min  = max(total_min - bike_min, 15)
         return f"BRICK {bike_min}'+{run_min}' Z2"
 
-    # ---- Vélo / CAP : cherche le bloc intervalles principal ----
-    if workout_doc:
-        steps = workout_doc.get("steps", [])
-        main = next((s for s in steps if s.get("type") == "interval"), None)
-        if main and main.get("reps", 1) > 1:
-            reps     = main["reps"]
-            dur_s    = main.get("duration", 0)
-            dur_min  = round(dur_s / 60) if dur_s >= 60 else None
-            dur_str  = f"{dur_min}'" if dur_min else f"{dur_s}''"
+    # ---- CAP ----
+    if sport == "Run":
+        if "VO2max" in wtype or "intervalles" in wtype.lower():
+            return f"RUN {total_min}' 7×3' 105%Pace"
+        elif "Seuil" in wtype or "tempo" in wtype.lower():
+            return f"RUN {total_min}' 95-100%Pace"
+        elif "Sortie longue" in wtype or "long" in wtype.lower():
+            return f"RUN {total_min}' 75%Pace"
+        else:
+            return f"RUN {total_min}' Z2"
 
-            # Cible : puissance (vélo), %LT (cap) ou zone générique
-            power = main.get("power")
-            if power and ftp:
-                pct_lo = round(power["min"] / ftp * 100)
-                pct_hi = round(power["max"] / ftp * 100)
-                target = f"{pct_lo}-{pct_hi}%FTP"
-            elif main.get("pace_pct_lt"):
-                target = f"{main['pace_pct_lt']}%LT"
-            elif main.get("zone"):
-                target = f"Z{main['zone']}"
-            else:
-                target = ""
-
-            interval_part = f"{reps}×{dur_str} {target}".strip()
-            return f"{prefix} {total_min}' {interval_part}"
-
-        # Pas d'intervalles répétés → sortie longue / endurance
-        main_dur = next(
-            (s for s in steps if s.get("type") == "interval"), None
-        )
-        if main_dur:
-            zone = main_dur.get("zone")
-            power = main_dur.get("power")
-            pct_lt = main_dur.get("pace_pct_lt")
-            if power and ftp:
-                pct_lo = round(power["min"] / ftp * 100)
-                pct_hi = round(power["max"] / ftp * 100)
-                return f"{prefix} {total_min}' {pct_lo}-{pct_hi}%FTP"
-            elif pct_lt:
-                return f"{prefix} {total_min}' {pct_lt}%LT"
-            elif zone:
-                return f"{prefix} {total_min}' Z{zone}"
+    # ---- Vélo ----
+    if sport in ("VirtualRide", "Ride"):
+        if "sweet spot" in wtype.lower() or "Seuil" in wtype:
+            return f"BIKE {total_min}' 3×12' 88-94%FTP"
+        elif "Sortie longue" in wtype:
+            return f"BIKE {total_min}' 56-75%FTP"
+        else:
+            return f"BIKE {total_min}' Z2"
 
     # Fallback
     return f"{prefix} {total_min}'" if total_min else prefix
@@ -176,137 +138,183 @@ def build_workout_name(item: dict, workout_doc: dict | None, thresholds: dict) -
 # Conversion d'une séance → workout_doc structuré (steps Intervals.icu)
 # ---------------------------------------------------------------------------
 
-def build_workout_doc(item: dict, thresholds: dict) -> dict | None:
-    """Construit un workout_doc avec steps pour Intervals.icu.
+def _run_pace(thresholds: dict, pct: float) -> str:
+    """Calcule une allure absolue CAP depuis le % du seuil.
 
-    Format workout_doc :
-    {
-      "steps": [
-        {"type": "warmup",   "duration": 900,  "power": {"min": 0.56, "max": 0.75}},
-        {"type": "interval", "duration": 180,  "power": {"min": 0.91, "max": 1.05},
-         "reps": 6},
-        {"type": "rest",     "duration": 120},
-        {"type": "cooldown", "duration": 600},
-      ]
-    }
-    Les durées sont en secondes.
-    Pour la CAP : on peut utiliser pace (m/s) ou target_pace_str.
-    Pour la natation : même logique.
+    Retourne une chaîne au format '5:04/km Pace' utilisable dans les steps
+    Intervals.icu et reconnue par Garmin Connect.
+    pct = 1.0 → allure seuil, 1.05 → 5% plus vite que le seuil, etc.
+    """
+    mps = thresholds.get("threshold_pace_run_mps")
+    if not mps or mps <= 0:
+        return "Z2 HR"  # Fallback FC si pas de seuil renseigné
+    target_mps = mps * pct
+    sec_per_km = 1000.0 / target_mps
+    m, s = divmod(int(round(sec_per_km)), 60)
+    return f"{m}:{s:02d}/km Pace"
+
+
+def _swim_pace(thresholds: dict, pct: float) -> str:
+    """Calcule une allure absolue natation depuis le % du seuil.
+
+    Retourne une chaîne au format '2:00/100m Pace'.
+    """
+    mps = thresholds.get("threshold_pace_swim_mps")
+    if not mps or mps <= 0:
+        return "Z3 Pace"  # Fallback zone si pas de seuil
+    target_mps = mps * pct
+    sec_per_100 = 100.0 / target_mps
+    m, s = divmod(int(round(sec_per_100)), 60)
+    return f"{m}:{s:02d}/100m Pace"
+
+
+def build_workout_text(item: dict, thresholds: dict) -> str | None:
+    """Génère le texte markdown des steps pour Intervals.icu.
+
+    C'est la SEULE façon de créer des séances structurées via l'API events :
+    Intervals.icu parse les steps depuis le champ 'description' en texte markdown.
+    Le champ workout_doc doit être passé comme {} (objet vide) pour déclencher le parsing.
+
+    Syntaxe (doc officielle) :
+      - [durée] [cible]          → un step simple
+      Nx                         → bloc répété N fois (ligne séparée, ligne vide avant/après)
+      - [durée] [cible]          → step dans le bloc
+
+    Cibles compatibles Garmin :
+      Vélo  : 88-94%             (% FTP — Garmin comprend nativement)
+      CAP   : 5:04/km Pace       (allure absolue — seul format reconnu par Garmin)
+      Nata  : 2:00/100m Pace     (allure absolue natation)
+      FC    : Z2 HR              (fallback si pas de seuil disponible)
+
+    Durées : 10m, 30s, 1h30m, 400mtr, 2km
+
+    Note : Garmin NE reconnaît PAS les % d'allure (ex: 105% Pace) ni les zones
+    de vitesse (ex: Z2 Pace). Seules les allures absolues et les % FTP/FC fonctionnent.
     """
     sport = item.get("sport", "")
     wtype = item.get("type", "")
     duration_min = item.get("duration_min", 0)
-    ftp = thresholds.get("ftp_watts", 230)
-    lthr = thresholds.get("lthr", 160)
 
-    if not sport or sport == "Repos" or duration_min == 0:
+    if not sport or sport in ("Repos", "Strength") or duration_min == 0:
         return None
 
-    steps = []
+    lines = []
 
     # ---- CAP ----
     if sport == "Run":
-        thr_mps = thresholds.get("threshold_pace_run_mps")
+        # Allures calculées depuis le seuil (allures absolues pour compatibilité Garmin)
+        pace_z1   = _run_pace(thresholds, 0.78)   # ~78% seuil → très facile
+        pace_z2   = _run_pace(thresholds, 0.85)   # ~85% seuil → endurance
+        pace_z3   = _run_pace(thresholds, 0.92)   # ~92% seuil → tempo
+        pace_seuil = _run_pace(thresholds, 1.00)  # 100% seuil → allure critique
+        pace_vo2  = _run_pace(thresholds, 1.05)   # ~105% seuil → VO2max / 5km
+
         if "VO2max" in wtype or "intervalles" in wtype.lower():
-            # 15' échauf + 7 × 3' @ ~105%LT (Z5) r=2' + 10' retour
-            steps = [
-                {"type": "warmup",   "duration": 900,  "zone": 2},
-                {"type": "interval", "duration": 180,  "zone": 5, "reps": 7,
-                 "restDuration": 120, "restZone": 1, "pace_pct_lt": 105},
-                {"type": "cooldown", "duration": 600,  "zone": 1},
+            # 15' échauf + 7 × 3' @ allure VO2max r=2' + 10' retour
+            lines = [
+                f"- Échauffement 15m {pace_z2}",
+                "",
+                "7x",
+                f"- Intervalle 3m {pace_vo2}",
+                f"- Récupération 2m {pace_z1}",
+                "",
+                f"- Retour au calme 10m {pace_z1}",
             ]
         elif "Seuil" in wtype or "tempo" in wtype.lower():
-            # Seuil lactate ~95-100%LT
-            steps = [
-                {"type": "warmup",   "duration": 600,  "zone": 2},
-                {"type": "interval", "duration": max((duration_min - 20) * 60, 1200), "zone": 4,
-                 "pace_pct_lt": 98},
-                {"type": "cooldown", "duration": 600,  "zone": 1},
+            bloc_min = max(duration_min - 20, 20)
+            lines = [
+                f"- Échauffement 10m {pace_z2}",
+                "",
+                f"- Seuil {bloc_min}m {pace_seuil}",
+                "",
+                f"- Retour au calme 10m {pace_z1}",
             ]
         elif "Sortie longue" in wtype or "long" in wtype.lower():
-            # Longue sortie ~75%LT (Z2)
-            steps = [
-                {"type": "warmup",   "duration": 600,  "zone": 1},
-                {"type": "interval", "duration": max((duration_min - 20) * 60, 1800), "zone": 2,
-                 "pace_pct_lt": 75},
-                {"type": "cooldown", "duration": 600,  "zone": 1},
+            bloc_min = max(duration_min - 20, 30)
+            lines = [
+                f"- Mise en route 10m {pace_z1}",
+                "",
+                f"- Endurance {bloc_min}m {pace_z2}",
+                "",
+                f"- Retour au calme 10m {pace_z1}",
             ]
         else:
-            # Endurance souple / récup ~70%LT (Z2)
-            steps = [
-                {"type": "warmup",   "duration": 300,  "zone": 1},
-                {"type": "interval", "duration": max((duration_min - 10) * 60, 600), "zone": 2,
-                 "pace_pct_lt": 70},
-                {"type": "cooldown", "duration": 300,  "zone": 1},
+            # Endurance souple / récup
+            bloc_min = max(duration_min - 10, 20)
+            lines = [
+                f"- Mise en route 5m {pace_z1}",
+                "",
+                f"- Endurance {bloc_min}m {pace_z2}",
+                "",
+                f"- Retour au calme 5m {pace_z1}",
             ]
 
     # ---- VÉLO ----
     elif sport in ("VirtualRide", "Ride"):
         if "sweet spot" in wtype.lower() or "Seuil" in wtype:
-            # 15' échauf + 3×12' sweet spot r=4' + 8' calme
-            steps = [
-                {"type": "warmup",   "duration": 900,
-                 "power": {"min": round(ftp * 0.56), "max": round(ftp * 0.75)}},
-                {"type": "interval", "duration": 720,
-                 "power": {"min": round(ftp * 0.88), "max": round(ftp * 0.94)},
-                 "reps": 3,
-                 "restDuration": 240,
-                 "restPower": {"min": round(ftp * 0.50), "max": round(ftp * 0.60)}},
-                {"type": "cooldown", "duration": 480,
-                 "power": {"min": round(ftp * 0.50), "max": round(ftp * 0.60)}},
+            # 15' échauf + 3×12' sweet spot 88-94%FTP r=4' + 8' cool
+            lines = [
+                "- Échauffement 15m 56-75%",
+                "",
+                "3x",
+                "- Sweet Spot 12m 88-94%",
+                "- Récupération 4m 50-60%",
+                "",
+                "- Retour au calme 8m 50-60%",
             ]
         elif "Sortie longue" in wtype:
-            steps = [
-                {"type": "warmup",   "duration": 600,
-                 "power": {"min": round(ftp * 0.50), "max": round(ftp * 0.65)}},
-                {"type": "interval", "duration": max((duration_min - 20) * 60, 3600),
-                 "power": {"min": round(ftp * 0.56), "max": round(ftp * 0.75)}},
-                {"type": "cooldown", "duration": 600,
-                 "power": {"min": round(ftp * 0.50), "max": round(ftp * 0.60)}},
+            bloc_min = max(duration_min - 20, 60)
+            lines = [
+                "- Mise en route 10m 50-65%",
+                "",
+                f"- Endurance {bloc_min}m 56-75%",
+                "",
+                "- Retour au calme 10m 50-60%",
             ]
         else:
             # Endurance Z2 générique
-            steps = [
-                {"type": "warmup",   "duration": 600,
-                 "power": {"min": round(ftp * 0.50), "max": round(ftp * 0.65)}},
-                {"type": "interval", "duration": max((duration_min - 15) * 60, 1800),
-                 "power": {"min": round(ftp * 0.56), "max": round(ftp * 0.75)}},
-                {"type": "cooldown", "duration": 300,
-                 "power": {"min": round(ftp * 0.50), "max": round(ftp * 0.60)}},
+            bloc_min = max(duration_min - 15, 30)
+            lines = [
+                "- Mise en route 10m 50-65%",
+                "",
+                f"- Endurance {bloc_min}m 56-75%",
+                "",
+                "- Retour au calme 5m 50-60%",
             ]
 
     # ---- NATATION ----
     elif sport == "Swim":
-        # 400 échauf + 10×100 @ CSS r=20s + 200 cool
-        steps = [
-            {"type": "warmup",   "distance": 400,  "zone": 2},
-            {"type": "interval", "distance": 100,  "zone": 4, "reps": 10,
-             "restDuration": 20},
-            {"type": "cooldown", "distance": 200,  "zone": 1},
+        # Allures absolues pour compatibilité Garmin
+        swim_easy    = _swim_pace(thresholds, 0.80)  # ~80% seuil → échauffement
+        swim_interval = _swim_pace(thresholds, 1.05) # ~105% seuil → intervalles
+        # 400m échauf + 10×100m + 200m cool
+        lines = [
+            f"- Échauffement 400mtr {swim_easy}",
+            "",
+            "10x",
+            f"- Intervalle 100mtr {swim_interval}",
+            "- Récupération 20s",
+            "",
+            f"- Retour au calme 200mtr {swim_easy}",
         ]
 
     # ---- BRICK (Vélo+CAP) ----
     elif sport == "Brick (Bike+Run)":
+        pace_z2 = _run_pace(thresholds, 0.85)
         bike_min = max(int(duration_min * 0.8), 45)
         run_min = max(duration_min - bike_min, 15)
-        steps = [
-            {"type": "warmup",   "duration": 600,
-             "power": {"min": round(ftp * 0.50), "max": round(ftp * 0.65)}},
-            {"type": "interval", "duration": (bike_min - 10) * 60,
-             "power": {"min": round(ftp * 0.56), "max": round(ftp * 0.75)}},
-            {"type": "cooldown", "duration": run_min * 60, "zone": 2,
-             "note": f"Transition → CAP {run_min}' Z2"},
+        lines = [
+            "- Mise en route vélo 10m 50-65%",
+            "",
+            f"- Vélo endurance {bike_min - 10}m 56-75%",
+            "",
+            f"- Transition + CAP {run_min}m {pace_z2}",
         ]
 
-    # ---- RENFORCEMENT ----
-    elif sport == "Strength":
-        # Pas de steps cardio, juste la description textuelle suffit
+    if not lines:
         return None
 
-    if not steps:
-        return None
-
-    return {"steps": steps}
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -314,19 +322,31 @@ def build_workout_doc(item: dict, thresholds: dict) -> dict | None:
 # ---------------------------------------------------------------------------
 
 def plan_item_to_event(item: dict, thresholds: dict) -> dict | None:
-    """Convertit un item du plan hebdomadaire en dict event Intervals.icu."""
+    """Convertit un item du plan hebdomadaire en dict event Intervals.icu.
+
+    Les steps structurés sont encodés en texte markdown dans 'description'
+    (seul format reconnu par l'API events d'Intervals.icu).
+    workout_doc doit être {} pour déclencher le parsing des steps.
+    """
     sport = item.get("sport", "")
     intervals_type = SPORT_TYPE_MAP.get(sport)
     if intervals_type is None:
         return None  # Repos → pas d'event
 
-    workout_doc = build_workout_doc(item, thresholds)
-    workout_name = build_workout_name(item, workout_doc, thresholds)
-    description = item.get("structure", "")
+    workout_text = build_workout_text(item, thresholds)
+    workout_name = build_workout_name(item, workout_text, thresholds)
+
+    # Description = steps structurés en markdown + notes contextuelles
+    description_parts = []
+    if workout_text:
+        description_parts.append(workout_text)
+    if item.get("structure"):
+        description_parts.append(f"\n---\n{item['structure']}")
     if item.get("zones"):
-        description += f"\n\nZones cibles : {item['zones']}"
+        description_parts.append(f"Zones cibles : {item['zones']}")
     if item.get("rationale"):
-        description += f"\n\n💡 {item['rationale']}"
+        description_parts.append(f"💡 {item['rationale']}")
+    description = "\n\n".join(description_parts)
 
     event: dict = {
         "start_date_local": f"{item['date']}T09:00:00",
@@ -336,10 +356,8 @@ def plan_item_to_event(item: dict, thresholds: dict) -> dict | None:
         "description": description,
         "moving_time": item.get("duration_min", 0) * 60,
         "color": pick_color(item.get("type", "")),
+        "workout_doc": {},  # objet vide requis pour déclencher le parsing des steps
     }
-
-    if workout_doc:
-        event["workout_doc"] = workout_doc
 
     return event
 

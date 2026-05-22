@@ -2,8 +2,8 @@ name: Coach Triathlon — Rapport quotidien
 
 on:
   schedule:
-    # Tous les jours à 6h30 heure de Paris (UTC+2 en été → 04:30 UTC)
-    - cron: "30 4 * * *"
+    # Tous les jours à 5h30 heure de Paris (UTC+2 en été → 03:30 UTC)
+    - cron: "30 3 * * *"
   workflow_dispatch:
     # Permet de lancer manuellement depuis l'onglet Actions de GitHub
 
