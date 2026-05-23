@@ -138,34 +138,34 @@ def build_workout_name(item: dict, workout_text: str | None, thresholds: dict) -
 # Conversion d'une séance → workout_doc structuré (steps Intervals.icu)
 # ---------------------------------------------------------------------------
 
-def _run_pace(thresholds: dict, pct: float) -> str:
-    """Calcule une allure absolue CAP depuis le % du seuil.
+def _run_pace(thresholds: dict, pct_low: float, pct_high: float) -> str:
+    """Allure CAP en plage absolue → '5:04-5:20 pace' (format reconnu par Intervals.icu).
 
-    Retourne une chaîne au format '5:04/km Pace' utilisable dans les steps
-    Intervals.icu et reconnue par Garmin Connect.
-    pct = 1.0 → allure seuil, 1.05 → 5% plus vite que le seuil, etc.
+    pct_low  = % seuil pour l'allure rapide (borne haute de vitesse)
+    pct_high = % seuil pour l'allure lente  (borne basse de vitesse)
+    Ex: _run_pace(t, 1.03, 1.07) → allures encadrant 105% du seuil
     """
-    mps = thresholds.get("threshold_pace_run_mps")
-    if not mps or mps <= 0:
-        return "Z2 HR"  # Fallback FC si pas de seuil renseigné
-    target_mps = mps * pct
-    sec_per_km = 1000.0 / target_mps
-    m, s = divmod(int(round(sec_per_km)), 60)
-    return f"{m}:{s:02d}/km Pace"
+    mps_val = thresholds.get("threshold_pace_run_mps")
+    if not mps_val or mps_val <= 0:
+        return "Z2 HR"
+    # allure rapide = vitesse haute = pct_low
+    sec_fast = 1000.0 / (mps_val * pct_low)
+    sec_slow = 1000.0 / (mps_val * pct_high)
+    mf, sf = divmod(int(round(sec_fast)), 60)
+    ms, ss = divmod(int(round(sec_slow)), 60)
+    return f"{mf}:{sf:02d}-{ms}:{ss:02d} pace"
 
 
-def _swim_pace(thresholds: dict, pct: float) -> str:
-    """Calcule une allure absolue natation depuis le % du seuil.
-
-    Retourne une chaîne au format '2:00/100m Pace'.
-    """
-    mps = thresholds.get("threshold_pace_swim_mps")
-    if not mps or mps <= 0:
-        return "Z3 Pace"  # Fallback zone si pas de seuil
-    target_mps = mps * pct
-    sec_per_100 = 100.0 / target_mps
-    m, s = divmod(int(round(sec_per_100)), 60)
-    return f"{m}:{s:02d}/100m Pace"
+def _swim_pace(thresholds: dict, pct_low: float, pct_high: float) -> str:
+    """Allure natation en plage absolue → '1:55-2:05/100m pace'."""
+    mps_val = thresholds.get("threshold_pace_swim_mps")
+    if not mps_val or mps_val <= 0:
+        return "Z3 HR"
+    sec_fast = 100.0 / (mps_val * pct_low)
+    sec_slow = 100.0 / (mps_val * pct_high)
+    mf, sf = divmod(int(round(sec_fast)), 60)
+    ms, ss = divmod(int(round(sec_slow)), 60)
+    return f"{mf}:{sf:02d}-{ms}:{ss:02d}/100m pace"
 
 
 def build_workout_text(item: dict, thresholds: dict) -> str | None:
@@ -180,16 +180,12 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
       Nx                         → bloc répété N fois (ligne séparée, ligne vide avant/après)
       - [durée] [cible]          → step dans le bloc
 
-    Cibles compatibles Garmin :
-      Vélo  : 88-94%             (% FTP — Garmin comprend nativement)
-      CAP   : 5:04/km Pace       (allure absolue — seul format reconnu par Garmin)
-      Nata  : 2:00/100m Pace     (allure absolue natation)
-      FC    : Z2 HR              (fallback si pas de seuil disponible)
+    Cibles :
+      Vélo  : 88-94%                (% FTP — Garmin OK)
+      CAP   : 5:04-5:20 pace        (plage d'allure absolue, format minimal sans nom de step)
+      Nata  : 1:55-2:05/100m pace   (même format)
 
     Durées : 10m, 30s, 1h30m, 400mtr, 2km
-
-    Note : Garmin NE reconnaît PAS les % d'allure (ex: 105% Pace) ni les zones
-    de vitesse (ex: Z2 Pace). Seules les allures absolues et les % FTP/FC fonctionnent.
     """
     sport = item.get("sport", "")
     wtype = item.get("type", "")
@@ -201,58 +197,55 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
     lines = []
 
     # ---- CAP ----
+    # Format minimal "- Xm A:BB-C:DD pace" sans nom de step — identique à
+    # l'exemple du forum qui fonctionne dans Garmin.
     if sport == "Run":
-        # Allures calculées depuis le seuil (allures absolues pour compatibilité Garmin)
-        pace_z1   = _run_pace(thresholds, 0.78)   # ~78% seuil → très facile
-        pace_z2   = _run_pace(thresholds, 0.85)   # ~85% seuil → endurance
-        pace_z3   = _run_pace(thresholds, 0.92)   # ~92% seuil → tempo
-        pace_seuil = _run_pace(thresholds, 1.00)  # 100% seuil → allure critique
-        pace_vo2  = _run_pace(thresholds, 1.05)   # ~105% seuil → VO2max / 5km
+        pace_z1    = _run_pace(thresholds, 0.80, 0.87)   # ~Z1 récup
+        pace_z2    = _run_pace(thresholds, 0.83, 0.90)   # ~Z2 endurance
+        pace_seuil = _run_pace(thresholds, 0.97, 1.03)   # ~seuil
+        pace_vo2   = _run_pace(thresholds, 1.03, 1.08)   # ~VO2max
 
         if "VO2max" in wtype or "intervalles" in wtype.lower():
-            # 15' échauf + 7 × 3' @ allure VO2max r=2' + 10' retour
             lines = [
-                f"- Échauffement 15m {pace_z2}",
+                f"- 15m {pace_z2}",
                 "",
                 "7x",
-                f"- Intervalle 3m {pace_vo2}",
-                f"- Récupération 2m {pace_z1}",
+                f"- 3m {pace_vo2}",
+                f"- 2m {pace_z1}",
                 "",
-                f"- Retour au calme 10m {pace_z1}",
+                f"- 10m {pace_z1}",
             ]
         elif "Seuil" in wtype or "tempo" in wtype.lower():
             bloc_min = max(duration_min - 20, 20)
             lines = [
-                f"- Échauffement 10m {pace_z2}",
+                f"- 10m {pace_z2}",
                 "",
-                f"- Seuil {bloc_min}m {pace_seuil}",
+                f"- {bloc_min}m {pace_seuil}",
                 "",
-                f"- Retour au calme 10m {pace_z1}",
+                f"- 10m {pace_z1}",
             ]
         elif "Sortie longue" in wtype or "long" in wtype.lower():
             bloc_min = max(duration_min - 20, 30)
             lines = [
-                f"- Mise en route 10m {pace_z1}",
+                f"- 10m {pace_z1}",
                 "",
-                f"- Endurance {bloc_min}m {pace_z2}",
+                f"- {bloc_min}m {pace_z2}",
                 "",
-                f"- Retour au calme 10m {pace_z1}",
+                f"- 10m {pace_z1}",
             ]
         else:
-            # Endurance souple / récup
             bloc_min = max(duration_min - 10, 20)
             lines = [
-                f"- Mise en route 5m {pace_z1}",
+                f"- 5m {pace_z1}",
                 "",
-                f"- Endurance {bloc_min}m {pace_z2}",
+                f"- {bloc_min}m {pace_z2}",
                 "",
-                f"- Retour au calme 5m {pace_z1}",
+                f"- 5m {pace_z1}",
             ]
 
     # ---- VÉLO ----
     elif sport in ("VirtualRide", "Ride"):
         if "sweet spot" in wtype.lower() or "Seuil" in wtype:
-            # 15' échauf + 3×12' sweet spot 88-94%FTP r=4' + 8' cool
             lines = [
                 "- Échauffement 15m 56-75%",
                 "",
@@ -272,7 +265,6 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
                 "- Retour au calme 10m 50-60%",
             ]
         else:
-            # Endurance Z2 générique
             bloc_min = max(duration_min - 15, 30)
             lines = [
                 "- Mise en route 10m 50-65%",
@@ -284,31 +276,29 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
 
     # ---- NATATION ----
     elif sport == "Swim":
-        # Allures absolues pour compatibilité Garmin
-        swim_easy    = _swim_pace(thresholds, 0.80)  # ~80% seuil → échauffement
-        swim_interval = _swim_pace(thresholds, 1.05) # ~105% seuil → intervalles
-        # 400m échauf + 10×100m + 200m cool
+        swim_easy     = _swim_pace(thresholds, 0.80, 0.88)
+        swim_interval = _swim_pace(thresholds, 1.02, 1.08)
         lines = [
-            f"- Échauffement 400mtr {swim_easy}",
+            f"- 400mtr {swim_easy}",
             "",
             "10x",
-            f"- Intervalle 100mtr {swim_interval}",
-            "- Récupération 20s",
+            f"- 100mtr {swim_interval}",
+            "- 20s",
             "",
-            f"- Retour au calme 200mtr {swim_easy}",
+            f"- 200mtr {swim_easy}",
         ]
 
     # ---- BRICK (Vélo+CAP) ----
     elif sport == "Brick (Bike+Run)":
-        pace_z2 = _run_pace(thresholds, 0.85)
+        pace_z2  = _run_pace(thresholds, 0.83, 0.90)
         bike_min = max(int(duration_min * 0.8), 45)
-        run_min = max(duration_min - bike_min, 15)
+        run_min  = max(duration_min - bike_min, 15)
         lines = [
-            "- Mise en route vélo 10m 50-65%",
+            "- 10m 50-65%",
             "",
-            f"- Vélo endurance {bike_min - 10}m 56-75%",
+            f"- {bike_min - 10}m 56-75%",
             "",
-            f"- Transition + CAP {run_min}m {pace_z2}",
+            f"- {run_min}m {pace_z2}",
         ]
 
     if not lines:
@@ -324,9 +314,12 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
 def plan_item_to_event(item: dict, thresholds: dict) -> dict | None:
     """Convertit un item du plan hebdomadaire en dict event Intervals.icu.
 
-    Les steps structurés sont encodés en texte markdown dans 'description'
-    (seul format reconnu par l'API events d'Intervals.icu).
-    workout_doc doit être {} pour déclencher le parsing des steps.
+    Les steps structurés sont encodés en texte markdown dans 'description'.
+    NE PAS inclure workout_doc dans le payload : si workout_doc est absent,
+    Intervals.icu parse la description, génère le workout_doc et le FIT
+    structuré qu'il transmet à Garmin. Si workout_doc={} est présent,
+    Intervals.icu considère les steps comme déjà fournis et ne parse pas
+    la description → Garmin reçoit une séance sans structure.
     """
     sport = item.get("sport", "")
     intervals_type = SPORT_TYPE_MAP.get(sport)
@@ -356,7 +349,8 @@ def plan_item_to_event(item: dict, thresholds: dict) -> dict | None:
         "description": description,
         "moving_time": item.get("duration_min", 0) * 60,
         "color": pick_color(item.get("type", "")),
-        "workout_doc": {},  # objet vide requis pour déclencher le parsing des steps
+        # workout_doc intentionnellement absent : Intervals.icu parse alors
+        # la description markdown et génère le FIT structuré pour Garmin.
     }
 
     return event
