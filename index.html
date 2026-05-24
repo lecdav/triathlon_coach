@@ -374,9 +374,12 @@ function renderIdealWeekTable(plan, totals) {
     const seanceHtml = formatSeance(p);
     const contenuHtml = isRest ? `<span style="color:#5a6a7e">—</span>` : formatContenu(p);
     const tss = p.tss_estimate || 0;
+    const iaBadge = p.generated_by_ia === false
+      ? `<span title="Généré algorithmiquement (IA indisponible)" style="font-size:10px;background:#2e1a00;color:#e65100;border:1px solid #e6510055;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">⚙️ algo</span>`
+      : `<span title="Généré par IA" style="font-size:10px;background:#001a2e;color:#7ab0e8;border:1px solid #7ab0e855;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">🤖 IA</span>`;
     return `<tr${isRest ? ' style="opacity:0.55"' : ''}>
       <td class="day">${jour}</td>
-      <td class="seance">${seanceHtml}</td>
+      <td class="seance">${seanceHtml}${isRest ? '' : iaBadge}</td>
       <td class="contenu">${contenuHtml}</td>
       <td class="intensite">${p.zones || "—"}</td>
       <td class="tss">${tss > 0 ? tss : "—"}</td>
@@ -418,8 +421,15 @@ function buildIdealPlan(data) {
     ? renderIdealWeekTable(nxtPlan, data.next_week_plan_totals || {})
     : `<p style="color:#6b7a90;font-size:13px;padding:12px 0">Plan de la semaine prochaine non disponible.</p>`;
 
+  const algoAlert = data.ia_plans_source === "algo"
+    ? `<div style="background:#2e1a0044;border:1px solid #e6510066;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#e65100">
+        ⚠️ <strong>Plans générés algorithmiquement</strong> — l'IA était indisponible lors de la dernière génération. Les séances sont basées sur la méthode polarisée 80/20 mais sans personnalisation IA.
+       </div>`
+    : "";
+
   return `
     <h2>Plan de la semaine — polarisé 80/20</h2>
+    ${algoAlert}
     <div class="week-tabs" id="idealTabs">
       <button class="week-tab active" onclick="switchIdealTab(0)" id="itab0">Cette semaine<br><span class="tab-dates">${curLabel}</span></button>
       <button class="week-tab" onclick="switchIdealTab(1)" id="itab1">Semaine suivante<br><span class="tab-dates">${nxtLabel}</span></button>
@@ -476,6 +486,9 @@ function buildAdaptedPlan(data) {
 
     const jour = `${icon} ${p.weekday_fr || p.weekday}`;
     let seanceHtml, contenuHtml;
+    const adaptIaBadge = p.generated_by_ia === false
+      ? `<span title="Généré algorithmiquement (IA indisponible)" style="font-size:10px;background:#2e1a00;color:#e65100;border:1px solid #e6510055;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">⚙️ algo</span>`
+      : `<span title="Généré par IA" style="font-size:10px;background:#001a2e;color:#7ab0e8;border:1px solid #7ab0e855;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">🤖 IA</span>`;
 
     if (isDone && p.actual_activities && p.actual_activities.length > 0) {
       const acts = p.actual_activities.map(a => {
@@ -487,13 +500,13 @@ function buildAdaptedPlan(data) {
         if (a.tss) parts.push(`TSS ${a.tss}`);
         return `<span style="color:#4caf50;font-weight:600">${em} ${a.name || fr}</span> — ${parts.join(" · ")}`;
       }).join("<br>");
-      seanceHtml = `<span style="color:#6b7a90;font-size:12px">Prévu : ${formatSeance(p)}</span>`;
+      seanceHtml = `<span style="color:#6b7a90;font-size:12px">Prévu : ${formatSeance(p)}</span>${adaptIaBadge}`;
       contenuHtml = `<div style="font-size:12.5px">${acts}</div>`;
     } else if (isMissed) {
-      seanceHtml = `<span style="color:#b71c1c;text-decoration:line-through">${formatSeance(p)}</span>`;
+      seanceHtml = `<span style="color:#b71c1c;text-decoration:line-through">${formatSeance(p)}</span>${adaptIaBadge}`;
       contenuHtml = `<span style="color:#6b7a90;font-size:12px">Non réalisée</span>`;
     } else {
-      seanceHtml = formatSeance(p);
+      seanceHtml = formatSeance(p) + adaptIaBadge;
       contenuHtml = formatContenu(p);
       if (p.adaptation) {
         contenuHtml += `<div style="font-size:11px;color:#e65100;margin-top:2px">${p.adaptation}</div>`;
@@ -529,8 +542,15 @@ function buildAdaptedPlan(data) {
       } – ${new Date(data.week_sunday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`
     : "";
 
+  const adaptAlgoAlert = data.ia_adaptive_source === "algo"
+    ? `<div style="background:#2e1a0044;border:1px solid #e6510066;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#e65100">
+        ⚠️ <strong>Suivi adaptatif généré algorithmiquement</strong> — l'IA était indisponible. Les ajustements sont basés sur CTL/ATL/TSB sans personnalisation IA.
+       </div>`
+    : "";
+
   return `
     <h2>Suivi adaptatif${weekLabel}</h2>
+    ${adaptAlgoAlert}
     <div class="adapted-header">
       <span class="adapted-badge" style="background:${badgeColor}22;color:${badgeColor};border:1px solid ${badgeColor}44">${badgeText}</span>
       <span style="font-size:12px;color:#6b7a90">TSS réalisé : <strong style="color:#e2e2e2">${Math.round(tssDone)}</strong> / projeté : <strong style="color:#7ab0e8">${Math.round(tssTotal)}</strong> / cible : <strong style="color:#e2e2e2">${tssTarget}</strong></span>

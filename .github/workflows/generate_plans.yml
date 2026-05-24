@@ -2,8 +2,8 @@ name: Coach Triathlon — Génération plans IA (dimanche)
 
 on:
   schedule:
-    # Chaque dimanche à 20h00 heure de Paris (UTC+2 en été → 18:00 UTC)
-    - cron: "0 18 * * 0"
+    # Chaque dimanche à 23h00 heure de Paris (UTC+2 en été → 21:00 UTC)
+    - cron: "0 21 * * 0"
   workflow_dispatch:
     # Permet de lancer manuellement depuis l'onglet Actions de GitHub
 

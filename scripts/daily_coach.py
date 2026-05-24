@@ -709,6 +709,15 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
 
     Retourne (ideal_week_plan, next_week_plan, ideal_totals, next_totals).
     Si le fichier n'existe pas ou est obsolète, retourne des listes vides.
+
+    Logique de correspondance :
+    - generate_plans.py est exécuté le dimanche soir et génère les plans des
+      2 semaines SUIVANTES (week1 = lundi prochain, week2 = lundi dans 14j).
+    - daily_coach.py tourne toute la semaine : il doit accepter week1 comme
+      plan de la semaine en cours dès que week1.monday == lundi de cette semaine.
+    - Le dimanche (dernier jour de la semaine passée), week1.monday est déjà
+      le lundi suivant → on l'accepte aussi comme plan "en cours" pour que le
+      dashboard soit déjà à jour le dimanche soir.
     """
     if not WEEKLY_PLANS_PATH.exists():
         return [], [], {}, {}
@@ -718,33 +727,49 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
     except Exception:
         return [], [], {}, {}
 
-    week_monday = today - timedelta(days=today.weekday())
-    next_monday = week_monday + timedelta(days=7)
+    week_monday = today - timedelta(days=today.weekday())  # lundi de cette semaine
+    next_monday = week_monday + timedelta(days=7)           # lundi de la semaine prochaine
 
-    # Cherche la semaine correspondant à la semaine en cours OU à la semaine prochaine
-    # weekly_plans.json contient les plans des 2 semaines à venir générés le dimanche
+    def make_totals(w: dict) -> dict:
+        return {
+            "total_minutes": w.get("total_minutes", 0),
+            "total_minutes_str": w.get("total_minutes_str", ""),
+            "total_tss": w.get("total_tss", 0),
+        }
+
+    # Extraire les 2 entrées du fichier
+    w1 = data.get("week1", {})
+    w2 = data.get("week2", {})
+    w1_monday = w1.get("monday", "")
+    w2_monday = w2.get("monday", "")
+
     ideal_plan: list[dict] = []
     next_plan: list[dict] = []
     ideal_totals: dict = {}
     next_totals: dict = {}
 
-    for week_key in ["week1", "week2"]:
-        w = data.get(week_key, {})
-        w_monday = w.get("monday", "")
-        if w_monday == week_monday.isoformat():
-            ideal_plan = w.get("days", [])
-            ideal_totals = {
-                "total_minutes": w.get("total_minutes", 0),
-                "total_minutes_str": w.get("total_minutes_str", ""),
-                "total_tss": w.get("total_tss", 0),
-            }
-        elif w_monday == next_monday.isoformat():
-            next_plan = w.get("days", [])
-            next_totals = {
-                "total_minutes": w.get("total_minutes", 0),
-                "total_minutes_str": w.get("total_minutes_str", ""),
-                "total_tss": w.get("total_tss", 0),
-            }
+    # Cas 1 : fichier aligné sur la semaine courante (généré lundi ou en cours de semaine)
+    if w1_monday == week_monday.isoformat():
+        ideal_plan = w1.get("days", [])
+        ideal_totals = make_totals(w1)
+        if w2_monday == next_monday.isoformat():
+            next_plan = w2.get("days", [])
+            next_totals = make_totals(w2)
+
+    # Cas 2 : fichier généré le dimanche — week1 correspond déjà à la semaine prochaine.
+    # On prend week1 comme plan "de la semaine courante" (qui commence demain lundi)
+    # et week2 comme plan de la semaine suivante.
+    elif w1_monday == next_monday.isoformat():
+        ideal_plan = w1.get("days", [])
+        ideal_totals = make_totals(w1)
+        next_plan = w2.get("days", [])
+        next_totals = make_totals(w2)
+        print(f"ℹ️  Plans IA chargés en avance (générés ce dimanche) : "
+              f"semaine 1 = {w1_monday}, semaine 2 = {w2_monday}")
+
+    # Cas 3 : fichier périmé (semaines passées) → fallback algo
+    else:
+        print(f"⚠️  Plans IA périmés (week1={w1_monday}, today={today}) — fallback algorithmique.")
 
     return ideal_plan, next_plan, ideal_totals, next_totals
 
@@ -1421,7 +1446,7 @@ def run() -> dict:
         print("ℹ️  Aucun plan IA trouvé — fallback génération algorithmique.")
         ideal_plan_raw, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
                                                                   thresholds, race_date)
-        ideal_week_plan = [{**p, "status": "ideal"} for p in ideal_plan_raw]
+        ideal_week_plan = [{**p, "status": "ideal", "generated_by_ia": False} for p in ideal_plan_raw]
         ideal_plan_total_min = sum(p.get("duration_min", 0) for p in ideal_week_plan)
         ideal_plan_total_tss = sum(p.get("tss_estimate", 0) for p in ideal_week_plan)
         ideal_week_plan_totals = {
@@ -1433,7 +1458,7 @@ def run() -> dict:
         next_week_plan_raw, _, _ = build_weekly_plan(
             next_week_monday, form, session_profile, thresholds, race_date
         )
-        next_week_plan = [{**p, "status": "ideal"} for p in next_week_plan_raw]
+        next_week_plan = [{**p, "status": "ideal", "generated_by_ia": False} for p in next_week_plan_raw]
         next_plan_total_min = sum(p.get("duration_min", 0) for p in next_week_plan)
         next_plan_total_tss = sum(p.get("tss_estimate", 0) for p in next_week_plan)
         next_week_plan_totals = {
@@ -1441,11 +1466,16 @@ def run() -> dict:
             "total_minutes_str": format_duration_total(next_plan_total_min),
             "total_tss": next_plan_total_tss,
         }
+        ia_plans_source = "algo"
     else:
         print("✅  Plans théoriques IA chargés depuis data/weekly_plans.json.")
         # Recalcule weeks_to_race / phase depuis le profil
         _, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
                                                      thresholds, race_date)
+        # Marque chaque séance comme générée par IA
+        ideal_week_plan = [{**p, "generated_by_ia": True} for p in ideal_week_plan]
+        next_week_plan  = [{**p, "generated_by_ia": True} for p in next_week_plan]
+        ia_plans_source = "ia"
 
     # ── Plan adaptatif (semaine en cours) — généré par IA chaque jour ────────
     # Tente la génération IA ; fallback algo si API indisponible.
@@ -1455,7 +1485,8 @@ def run() -> dict:
     )
 
     if ia_adaptive_days:
-        plan = ia_adaptive_days
+        plan = [{**p, "generated_by_ia": True} for p in ia_adaptive_days]
+        ia_adaptive_source = "ia"
     else:
         # Fallback algorithmique
         ideal_plan_raw_for_adapt = [
@@ -1464,6 +1495,8 @@ def run() -> dict:
         plan = match_activities_to_plan(ideal_plan_raw_for_adapt, activities)
         plan_total_tss_target = sum(p.get("tss_estimate", 0) for p in plan)
         plan, week_adaptations = adapt_plan_to_week(plan, atl, ctl, plan_total_tss_target)
+        plan = [{**p, "generated_by_ia": False} for p in plan]
+        ia_adaptive_source = "algo"
 
     # Totaux du plan adaptatif
     plan_total_min = sum(p.get("duration_min", 0) for p in plan)
@@ -1528,6 +1561,8 @@ def run() -> dict:
         "weekly_plan": plan,
         "weekly_plan_totals": plan_totals,
         "week_adaptations": week_adaptations,
+        "ia_plans_source": ia_plans_source,
+        "ia_adaptive_source": ia_adaptive_source,
         "weeks_to_race": weeks_to_race,
         "phase": phase,
         "race_name": _race_json.get("name") or _race_yaml.get("name"),

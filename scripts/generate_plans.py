@@ -192,7 +192,7 @@ def build_prompt(
 
 - Phase : {ctx1["phase"]}
 - Semaine {ctx1["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION — intensité réduite, pas d'intervalles intenses" if ctx1["is_recovery"] else "CHARGE"})
-- TSS cible : {ctx1["tss_target"]} (semaine précédente : {ctx1["tss_prev_week"]}, semaine suivante cible : {ctx1["tss_next"]})
+- TSS cible : {ctx1["tss_target"]} (semaine précédente : {ctx1["tss_prev_week"]}, semaine suivante cible : {ctx1["tss_next_week"]})
 - Semaine ISO : {week1_monday.isocalendar()[1]} ({"paire → dimanche VÉLO longue" if week1_monday.isocalendar()[1] % 2 == 0 else "impaire → dimanche CAP longue"})
 
 Jours : {[d["date"] + " " + d["weekday_fr"] for d in w1_days]}
@@ -201,7 +201,7 @@ Jours : {[d["date"] + " " + d["weekday_fr"] for d in w1_days]}
 
 - Phase : {ctx2["phase"]}
 - Semaine {ctx2["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION — intensité réduite, pas d'intervalles intenses" if ctx2["is_recovery"] else "CHARGE"})
-- TSS cible : {ctx2["tss_target"]} (semaine précédente : {ctx2["tss_prev_week"]}, semaine suivante cible : {ctx2["tss_next"]})
+- TSS cible : {ctx2["tss_target"]} (semaine précédente : {ctx2["tss_prev_week"]}, semaine suivante cible : {ctx2["tss_next_week"]})
 - Semaine ISO : {week2_monday.isocalendar()[1]} ({"paire → dimanche VÉLO longue" if week2_monday.isocalendar()[1] % 2 == 0 else "impaire → dimanche CAP longue"})
 
 Jours : {[d["date"] + " " + d["weekday_fr"] for d in w2_days]}
