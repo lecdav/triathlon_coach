@@ -33,6 +33,7 @@ REPORT_DIR = ROOT / "reports" / "daily"
 CACHE_DIR = ROOT / "data" / "cache"
 PROFILE_PATH = ROOT / "config" / "athlete_profile.yaml"
 ATHLETE_PROFILE_PATH = ROOT / "data" / "athlete_profile.json"
+WEEKLY_PLANS_PATH = ROOT / "data" / "weekly_plans.json"
 # data/today.json est la seule sortie versionnée — chargée par index.html via fetch()
 
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -701,6 +702,229 @@ def adapt_plan_to_week(plan: list[dict], atl: float, ctl: float,
     return plan, adaptations
 
 
+# ---------- Chargement du plan théorique IA ----------
+
+def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, dict]:
+    """Charge les plans théoriques depuis data/weekly_plans.json.
+
+    Retourne (ideal_week_plan, next_week_plan, ideal_totals, next_totals).
+    Si le fichier n'existe pas ou est obsolète, retourne des listes vides.
+    """
+    if not WEEKLY_PLANS_PATH.exists():
+        return [], [], {}, {}
+
+    try:
+        data = json.loads(WEEKLY_PLANS_PATH.read_text())
+    except Exception:
+        return [], [], {}, {}
+
+    week_monday = today - timedelta(days=today.weekday())
+    next_monday = week_monday + timedelta(days=7)
+
+    # Cherche la semaine correspondant à la semaine en cours OU à la semaine prochaine
+    # weekly_plans.json contient les plans des 2 semaines à venir générés le dimanche
+    ideal_plan: list[dict] = []
+    next_plan: list[dict] = []
+    ideal_totals: dict = {}
+    next_totals: dict = {}
+
+    for week_key in ["week1", "week2"]:
+        w = data.get(week_key, {})
+        w_monday = w.get("monday", "")
+        if w_monday == week_monday.isoformat():
+            ideal_plan = w.get("days", [])
+            ideal_totals = {
+                "total_minutes": w.get("total_minutes", 0),
+                "total_minutes_str": w.get("total_minutes_str", ""),
+                "total_tss": w.get("total_tss", 0),
+            }
+        elif w_monday == next_monday.isoformat():
+            next_plan = w.get("days", [])
+            next_totals = {
+                "total_minutes": w.get("total_minutes", 0),
+                "total_minutes_str": w.get("total_minutes_str", ""),
+                "total_tss": w.get("total_tss", 0),
+            }
+
+    return ideal_plan, next_plan, ideal_totals, next_totals
+
+
+# ---------- Plan adaptatif IA ----------
+
+def generate_adaptive_plan_ia(
+    today: date,
+    ideal_plan: list[dict],
+    activities: list[dict],
+    form: dict,
+    thresholds: dict,
+    profile: dict,
+    snapshot_meta: dict,
+) -> tuple[list[dict], list[str]]:
+    """Génère le plan adaptatif de la semaine via Claude Sonnet.
+
+    Prend en entrée le plan théorique + les activités déjà réalisées cette semaine
+    et produit un plan mis à jour avec les ajustements nécessaires.
+
+    Retourne (plan_adaptatif, adaptations_messages).
+    """
+    import os
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        try:
+            from claude_client import load_api_key
+            api_key = load_api_key()
+        except Exception:
+            pass
+
+    if not api_key:
+        print("⚠️  ANTHROPIC_API_KEY non disponible — fallback plan adaptatif algorithmique.")
+        return [], []
+
+    # Activités de la semaine en cours
+    week_monday = today - timedelta(days=today.weekday())
+    week_sunday = week_monday + timedelta(days=6)
+    week_acts = [
+        a for a in activities
+        if week_monday.isoformat() <= a.get("start_date_local", "")[:10] <= week_sunday.isoformat()
+    ]
+
+    acts_summary = []
+    for a in week_acts:
+        d = a.get("start_date_local", "")[:10]
+        sport = a.get("type", "?")
+        dur = round((a.get("moving_time") or 0) / 60)
+        dist = round((a.get("distance") or 0) / 1000, 1)
+        tss = a.get("icu_training_load") or 0
+        name = a.get("name", "")
+        acts_summary.append(f"  {d} ({sport}) — {dur}' {dist}km TSS={tss:.0f} \"{name}\"")
+
+    # Plan théorique simplifié
+    plan_summary = []
+    for day in ideal_plan:
+        sport = day.get("sport", "Repos")
+        typ = day.get("type", "")
+        dur = day.get("duration_min", 0)
+        tss = day.get("tss_estimate", 0)
+        wfr = day.get("weekday_fr", "")
+        d = day.get("date", "")
+        if sport != "Repos":
+            plan_summary.append(f"  {d} {wfr}: {sport} — {typ} ({dur}' / TSS {tss})")
+        else:
+            plan_summary.append(f"  {d} {wfr}: Repos")
+
+    ftp = thresholds.get("ftp_watts", 250)
+    thr_run = thresholds.get("threshold_pace_run_str", "4:53/km")
+    tsb = snapshot_meta.get("tsb", 0)
+    ctl = snapshot_meta.get("ctl", 0)
+    atl = snapshot_meta.get("atl", 0)
+
+    prompt = f"""# Plan adaptatif — semaine du {week_monday.isoformat()} au {week_sunday.isoformat()}
+
+## Données de forme du jour ({today.isoformat()})
+- CTL : {ctl:.1f} | ATL : {atl:.1f} | TSB : {tsb:+.1f}
+- Forme : {form.get("label", "?")} — {form.get("guidance", "")}
+- FTP vélo : {ftp} W | Seuil CAP : {thr_run}
+
+## Plan théorique de la semaine (référence)
+{chr(10).join(plan_summary)}
+
+## Activités déjà réalisées cette semaine
+{chr(10).join(acts_summary) if acts_summary else "  Aucune activité cette semaine."}
+
+## Ta mission
+Tu dois produire le plan adaptatif de la semaine complète (lundi → dimanche).
+
+Pour les jours PASSÉS avec activité réalisée :
+- Marque status="done" et remplis actual_activities avec les données réelles
+- Garde le contenu du plan théorique dans structure/zones/rationale
+
+Pour les jours PASSÉS sans activité (séance manquée) :
+- Marque status="past_missed"
+
+Pour AUJOURD'HUI ({today.isoformat()}, {today.strftime("%A")}) :
+- Marque status="today"
+- Adapte la séance selon la forme actuelle (TSB {tsb:+.1f}) — si très fatigué (TSB < -15), allège l'intensité
+
+Pour les jours FUTURS :
+- Marque status="todo"
+- Adapte le volume/intensité si la semaine est en retard ou en avance sur le TSS cible
+- Si des séances ont été manquées, propose si pertinent un rattrapage (sans surcharger)
+
+Réponds UNIQUEMENT avec ce JSON :
+
+{{
+  "adaptations": ["Message court sur adaptation si nécessaire", ...],
+  "days": [
+    {{
+      "date": "YYYY-MM-DD",
+      "weekday": "Monday",
+      "weekday_fr": "Lundi",
+      "sport": "Repos|Run|Swim|VirtualRide|Strength|Brick (Bike+Run)",
+      "type": "Nom court du type",
+      "duration_min": 0,
+      "structure": "Description détaillée",
+      "zones": "Zones cibles",
+      "rationale": "Justification courte",
+      "tss_estimate": 0,
+      "status": "done|past_missed|today|todo",
+      "adaptation": "Note d'adaptation si la séance a été modifiée (sinon null)",
+      "actual_activities": []
+    }}
+  ]
+}}
+
+Pour status="done", actual_activities doit contenir :
+{{"name": "nom activité", "type": "Run/Ride/etc", "duration_min": X, "distance_km": X, "tss": X}}
+
+Les activités réelles à utiliser sont celles de la liste ci-dessus."""
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        from claude_client import SYSTEM_PROMPT
+        response = client.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=4096,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.content[0].text.strip()
+
+        # Parse JSON
+        import re
+        md_match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", raw)
+        if md_match:
+            raw = md_match.group(1)
+        idx = raw.find("{")
+        if idx >= 0:
+            raw = raw[idx: raw.rfind("}") + 1]
+        result = json.loads(raw)
+
+        adaptive_days = result.get("days", [])
+        adaptations = result.get("adaptations", [])
+
+        # Sécurité : corriger les dates
+        week_acts_by_date: dict[str, list] = {}
+        for a in week_acts:
+            d = a.get("start_date_local", "")[:10]
+            week_acts_by_date.setdefault(d, []).append(a)
+
+        for i, day in enumerate(adaptive_days):
+            d_obj = week_monday + timedelta(days=i)
+            day["date"] = d_obj.isoformat()
+            day["weekday"] = d_obj.strftime("%A")
+            day["weekday_fr"] = FR_WEEKDAYS.get(d_obj.strftime("%A"), d_obj.strftime("%A"))
+            day.setdefault("actual_activities", [])
+            day.setdefault("adaptation", None)
+
+        print(f"✅  Plan adaptatif généré par Claude Sonnet ({len(adaptive_days)} jours).")
+        return adaptive_days, adaptations
+
+    except Exception as e:
+        print(f"⚠️  Erreur génération plan adaptatif IA ({e}) — fallback algorithmique.")
+        return [], []
+
+
 # ---------- Message coach motivationnel ----------
 
 def _build_coach_prompt(snapshot: dict) -> str:
@@ -1183,41 +1407,63 @@ def run() -> dict:
     session_profile = average_session_profile(activities, 28)
 
     # ── Plan théorique idéal ────────────────────────────────────────────────
-    # Généré une fois, statique toute la semaine — sert de référence.
-    # Pas de croisement avec les activités réelles, pas d'adaptation dynamique.
-    ideal_plan_raw, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
-                                                              thresholds, race_date)
-    # On strip le champ "status" pour signaler que c'est un plan pur sans suivi
-    ideal_week_plan = [{**p, "status": "ideal"} for p in ideal_plan_raw]
-    ideal_plan_total_min = sum(p.get("duration_min", 0) for p in ideal_week_plan)
-    ideal_plan_total_tss = sum(p.get("tss_estimate", 0) for p in ideal_week_plan)
-    ideal_week_plan_totals = {
-        "total_minutes": ideal_plan_total_min,
-        "total_minutes_str": format_duration_total(ideal_plan_total_min),
-        "total_tss": ideal_plan_total_tss,
-    }
-
-    # Plan théorique semaine suivante
-    next_week_today = today + timedelta(days=7)
-    next_week_plan_raw, _, _ = build_weekly_plan(next_week_today, form, session_profile,
-                                                  thresholds, race_date)
-    next_week_plan = [{**p, "status": "ideal"} for p in next_week_plan_raw]
-    next_week_monday = next_week_today - timedelta(days=next_week_today.weekday())
+    # Source prioritaire : data/weekly_plans.json (généré par IA le dimanche).
+    # Fallback : génération algorithmique si le fichier est absent ou obsolète.
+    next_week_monday = week_monday + timedelta(days=7)
     next_week_sunday = next_week_monday + timedelta(days=6)
-    next_plan_total_min = sum(p.get("duration_min", 0) for p in next_week_plan)
-    next_plan_total_tss = sum(p.get("tss_estimate", 0) for p in next_week_plan)
-    next_week_plan_totals = {
-        "total_minutes": next_plan_total_min,
-        "total_minutes_str": format_duration_total(next_plan_total_min),
-        "total_tss": next_plan_total_tss,
-    }
 
-    # ── Plan adaptatif (semaine en cours uniquement) ─────────────────────────
-    # Croise avec les activités réelles + adapte les séances futures.
-    plan = list(ideal_plan_raw)  # repart du plan théorique brut
-    plan = match_activities_to_plan(plan, activities)
-    plan_total_tss_target = sum(p.get("tss_estimate", 0) for p in plan)
-    plan, week_adaptations = adapt_plan_to_week(plan, atl, ctl, plan_total_tss_target)
+    ideal_week_plan, next_week_plan, ideal_week_plan_totals, next_week_plan_totals = \
+        load_theoretical_plans(today)
+
+    ia_plans_loaded = bool(ideal_week_plan)
+
+    if not ia_plans_loaded:
+        print("ℹ️  Aucun plan IA trouvé — fallback génération algorithmique.")
+        ideal_plan_raw, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
+                                                                  thresholds, race_date)
+        ideal_week_plan = [{**p, "status": "ideal"} for p in ideal_plan_raw]
+        ideal_plan_total_min = sum(p.get("duration_min", 0) for p in ideal_week_plan)
+        ideal_plan_total_tss = sum(p.get("tss_estimate", 0) for p in ideal_week_plan)
+        ideal_week_plan_totals = {
+            "total_minutes": ideal_plan_total_min,
+            "total_minutes_str": format_duration_total(ideal_plan_total_min),
+            "total_tss": ideal_plan_total_tss,
+        }
+
+        next_week_plan_raw, _, _ = build_weekly_plan(
+            next_week_monday, form, session_profile, thresholds, race_date
+        )
+        next_week_plan = [{**p, "status": "ideal"} for p in next_week_plan_raw]
+        next_plan_total_min = sum(p.get("duration_min", 0) for p in next_week_plan)
+        next_plan_total_tss = sum(p.get("tss_estimate", 0) for p in next_week_plan)
+        next_week_plan_totals = {
+            "total_minutes": next_plan_total_min,
+            "total_minutes_str": format_duration_total(next_plan_total_min),
+            "total_tss": next_plan_total_tss,
+        }
+    else:
+        print("✅  Plans théoriques IA chargés depuis data/weekly_plans.json.")
+        # Recalcule weeks_to_race / phase depuis le profil
+        _, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
+                                                     thresholds, race_date)
+
+    # ── Plan adaptatif (semaine en cours) — généré par IA chaque jour ────────
+    # Tente la génération IA ; fallback algo si API indisponible.
+    snapshot_meta = {"ctl": ctl, "atl": atl, "tsb": tsb}
+    ia_adaptive_days, week_adaptations = generate_adaptive_plan_ia(
+        today, ideal_week_plan, activities, form, thresholds, athlete_profile, snapshot_meta
+    )
+
+    if ia_adaptive_days:
+        plan = ia_adaptive_days
+    else:
+        # Fallback algorithmique
+        ideal_plan_raw_for_adapt = [
+            {**p, "status": "todo"} for p in ideal_week_plan
+        ] if ia_plans_loaded else list(ideal_plan_raw)  # type: ignore[possibly-undefined]
+        plan = match_activities_to_plan(ideal_plan_raw_for_adapt, activities)
+        plan_total_tss_target = sum(p.get("tss_estimate", 0) for p in plan)
+        plan, week_adaptations = adapt_plan_to_week(plan, atl, ctl, plan_total_tss_target)
 
     # Totaux du plan adaptatif
     plan_total_min = sum(p.get("duration_min", 0) for p in plan)

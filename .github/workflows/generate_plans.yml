@@ -1,0 +1,46 @@
+name: Coach Triathlon — Génération plans IA (dimanche)
+
+on:
+  schedule:
+    # Chaque dimanche à 20h00 heure de Paris (UTC+2 en été → 18:00 UTC)
+    - cron: "0 18 * * 0"
+  workflow_dispatch:
+    # Permet de lancer manuellement depuis l'onglet Actions de GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  generate-plans:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate weekly plans (IA)
+        env:
+          INTERVALS_ATHLETE_ID: ${{ secrets.INTERVALS_ATHLETE_ID }}
+          INTERVALS_API_KEY: ${{ secrets.INTERVALS_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/generate_plans.py --force
+
+      - name: Commit & push plans
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/weekly_plans.json --force
+          git diff --cached --quiet || git commit -m "feat: plans IA semaines $(date -u '+%Y-%m-%d')"
+          git push
