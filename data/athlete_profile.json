@@ -66,6 +66,14 @@
     "notes": "En phase de build. CTL à faire progresser de +3-4/sem max jusqu'au pic (semaine ~14 avant course)."
   },
 
+  "race_format": {
+    "drafting": true,
+    "bike_strategy": "Rester en peloton, limiter les relances inutiles, puissance cible ~65-70% FTP. L'objectif vélo est de préserver les jambes pour le run, pas de faire la différence.",
+    "swim_strategy": "Sortir de l'eau dans le bon groupe — critique en drafting car le groupe vélo dépend du groupe natation. Travailler la nage en peloton (aspiration, placement).",
+    "run_strategy": "Allure cible 5:12/km. Partir conservateur les 2 premiers km, accélérer si les sensations le permettent.",
+    "notes": "En format drafting, la natation devient encore plus stratégique : manquer le bon groupe peut coûter plusieurs minutes sur le vélo."
+  },
+
   "season": {
     "current_year": 2026,
     "start_date": "2026-01-01",
@@ -141,7 +149,8 @@
     },
     "session_frequency": {
       "swim_per_week": 1,
-      "swim_target_per_week": 2,
+      "swim_target_per_week": 1,
+      "swim_note": "2 séances/sem souhaitables mais pas faisable actuellement — David demandera explicitement quand il aura le temps.",
       "bike_per_week": 1,
       "run_per_week": 2,
       "strength_per_week": 1
@@ -156,10 +165,22 @@
     "brick_day": "Sunday",
     "strength_day": "Friday",
     "tolerated_training_load": "Modéré-élevé — CTL max historique à déterminer",
+    "warmup_cooldown": {
+      "required": true,
+      "exceptions": ["Strength", "Renforcement musculaire"],
+      "warmup_run_min": 10,
+      "warmup_bike_min": 15,
+      "warmup_swim_m": 400,
+      "cooldown_run_min": 10,
+      "cooldown_bike_min": 8,
+      "cooldown_swim_m": 200,
+      "note": "Toutes les séances cardio (run, vélo, natation, brick) doivent inclure un échauffement progressif et un retour au calme explicites dans la description de la structure."
+    },
     "notes": [
       "Préfère les séances du matin ou en soirée selon contraintes pro.",
       "Renforcement musculaire vendredi = charge cardio nulle, préserve le week-end.",
-      "Sorties longues alternées Run/Brick selon semaine paire/impaire."
+      "Sorties longues alternées Run/Brick selon semaine paire/impaire.",
+      "Échauffement + retour au calme systématiques sauf renforcement musculaire."
     ]
   },
 
@@ -177,17 +198,21 @@
 
   "key_metrics_targets": {
     "race_day_targets": {
-      "swim_time": null,
-      "bike_time": null,
-      "run_time": null,
-      "total_time": null,
-      "notes": "Objectifs de temps à définir avec David en fonction de la progression."
+      "total_time": "2:35:00",
+      "swim_time": "0:28:00",
+      "t1_time": "0:03:00",
+      "bike_time": "1:10:00",
+      "t2_time": "0:02:00",
+      "run_time": "0:52:00",
+      "notes": "Objectif total 2h35 déclaré par David le 2026-05-24. Drafting autorisé sur le vélo. Découpage estimé : natation 28' (1:52/100m), T1 3', vélo 1h10 (34.3 km/h — drafting autorisé → ~160-180W normalisés vs ~230W en solo), T2 2', run 52' (5:12/km). La stratégie vélo vise à préserver les jambes pour le run : rester en groupe, puissance modérée, gérer les relances."
     },
     "pre_race_fitness": {
       "ctl_target": 55,
       "tsb_target_race_day": "+10 à +15",
-      "ftp_target_watts": null,
-      "threshold_run_pace_target": null
+      "ftp_target_watts": 270,
+      "threshold_run_pace_target": "4:40/km",
+      "css_swim_target": "1:52/100m",
+      "notes": "Pour tenir 2h35 avec drafting autorisé sur le vélo : FTP actuel 250W suffisant (puissance course ~165W soit ~66% FTP en peloton), l'enjeu se déplace sur la natation et le run. Allure run cible 5:12/km (95% seuil actuel 4:53 → progression modérée nécessaire), CSS natation 1:52/100m (vs 2:00 actuel → +7%). Stratégie clé : sortir de l'eau dans un bon groupe, gérer l'effort vélo en peloton pour arriver frais sur le run."
     }
   },
 
@@ -205,6 +230,16 @@
       "date": "2026-05-24",
       "author": "Claude / Cowork",
       "note": "Création initiale du profil athlète — données extraites de Intervals.icu et des sessions d'entraînement précédentes."
+    },
+    {
+      "date": "2026-05-24",
+      "author": "David",
+      "note": "Objectif course déclaré : 2h35 au Triathlon M de Quimperlé (30/08/2026). Découpage cible ajouté + niveaux de seuils à atteindre calculés."
+    },
+    {
+      "date": "2026-05-24",
+      "author": "David",
+      "note": "Précision format course : drafting autorisé sur le vélo. Stratégie et objectifs de puissance révisés en conséquence (165W vs 230W). La natation devient l'enjeu stratégique principal pour intégrer le bon groupe."
     }
   ]
 }
