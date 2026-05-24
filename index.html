@@ -155,6 +155,18 @@
   .adapted-sep { border: none; border-top: 1px dashed #2e3a4e; margin: 8px 0; }
   .adapted-totals { display: flex; gap: 16px; font-size: 12px; color: #6b7a90; margin-top: 8px; flex-wrap: wrap; }
   .adapted-totals span { font-variant-numeric: tabular-nums; }
+  /* Onglets semaines */
+  .week-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .week-tab {
+    flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #2e3440;
+    background: #1a1f2e; color: #6b7a90; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-align: center; line-height: 1.4; transition: all 0.15s;
+  }
+  .week-tab:hover { border-color: #3d4a60; color: #a0b0c8; }
+  .week-tab.active { background: #1e2d4a; border-color: #2196f3; color: #7ab0e8; }
+  .week-tab .tab-dates { font-size: 11px; font-weight: 400; color: #5a6a7e; }
+  .week-tab.active .tab-dates { color: #5a8fc8; }
+  .tab-panel { }
 </style>
 </head>
 <body>
@@ -349,17 +361,82 @@ function buildSeasonTimeline(data) {
     </div>`;
 }
 
-// ── Plan adaptatif ──────────────────────────────────────────────────────────
+// ── Plan théorique idéal (onglets sem. courante / suivante) ──────────────────
+
+function renderIdealWeekTable(plan, totals) {
+  // Plan théorique pur : pas de statuts réalisé/manqué, simple référence
+  const tssTarget = totals.total_tss || plan.reduce((s, p) => s + (p.tss_estimate || 0), 0);
+
+  function renderRow(p) {
+    const sport = p.sport || "";
+    const isRest = sport === "Repos";
+    const jour = p.weekday_fr || p.weekday;
+    const seanceHtml = formatSeance(p);
+    const contenuHtml = isRest ? `<span style="color:#5a6a7e">—</span>` : formatContenu(p);
+    const tss = p.tss_estimate || 0;
+    return `<tr${isRest ? ' style="opacity:0.55"' : ''}>
+      <td class="day">${jour}</td>
+      <td class="seance">${seanceHtml}</td>
+      <td class="contenu">${contenuHtml}</td>
+      <td class="intensite">${p.zones || "—"}</td>
+      <td class="tss">${tss > 0 ? tss : "—"}</td>
+    </tr>`;
+  }
+
+  let rows = "";
+  for (const p of plan) rows += renderRow(p);
+
+  return `
+    <div class="adapted-header">
+      <span style="font-size:12px;color:#6b7a90">TSS cible semaine : <strong style="color:#e2e2e2">${tssTarget}</strong> · Durée totale : <strong style="color:#e2e2e2">${totals.total_minutes_str || "—"}</strong></span>
+    </div>
+    <table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu</th><th>Intensité</th><th>TSS</th></tr></thead>
+    <tbody>${rows}
+    <tr class="total-row">
+      <td>Total semaine</td>
+      <td>${totals.total_minutes_str || "—"}</td>
+      <td></td><td></td>
+      <td class="tss">~${tssTarget}</td>
+    </tr>
+    </tbody></table>`;
+}
+
+function buildIdealPlan(data) {
+  const curPlan = data.ideal_week_plan || [];
+  const nxtPlan = data.next_week_plan || [];
+  if (curPlan.length === 0) return "";
+
+  const fmtRange = (m, s) => m && s
+    ? `${new Date(m).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})} – ${new Date(s).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}`
+    : "";
+
+  const curLabel = fmtRange(data.week_monday, data.week_sunday);
+  const nxtLabel = fmtRange(data.next_week_monday, data.next_week_sunday);
+
+  const curHtml = renderIdealWeekTable(curPlan, data.ideal_week_plan_totals || {});
+  const nxtHtml = nxtPlan.length > 0
+    ? renderIdealWeekTable(nxtPlan, data.next_week_plan_totals || {})
+    : `<p style="color:#6b7a90;font-size:13px;padding:12px 0">Plan de la semaine prochaine non disponible.</p>`;
+
+  return `
+    <h2>Plan de la semaine — polarisé 80/20</h2>
+    <div class="week-tabs" id="idealTabs">
+      <button class="week-tab active" onclick="switchIdealTab(0)" id="itab0">Cette semaine<br><span class="tab-dates">${curLabel}</span></button>
+      <button class="week-tab" onclick="switchIdealTab(1)" id="itab1">Semaine suivante<br><span class="tab-dates">${nxtLabel}</span></button>
+    </div>
+    <div id="itabPanel0" class="tab-panel">${curHtml}</div>
+    <div id="itabPanel1" class="tab-panel" style="display:none">${nxtHtml}</div>`;
+}
+
+// ── Plan adaptatif (semaine en cours uniquement) ─────────────────────────────
+
 function buildAdaptedPlan(data) {
   const plan = data.weekly_plan || [];
   const totals = data.weekly_plan_totals || {};
-  const today = data.today;
-
   if (plan.length === 0) return "";
 
   const STATUS_ICON = { done: "✅", today: "⏳", todo: "⬜", past_missed: "❌" };
 
-  // Calcul TSS réalisé et projeté
   let tssDone = 0, tssProjected = 0;
   const tssTarget = totals.total_tss || plan.reduce((s, p) => s + (p.tss_estimate || 0), 0);
 
@@ -377,35 +454,30 @@ function buildAdaptedPlan(data) {
   const pctDone = tssTarget > 0 ? Math.min(100, Math.round(tssDone / tssTarget * 100)) : 0;
   const pctProj = tssTarget > 0 ? Math.min(100, Math.round(tssTotal / tssTarget * 100)) : 0;
 
-  // Badge statut
   let badgeColor, badgeText;
   if (pctDone >= 95) { badgeColor = "#2e7d32"; badgeText = "🎯 Objectif atteint"; }
   else if (tssTotal > tssTarget * 1.1) { badgeColor = "#e65100"; badgeText = "⚡ Semaine chargée"; }
   else if (tssTotal < tssTarget * 0.75) { badgeColor = "#1565c0"; badgeText = "📉 Semaine légère"; }
   else { badgeColor = "#1b5e20"; badgeText = "✅ Sur les rails"; }
 
-  // Séparation passé/futur
   const pastRows = plan.filter(p => p.status === "done" || p.status === "past_missed");
   const futureRows = plan.filter(p => p.status === "today" || p.status === "todo");
 
-  function renderRow(p, adapted) {
+  function renderRow(p) {
     const status = p.status || "todo";
     const isDone = status === "done";
     const isMissed = status === "past_missed";
     const isToday = status === "today";
     const icon = STATUS_ICON[status] || "⬜";
-
     let cls = "";
     if (isToday) cls = "next-row";
     else if (isDone) cls = "done-row";
     else if (isMissed) cls = "missed-row";
 
     const jour = `${icon} ${p.weekday_fr || p.weekday}`;
-
-    // Contenu
     let seanceHtml, contenuHtml;
+
     if (isDone && p.actual_activities && p.actual_activities.length > 0) {
-      // Jours passés : afficher le réalisé
       const acts = p.actual_activities.map(a => {
         const sportInfo = (SPORT_INFO[a.type] || SPORT_INFO[a.sport] || ["", a.type || ""]);
         const [em, fr] = sportInfo;
@@ -423,8 +495,8 @@ function buildAdaptedPlan(data) {
     } else {
       seanceHtml = formatSeance(p);
       contenuHtml = formatContenu(p);
-      if (adapted) {
-        contenuHtml += `<div style="font-size:11px;color:#e65100;margin-top:2px">${adapted}</div>`;
+      if (p.adaptation) {
+        contenuHtml += `<div style="font-size:11px;color:#e65100;margin-top:2px">${p.adaptation}</div>`;
       }
     }
 
@@ -438,32 +510,27 @@ function buildAdaptedPlan(data) {
     </tr>`;
   }
 
-  // Construire le tableau
   let rows = "";
-  for (const p of pastRows) rows += renderRow(p, null);
+  for (const p of pastRows) rows += renderRow(p);
   if (pastRows.length > 0 && futureRows.length > 0) {
     rows += `<tr><td colspan="5" style="padding:0"><hr class="adapted-sep"></td></tr>`;
   }
-  for (const p of futureRows) rows += renderRow(p, p.adaptation || null);
+  for (const p of futureRows) rows += renderRow(p);
 
-  // Totaux
   const donMin = pastRows.reduce((s, p) => {
     if (p.status === "done") return s + (p.actual_activities || []).reduce((ss, a) => ss + (a.duration_min || 0), 0);
     return s;
   }, 0);
   const remMin = futureRows.reduce((s, p) => s + (p.duration_min || 0), 0);
 
-  // Semaine dates
   const weekLabel = data.week_monday && data.week_sunday
     ? ` <span style="color:#5a6a7e;font-weight:400;font-size:13px">${
         new Date(data.week_monday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
-      } – ${
-        new Date(data.week_sunday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
-      }</span>`
+      } – ${new Date(data.week_sunday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span>`
     : "";
 
   return `
-    <h2>Plan adaptatif${weekLabel}</h2>
+    <h2>Suivi adaptatif${weekLabel}</h2>
     <div class="adapted-header">
       <span class="adapted-badge" style="background:${badgeColor}22;color:${badgeColor};border:1px solid ${badgeColor}44">${badgeText}</span>
       <span style="font-size:12px;color:#6b7a90">TSS réalisé : <strong style="color:#e2e2e2">${Math.round(tssDone)}</strong> / projeté : <strong style="color:#7ab0e8">${Math.round(tssTotal)}</strong> / cible : <strong style="color:#e2e2e2">${tssTarget}</strong></span>
@@ -484,6 +551,26 @@ function buildAdaptedPlan(data) {
     </tbody></table>`;
 }
 
+function switchTab(idx) {
+  [0, 1].forEach(i => {
+    const tab = document.getElementById("tab" + i);
+    const panel = document.getElementById("tabPanel" + i);
+    if (!tab || !panel) return;
+    if (i === idx) { tab.classList.add("active"); panel.style.display = ""; }
+    else { tab.classList.remove("active"); panel.style.display = "none"; }
+  });
+}
+
+function switchIdealTab(idx) {
+  [0, 1].forEach(i => {
+    const tab = document.getElementById("itab" + i);
+    const panel = document.getElementById("itabPanel" + i);
+    if (!tab || !panel) return;
+    if (i === idx) { tab.classList.add("active"); panel.style.display = ""; }
+    else { tab.classList.remove("active"); panel.style.display = "none"; }
+  });
+}
+
 function render(data) {
   const c = document.getElementById("content");
   const sub = document.getElementById("subtitle");
@@ -495,8 +582,7 @@ function render(data) {
   const l7 = data.load_7d;
   const l28 = data.load_28d;
   const sp = data.session_profile;
-  const plan = data.weekly_plan || [];
-  const totals = data.weekly_plan_totals || null;
+  // plan et totals utilisés uniquement par buildAdaptedPlan via data directement
 
   sub.textContent = `Snapshot du ${today} — généré ${(data.generated_at || "").replace("T", " à ").slice(0, 19)}`;
 
@@ -505,101 +591,31 @@ function render(data) {
   // 1. Frise saisonnière
   try { html += buildSeasonTimeline(data); } catch(e) { console.warn("Season timeline error:", e); }
 
-  // 2. Plan adaptatif
-  try { html += buildAdaptedPlan(data); } catch(e) { console.warn("Adapted plan error:", e); }
+  // 2. Plan théorique idéal (onglets sem. courante / suivante)
+  try { html += buildIdealPlan(data); } catch(e) { console.warn("Ideal plan error:", e); }
 
-  // 3. Plan idéal de la semaine
-  const weekLabel = data.week_monday && data.week_sunday
-    ? ` <span style="color:#5a6a7e;font-weight:400;font-size:14px">${
-        new Date(data.week_monday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
-      } – ${
-        new Date(data.week_sunday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
-      }</span>`
-    : "";
-  html += `<h2>Plan de la semaine — polarisé 80/20${weekLabel}</h2>`;
-
-  const adaptations = data.week_adaptations || [];
-  if (adaptations.length > 0) {
-    html += `<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#5d4037;">`;
-    for (const a of adaptations) {
-      html += `<div style="margin-bottom:4px">${a}</div>`;
-    }
-    html += `</div>`;
-  }
-
-  html += `<table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu / Réalisé</th><th>Intensité</th><th>TSS</th></tr></thead><tbody>`;
-
-  const STATUS_ICON = { done: "✅", today: "⏳", todo: "⬜", past_missed: "❌" };
-
-  let totalMin = 0;
-  let totalTss = 0;
-  for (const p of plan) {
-    const status = p.status || "todo";
-    const isDone = status === "done";
-    const isMissed = status === "past_missed";
-    const isToday = status === "today";
-
-    // Classe de ligne
-    let cls = "";
-    if (isToday) cls = "next-row";
-    else if (isDone) cls = "done-row";
-    else if (isMissed) cls = "missed-row";
-
-    const statusIcon = STATUS_ICON[status] || "⬜";
-    const jour = `${statusIcon} ${p.weekday_fr || p.weekday} <span style="color:#888;font-weight:400">(J${p.rel_day >= 0 ? "+" : ""}${p.rel_day ?? "?"})</span>`;
-    const seance = formatSeance(p);
-
-    // Contenu : si done, afficher le réalisé en plus du prévu
-    let contenu = formatContenu(p);
-    if (isDone && p.actual_activities && p.actual_activities.length > 0) {
-      const acts = p.actual_activities.map(a => {
-        const parts = [];
-        if (a.duration_min) parts.push(`${a.duration_min} min`);
-        if (a.distance_km) parts.push(`${a.distance_km} km`);
-        if (a.tss) parts.push(`TSS ${a.tss}`);
-        return `<span style="color:#2e7d32;font-weight:500">${a.name || a.type}</span> — ${parts.join(" · ")}`;
-      }).join("<br>");
-      contenu = `<div style="color:#555;font-size:12px;margin-bottom:3px">${contenu}</div>
-        <div style="font-size:12px">${acts}</div>`;
-    } else if (isMissed) {
-      contenu = `<span style="color:#b71c1c;font-size:12px">${contenu}</span>`;
-    }
-
-    const intensite = p.zones || "—";
-    const tss = p.tss_estimate || 0;
-    const tssStr = tss > 0 ? String(tss) : "—";
-    const adaptBadge = p.adaptation
-      ? `<div style="font-size:11px;color:#e65100;margin-top:3px">${p.adaptation}</div>`
-      : "";
-
-    html += `<tr class="${cls}">
-      <td class="day">${jour}</td>
-      <td class="seance">${seance}${adaptBadge}</td>
-      <td class="contenu">${contenu}</td>
-      <td class="intensite">${intensite}</td>
-      <td class="tss">${tssStr}</td>
-    </tr>`;
-    totalMin += (p.duration_min || 0);
-    totalTss += tss;
-  }
-  const totalDur = totals?.total_minutes_str || formatTotalDuration(totalMin);
-  const totalTssDisplay = totals?.total_tss ?? totalTss;
-  html += `<tr class="total-row">
-    <td>Total semaine</td>
-    <td>${totalDur}</td>
-    <td></td>
-    <td></td>
-    <td class="tss">~${totalTssDisplay}</td>
-  </tr>`;
-  html += `</tbody></table>`;
-
-  const justifs = plan.filter(p => p.rationale);
+  // 2b. Justifications (plan théorique)
+  const idealPlan = data.ideal_week_plan || [];
+  const justifs = idealPlan.filter(p => p.rationale);
   if (justifs.length) {
     html += `<details class="justifs"><summary>Justifications par séance</summary><ul>`;
     for (const p of justifs) {
-      html += `<li><b>${p.weekday_fr || p.weekday} (J+${p.rel_day ?? "?"}) — ${formatSeance(p)}</b> : ${p.rationale}</li>`;
+      html += `<li><b>${p.weekday_fr || p.weekday} — ${formatSeance(p)}</b> : ${p.rationale}</li>`;
     }
     html += `</ul></details>`;
+  }
+
+  // 3. Suivi adaptatif (semaine en cours uniquement)
+  try { html += buildAdaptedPlan(data); } catch(e) { console.warn("Adapted plan error:", e); }
+
+  // Adaptations dynamiques (alertes)
+  const adaptations = data.week_adaptations || [];
+  if (adaptations.length > 0) {
+    html += `<div style="background:#2a1f0e;border:1px solid #5c3e10;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px;color:#f0a050;">`;
+    for (const a of adaptations) {
+      html += `<div style="margin-bottom:4px">⚡ ${a}</div>`;
+    }
+    html += `</div>`;
   }
 
   html += `<div class="form-banner ${form.color}">

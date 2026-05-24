@@ -1182,17 +1182,44 @@ def run() -> dict:
     load_28 = weekly_load(activities, 28)
     session_profile = average_session_profile(activities, 28)
 
-    plan, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
-                                                    thresholds, race_date)
+    # ── Plan théorique idéal ────────────────────────────────────────────────
+    # Généré une fois, statique toute la semaine — sert de référence.
+    # Pas de croisement avec les activités réelles, pas d'adaptation dynamique.
+    ideal_plan_raw, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
+                                                              thresholds, race_date)
+    # On strip le champ "status" pour signaler que c'est un plan pur sans suivi
+    ideal_week_plan = [{**p, "status": "ideal"} for p in ideal_plan_raw]
+    ideal_plan_total_min = sum(p.get("duration_min", 0) for p in ideal_week_plan)
+    ideal_plan_total_tss = sum(p.get("tss_estimate", 0) for p in ideal_week_plan)
+    ideal_week_plan_totals = {
+        "total_minutes": ideal_plan_total_min,
+        "total_minutes_str": format_duration_total(ideal_plan_total_min),
+        "total_tss": ideal_plan_total_tss,
+    }
 
-    # Croisement plan ↔ activités réellement effectuées cette semaine
+    # Plan théorique semaine suivante
+    next_week_today = today + timedelta(days=7)
+    next_week_plan_raw, _, _ = build_weekly_plan(next_week_today, form, session_profile,
+                                                  thresholds, race_date)
+    next_week_plan = [{**p, "status": "ideal"} for p in next_week_plan_raw]
+    next_week_monday = next_week_today - timedelta(days=next_week_today.weekday())
+    next_week_sunday = next_week_monday + timedelta(days=6)
+    next_plan_total_min = sum(p.get("duration_min", 0) for p in next_week_plan)
+    next_plan_total_tss = sum(p.get("tss_estimate", 0) for p in next_week_plan)
+    next_week_plan_totals = {
+        "total_minutes": next_plan_total_min,
+        "total_minutes_str": format_duration_total(next_plan_total_min),
+        "total_tss": next_plan_total_tss,
+    }
+
+    # ── Plan adaptatif (semaine en cours uniquement) ─────────────────────────
+    # Croise avec les activités réelles + adapte les séances futures.
+    plan = list(ideal_plan_raw)  # repart du plan théorique brut
     plan = match_activities_to_plan(plan, activities)
-
-    # Adaptation dynamique : ajuste les séances futures selon la charge réalisée
     plan_total_tss_target = sum(p.get("tss_estimate", 0) for p in plan)
     plan, week_adaptations = adapt_plan_to_week(plan, atl, ctl, plan_total_tss_target)
 
-    # Totaux du plan hebdo (pour la ligne "Total semaine")
+    # Totaux du plan adaptatif
     plan_total_min = sum(p.get("duration_min", 0) for p in plan)
     plan_total_tss = sum(p.get("tss_estimate", 0) for p in plan)
     plan_totals = {
@@ -1244,6 +1271,14 @@ def run() -> dict:
         "load_28d": {"total_load": load_28["total_load"], "total_minutes": load_28["total_minutes"],
                      "by_sport": load_28["by_sport"]},
         "session_profile": session_profile,
+        # Plan théorique idéal (statique, référence de semaine)
+        "ideal_week_plan": ideal_week_plan,
+        "ideal_week_plan_totals": ideal_week_plan_totals,
+        "next_week_monday": next_week_monday.isoformat(),
+        "next_week_sunday": next_week_sunday.isoformat(),
+        "next_week_plan": next_week_plan,
+        "next_week_plan_totals": next_week_plan_totals,
+        # Plan adaptatif (semaine en cours, avec suivi activités réelles)
         "weekly_plan": plan,
         "weekly_plan_totals": plan_totals,
         "week_adaptations": week_adaptations,

@@ -1,6 +1,6 @@
 {
   "today": "2026-05-24",
-  "generated_at": "2026-05-24T14:29:49",
+  "generated_at": "2026-05-24T22:30:47",
   "week_monday": "2026-05-18",
   "week_sunday": "2026-05-24",
   "form": {
@@ -711,6 +711,218 @@
       "avg_load": 130
     }
   },
+  "ideal_week_plan": [
+    {
+      "date": "2026-05-18",
+      "weekday": "Monday",
+      "weekday_fr": "Lundi",
+      "rel_day": -6,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Mobilité 15-20 min, étirements doux, marche.",
+      "zones": "",
+      "rationale": "Jour de repos défini dans ton profil — supercompensation.",
+      "tss_estimate": 0,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-19",
+      "weekday": "Tuesday",
+      "weekday_fr": "Mardi",
+      "rel_day": -5,
+      "sport": "Run",
+      "type": "VO2max — intervalles courts",
+      "duration_min": 45,
+      "structure": "20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot → 5' retour au calme trot léger.",
+      "zones": "Z5 — FC 92-97% FCmax",
+      "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
+      "tss_estimate": 54,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-20",
+      "weekday": "Wednesday",
+      "weekday_fr": "Mercredi",
+      "rel_day": -4,
+      "sport": "Swim",
+      "type": "Endurance + technique",
+      "duration_min": 50,
+      "structure": "400 m échauffement nage souple (50 crawl + 50 dos alternés) → 10×100 m (2:00/100m) r=20s → 200 m retour au calme nage souple. Total ~2000 m.",
+      "zones": "Z3-Z4 (CSS = 2:00/100m)",
+      "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
+      "tss_estimate": 39,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-21",
+      "weekday": "Thursday",
+      "weekday_fr": "Jeudi",
+      "rel_day": -3,
+      "sport": "VirtualRide",
+      "type": "Seuil — sweet spot",
+      "duration_min": 60,
+      "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
+      "zones": "Z4 (sweet spot 88-94% FTP)",
+      "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
+      "tss_estimate": 77,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-22",
+      "weekday": "Friday",
+      "weekday_fr": "Vendredi",
+      "rel_day": -2,
+      "sport": "Strength",
+      "type": "Renforcement musculaire",
+      "duration_min": 45,
+      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+      "zones": "Force-endurance — pas de cardio",
+      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
+      "tss_estimate": 0,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-23",
+      "weekday": "Saturday",
+      "weekday_fr": "Samedi",
+      "rel_day": -1,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+      "zones": "",
+      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
+      "tss_estimate": 0,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-24",
+      "weekday": "Sunday",
+      "weekday_fr": "Dimanche",
+      "rel_day": 0,
+      "sport": "Run",
+      "type": "Sortie longue CAP",
+      "duration_min": 60,
+      "structure": "20' échauffement : 10' trot Z1 + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' Z2 → 35' en Z2 (5:45/km) → optionnel : 5' à allure marathon (4:53/km) → 5' retour au calme trot Z1.",
+      "zones": "Z2 — FC 75-85% LTHR",
+      "rationale": "Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, oxydation lipidique (Seiler). Unique sortie longue de la semaine.",
+      "tss_estimate": 52,
+      "status": "ideal"
+    }
+  ],
+  "ideal_week_plan_totals": {
+    "total_minutes": 260,
+    "total_minutes_str": "~4h20",
+    "total_tss": 222
+  },
+  "next_week_monday": "2026-05-25",
+  "next_week_sunday": "2026-05-31",
+  "next_week_plan": [
+    {
+      "date": "2026-05-25",
+      "weekday": "Monday",
+      "weekday_fr": "Lundi",
+      "rel_day": -6,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Mobilité 15-20 min, étirements doux, marche.",
+      "zones": "",
+      "rationale": "Jour de repos défini dans ton profil — supercompensation.",
+      "tss_estimate": 0,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-26",
+      "weekday": "Tuesday",
+      "weekday_fr": "Mardi",
+      "rel_day": -5,
+      "sport": "Run",
+      "type": "VO2max — intervalles courts",
+      "duration_min": 45,
+      "structure": "20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot → 5' retour au calme trot léger.",
+      "zones": "Z5 — FC 92-97% FCmax",
+      "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
+      "tss_estimate": 54,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-27",
+      "weekday": "Wednesday",
+      "weekday_fr": "Mercredi",
+      "rel_day": -4,
+      "sport": "Swim",
+      "type": "Endurance + technique",
+      "duration_min": 50,
+      "structure": "400 m échauffement nage souple (50 crawl + 50 dos alternés) → 10×100 m (2:00/100m) r=20s → 200 m retour au calme nage souple. Total ~2000 m.",
+      "zones": "Z3-Z4 (CSS = 2:00/100m)",
+      "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
+      "tss_estimate": 39,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-28",
+      "weekday": "Thursday",
+      "weekday_fr": "Jeudi",
+      "rel_day": -3,
+      "sport": "VirtualRide",
+      "type": "Seuil — sweet spot",
+      "duration_min": 60,
+      "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
+      "zones": "Z4 (sweet spot 88-94% FTP)",
+      "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
+      "tss_estimate": 77,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-29",
+      "weekday": "Friday",
+      "weekday_fr": "Vendredi",
+      "rel_day": -2,
+      "sport": "Strength",
+      "type": "Renforcement musculaire",
+      "duration_min": 45,
+      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+      "zones": "Force-endurance — pas de cardio",
+      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
+      "tss_estimate": 0,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-30",
+      "weekday": "Saturday",
+      "weekday_fr": "Samedi",
+      "rel_day": -1,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+      "zones": "",
+      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
+      "tss_estimate": 0,
+      "status": "ideal"
+    },
+    {
+      "date": "2026-05-31",
+      "weekday": "Sunday",
+      "weekday_fr": "Dimanche",
+      "rel_day": 0,
+      "sport": "VirtualRide",
+      "type": "Sortie longue vélo",
+      "duration_min": 90,
+      "structure": "15' échauffement progressif Z1→Z2 → vélo 70' continu Z2 (140-188 W, cadence 85-90 rpm) → 5' retour au calme Z1 (<140 W).",
+      "zones": "Z2 — 140-188 W",
+      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
+      "tss_estimate": 78,
+      "status": "ideal"
+    }
+  ],
+  "next_week_plan_totals": {
+    "total_minutes": 290,
+    "total_minutes_str": "~4h50",
+    "total_tss": 248
+  },
   "weekly_plan": [
     {
       "date": "2026-05-18",
@@ -735,7 +947,7 @@
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
-      "structure": "10' échauffement trot progressif Z1→Z2 + éducatifs → 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot → 10' retour au calme trot léger + étirements.",
+      "structure": "20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot → 5' retour au calme trot léger.",
       "zones": "Z5 — FC 92-97% FCmax",
       "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
       "tss_estimate": 54,
@@ -785,7 +997,7 @@
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
-      "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 8' retour au calme Z1 (<140 W, cadence souple).",
+      "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
       "tss_estimate": 77,
@@ -840,7 +1052,7 @@
       "sport": "Run",
       "type": "Sortie longue CAP",
       "duration_min": 60,
-      "structure": "10' échauffement trot Z1 → 40' en Z2 (5:45/km) → optionnel : 10' à allure marathon (4:53/km) → 10' retour au calme trot Z1 + étirements.",
+      "structure": "20' échauffement : 10' trot Z1 + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' Z2 → 35' en Z2 (5:45/km) → optionnel : 5' à allure marathon (4:53/km) → 5' retour au calme trot Z1.",
       "zones": "Z2 — FC 75-85% LTHR",
       "rationale": "Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, oxydation lipidique (Seiler). Unique sortie longue de la semaine.",
       "tss_estimate": 52,
@@ -979,21 +1191,28 @@
         "duathlon_tsb": 12.3,
         "note": "Programme structuré duathlon M (oct25→mai26) bien exécuté. Pic CTL 46.6 le 11/04, affûtage propre (TSB +12 le jour J). Décompression post-course normale depuis le 3 mai."
       },
+      "cycle_structure": "4+1 (4 semaines de charge progressive + 1 semaine récup)",
+      "periodization_rules": {
+        "intra_bloc_progression_max_pct": 10,
+        "recovery_week_pct_of_bloc_peak": 65,
+        "reload_week_pct_of_prev_bloc_peak": 85,
+        "source": "Issurin (2008) Block Periodization; Seiler (2010) 80/20; Coggan & Allen (2010) PMC; consensus : progression ≤10%/sem, récup 60-65% du pic, reprise à 85% du pic du bloc précédent (pas de marche brutale)"
+      },
       "weekly_tss_targets": {
-        "S01_25mai": 250,
-        "S02_01juin": 270,
-        "S03_08juin": 300,
-        "S04_15juin": 320,
-        "S05_22juin": 345,
-        "S06_29juin_recup": 220,
-        "S07_06juil": 360,
-        "S08_13juil": 380,
-        "S09_20juil": 400,
-        "S10_27juil_pic1": 420,
-        "S11_03aout_pic2": 430,
-        "S12_10aout_affutage1": 300,
-        "S13_17aout_affutage2": 220,
-        "S14_24aout_course": 160
+        "2026-05-25": 270,
+        "2026-06-01": 292,
+        "2026-06-08": 315,
+        "2026-06-15": 340,
+        "2026-06-22": 220,
+        "2026-06-29": 290,
+        "2026-07-06": 315,
+        "2026-07-13": 340,
+        "2026-07-20": 368,
+        "2026-07-27": 240,
+        "2026-08-03": 315,
+        "2026-08-10": 345,
+        "2026-08-17": 245,
+        "2026-08-24": 145
       },
       "notes": "Post-duathlon M Bain-de-Bretagne (03/05/2026). CTL redescendu à 37.6 après 3 semaines de décompression. Build progressif jusqu'au pic (S11, 03-09/08) puis affûtage 3 semaines. CTL attendu race day ~42, TSB ~+15."
     },
@@ -1130,13 +1349,14 @@
           "Strength",
           "Renforcement musculaire"
         ],
-        "warmup_run_min": 10,
+        "warmup_run_min": 20,
+        "warmup_run_content": "10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives",
         "warmup_bike_min": 15,
         "warmup_swim_m": 400,
-        "cooldown_run_min": 10,
-        "cooldown_bike_min": 8,
+        "cooldown_run_min": 5,
+        "cooldown_bike_min": 5,
         "cooldown_swim_m": 200,
-        "note": "Toutes les séances cardio (run, vélo, natation, brick) doivent inclure un échauffement progressif et un retour au calme explicites dans la description de la structure."
+        "note": "CAP : 20' échauffement avec gammes obligatoires, 5' retour au calme. Vélo : 15' échauffement, 5' retour au calme. Natation : 400m écha, 200m retour au calme. Renforcement musculaire : pas d'écha/cool cardio."
       },
       "notes": [
         "Préfère les séances du matin ou en soirée selon contraintes pro.",
@@ -1203,7 +1423,7 @@
       {
         "date": "2026-05-24",
         "author": "Claude / Cowork",
-        "note": "Analyse PMC 6 mois (nov.2025 → mai 2026). Duathlon M Bain-de-Bretagne (03/05) bien préparé : CTL pic 46.6 (11/04), TSB +12 le jour J. Reprogrammation saison Quimperlé : build progressif 250→430 TSS/sem, semaine de récup S06, pic S10-S11 (420-430 TSS), affûtage 3 semaines. CTL race day visé : 42, TSB : +14. CTL pic cible révisé à 50 (vs 60 initial, plus réaliste vu la base actuelle de 37.6)."
+        "note": "Analyse PMC 6 mois (nov.2025 → mai 2026). Duathlon M Bain-de-Bretagne (03/05) bien préparé : CTL pic 46.6 (11/04), TSB +12 le jour J. Reprogrammation saison Quimperlé : cycle 3+1 strict (3 sem. charge + 1 sem. récup à ~65%), 2 semaines de récup (S04 et S08), pic S09-S11 (410-435 TSS), affûtage 3 semaines. CTL race day visé : 42, TSB : +15. CTL pic cible révisé à 50."
       }
     ]
   },

@@ -371,95 +371,34 @@ def plan_item_to_event(item: dict, thresholds: dict) -> dict | None:
 # Point d'entrée principal
 # ---------------------------------------------------------------------------
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Envoie le plan hebdomadaire sur Intervals.icu")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Affiche les séances sans les envoyer")
-    parser.add_argument("--replace", action="store_true",
-                        help="Supprime les séances existantes de la semaine avant d'envoyer")
-    parser.add_argument("--week", default=None,
-                        help="Date de début de semaine (YYYY-MM-DD, lundi). Défaut = semaine courante.")
-    args = parser.parse_args()
+def push_week(client: "IntervalsClient", week_monday: date, plan: list[dict],
+              thresholds: dict, do_replace: bool, dry_run: bool, label: str) -> tuple[int, int]:
+    """Envoie un plan hebdomadaire vers Intervals.icu. Retourne (sent, errors)."""
+    week_sunday = week_monday + timedelta(days=6)
+    print(f"\n{'='*60}")
+    print(f"📅 {label} — du {week_monday.isoformat()} au {week_sunday.isoformat()}")
 
-    today = date.today()
-    if args.week:
-        week_monday = date.fromisoformat(args.week)
-    else:
-        week_monday = today - timedelta(days=today.weekday())
-
-    print(f"📅 Semaine du {week_monday.isoformat()} au {(week_monday + timedelta(days=6)).isoformat()}")
-
-    client = IntervalsClient()
-    print(f"🔗 Connexion Intervals.icu OK — athlète {client.athlete_id}")
-
-    # Récupération du profil YAML (race_date, etc.)
-    profile_path = ROOT / "config" / "athlete_profile.yaml"
-    try:
-        import yaml  # type: ignore
-        athlete_profile_raw = yaml.safe_load(profile_path.read_text()) if profile_path.exists() else {}
-    except Exception:
-        athlete_profile_raw = {}
-
-    race_date = None
-    race_cfg = (athlete_profile_raw or {}).get("race", {})
-    if race_cfg.get("date"):
-        try:
-            race_date = date.fromisoformat(str(race_cfg["date"]))
-        except ValueError:
-            pass
-
-    # Récupération des données API
-    thresholds = client.get_thresholds()
-    activities = client.activities(today - timedelta(days=42))
-    wellness_data = client.wellness(today - timedelta(days=14))
-
-    # Forme du jour (TSB)
-    today_w = next((w for w in wellness_data if w.get("id") == today.isoformat()),
-                   wellness_data[-1] if wellness_data else {})
-    ctl = today_w.get("ctl") or 0
-    atl = today_w.get("atl") or 0
-    tsb = ctl - atl
-    form = classify_form(tsb)
-
-    session_profile = average_session_profile(activities, 28)
-
-    # Construction du plan
-    plan, weeks_to_race, phase = build_weekly_plan(
-        week_monday, form, session_profile, thresholds, race_date
-    )
-
-    print(f"🏋️  Phase : {phase}")
-    if weeks_to_race is not None:
-        print(f"⏱️  Semaines avant course : {weeks_to_race}")
-    print()
-
-    # Conversion en events
     events_to_send = []
     for item in plan:
         ev = plan_item_to_event(item, thresholds)
         if ev:
             events_to_send.append((item, ev))
 
-    print(f"📋 {len(events_to_send)} séances à envoyer :\n")
+    print(f"📋 {len(events_to_send)} séances :")
     for item, ev in events_to_send:
         print(f"  • {ev['start_date_local']} [{item['weekday_fr']:>8}] {ev['name']}")
 
-    if args.dry_run:
-        print("\n🔍 Mode dry-run — aucun envoi effectué.")
-        print("\nExemple de payload JSON pour la 1re séance :")
-        print(json.dumps(events_to_send[0][1], indent=2, ensure_ascii=False))
-        return
+    if dry_run:
+        print("🔍 Mode dry-run — aucun envoi.")
+        return 0, 0
 
-    # Suppression préalable si --replace
-    if args.replace:
+    if do_replace:
         deleted = client.delete_week_workouts(week_monday)
         if deleted:
-            print(f"\n🗑️  {len(deleted)} séances existantes supprimées : {deleted}")
+            print(f"🗑️  {len(deleted)} séances supprimées : {deleted}")
         else:
-            print("\n✅ Aucune séance existante à supprimer.")
+            print("✅ Aucune séance existante à supprimer.")
 
-    # Envoi
-    print()
     sent, errors = 0, 0
     for item, ev in events_to_send:
         try:
@@ -470,8 +409,98 @@ def main() -> None:
             print(f"  ❌ {ev['start_date_local']} — {ev['name']} : {e}")
             errors += 1
 
-    print(f"\n🎯 Résumé : {sent} séances envoyées, {errors} erreurs.")
-    if sent > 0:
+    return sent, errors
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Envoie le plan des 2 semaines sur Intervals.icu")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Affiche les séances sans les envoyer")
+    parser.add_argument("--replace", action="store_true",
+                        help="Supprime les séances existantes avant d'envoyer")
+    parser.add_argument("--week", default=None,
+                        help="Date de début de semaine (YYYY-MM-DD, lundi). Défaut = semaine courante.")
+    parser.add_argument("--only-current", action="store_true",
+                        help="N'envoie que la semaine en cours (pas la suivante).")
+    args = parser.parse_args()
+
+    today = date.today()
+    if args.week:
+        week_monday = date.fromisoformat(args.week)
+    else:
+        week_monday = today - timedelta(days=today.weekday())
+
+    next_week_monday = week_monday + timedelta(days=7)
+
+    client = IntervalsClient()
+    print(f"🔗 Connexion Intervals.icu OK — athlète {client.athlete_id}")
+
+    # Récupération du profil (race_date)
+    race_date = None
+    try:
+        import json as _json
+        athlete_json_path = ROOT / "data" / "athlete_profile.json"
+        if athlete_json_path.exists():
+            _ap = _json.loads(athlete_json_path.read_text())
+            _rd = _ap.get("season", {}).get("race", {}).get("date")
+            if _rd:
+                race_date = date.fromisoformat(str(_rd))
+    except Exception:
+        pass
+    if not race_date:
+        try:
+            import yaml  # type: ignore
+            profile_path = ROOT / "config" / "athlete_profile.yaml"
+            if profile_path.exists():
+                raw = yaml.safe_load(profile_path.read_text()) or {}
+                _rd = raw.get("race", {}).get("date")
+                if _rd:
+                    race_date = date.fromisoformat(str(_rd))
+        except Exception:
+            pass
+
+    # Données API
+    thresholds = client.get_thresholds()
+    activities = client.activities(today - timedelta(days=42))
+    wellness_data = client.wellness(today - timedelta(days=14))
+
+    today_w = next((w for w in wellness_data if w.get("id") == today.isoformat()),
+                   wellness_data[-1] if wellness_data else {})
+    ctl = today_w.get("ctl") or 0
+    atl = today_w.get("atl") or 0
+    form = classify_form(ctl - atl)
+
+    session_profile = average_session_profile(activities, 28)
+
+    # Plan semaine en cours (théorique — sans match activités)
+    plan_cur, weeks_to_race, phase = build_weekly_plan(
+        week_monday, form, session_profile, thresholds, race_date
+    )
+
+    print(f"🏋️  Phase : {phase}")
+    if weeks_to_race is not None:
+        print(f"⏱️  Semaines avant course : {weeks_to_race}")
+
+    if args.dry_run:
+        print("\n🔍 Mode dry-run activé — aucun envoi ne sera effectué.")
+
+    total_sent, total_errors = 0, 0
+
+    s, e = push_week(client, week_monday, plan_cur, thresholds,
+                     args.replace, args.dry_run, "Semaine en cours")
+    total_sent += s; total_errors += e
+
+    if not args.only_current:
+        plan_next, _, _ = build_weekly_plan(
+            next_week_monday, form, session_profile, thresholds, race_date
+        )
+        s, e = push_week(client, next_week_monday, plan_next, thresholds,
+                         args.replace, args.dry_run, "Semaine suivante")
+        total_sent += s; total_errors += e
+
+    print(f"\n{'='*60}")
+    print(f"🎯 Total : {total_sent} séances envoyées, {total_errors} erreurs.")
+    if total_sent > 0:
         print("👉 Ouvre Intervals.icu → Calendrier pour vérifier, "
               "puis synchronise avec Garmin Connect (Settings → Connections).")
 
