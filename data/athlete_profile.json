@@ -61,9 +61,37 @@
     "ctl": 37.6,
     "atl": 32.1,
     "tsb": 5.5,
-    "target_ctl_peak": 60,
+    "target_ctl_peak": 50,
+    "target_ctl_race_day": 42,
+    "target_tsb_race_day": 14,
     "avg_weekly_tss_28d": 259,
-    "notes": "En phase de build. CTL à faire progresser de +3-4/sem max jusqu'au pic (semaine ~14 avant course)."
+    "season_pmc_history": {
+      "source": "Intervals.icu wellness 6 mois",
+      "ctl_nov2025": 20.4,
+      "ctl_jan2026": 26.0,
+      "ctl_pic_avril": 46.6,
+      "ctl_duathlon_3mai": 38.2,
+      "ctl_actuel_24mai": 37.6,
+      "duathlon_tsb": 12.3,
+      "note": "Programme structuré duathlon M (oct25→mai26) bien exécuté. Pic CTL 46.6 le 11/04, affûtage propre (TSB +12 le jour J). Décompression post-course normale depuis le 3 mai."
+    },
+    "weekly_tss_targets": {
+      "S01_25mai": 250,
+      "S02_01juin": 270,
+      "S03_08juin": 300,
+      "S04_15juin": 320,
+      "S05_22juin": 345,
+      "S06_29juin_recup": 220,
+      "S07_06juil": 360,
+      "S08_13juil": 380,
+      "S09_20juil": 400,
+      "S10_27juil_pic1": 420,
+      "S11_03aout_pic2": 430,
+      "S12_10aout_affutage1": 300,
+      "S13_17aout_affutage2": 220,
+      "S14_24aout_course": 160
+    },
+    "notes": "Post-duathlon M Bain-de-Bretagne (03/05/2026). CTL redescendu à 37.6 après 3 semaines de décompression. Build progressif jusqu'au pic (S11, 03-09/08) puis affûtage 3 semaines. CTL attendu race day ~42, TSB ~+15."
   },
 
   "race_format": {
@@ -207,7 +235,8 @@
       "notes": "Objectif total 2h35 déclaré par David le 2026-05-24. Drafting autorisé sur le vélo. Découpage estimé : natation 28' (1:52/100m), T1 3', vélo 1h10 (34.3 km/h — drafting autorisé → ~160-180W normalisés vs ~230W en solo), T2 2', run 52' (5:12/km). La stratégie vélo vise à préserver les jambes pour le run : rester en groupe, puissance modérée, gérer les relances."
     },
     "pre_race_fitness": {
-      "ctl_target": 55,
+      "ctl_target": 42,
+      "ctl_peak_target": 50,
       "tsb_target_race_day": "+10 à +15",
       "ftp_target_watts": 270,
       "threshold_run_pace_target": "4:40/km",
@@ -240,6 +269,11 @@
       "date": "2026-05-24",
       "author": "David",
       "note": "Précision format course : drafting autorisé sur le vélo. Stratégie et objectifs de puissance révisés en conséquence (165W vs 230W). La natation devient l'enjeu stratégique principal pour intégrer le bon groupe."
+    },
+    {
+      "date": "2026-05-24",
+      "author": "Claude / Cowork",
+      "note": "Analyse PMC 6 mois (nov.2025 → mai 2026). Duathlon M Bain-de-Bretagne (03/05) bien préparé : CTL pic 46.6 (11/04), TSB +12 le jour J. Reprogrammation saison Quimperlé : build progressif 250→430 TSS/sem, semaine de récup S06, pic S10-S11 (420-430 TSS), affûtage 3 semaines. CTL race day visé : 42, TSB : +14. CTL pic cible révisé à 50 (vs 60 initial, plus réaliste vu la base actuelle de 37.6)."
     }
   ]
 }
