@@ -205,38 +205,48 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
         pace_seuil = _run_pace(thresholds, 0.97, 1.03)   # ~seuil
         pace_vo2   = _run_pace(thresholds, 1.03, 1.08)   # ~VO2max
 
+        # Échauffement CAP : 20 min avec gammes, retour au calme : 5 min
         if "VO2max" in wtype or "intervalles" in wtype.lower():
+            bloc_min = max(duration_min - 25, 15)  # 20' écha + 5' cool
             lines = [
-                f"- 15m {pace_z2}",
+                f"- 10m {pace_z2}",                          # trot progressif
+                f"- 5m {pace_z1}",                           # gammes (talons-fesses, montées genoux, foulées bondissantes)
+                f"- 5m {pace_z2}",                           # accélérations progressives
                 "",
                 "7x",
                 f"- 3m {pace_vo2}",
                 f"- 2m {pace_z1}",
                 "",
-                f"- 10m {pace_z1}",
+                f"- 5m {pace_z1}",                          # retour au calme 5'
             ]
         elif "Seuil" in wtype or "tempo" in wtype.lower():
-            bloc_min = max(duration_min - 20, 20)
+            bloc_min = max(duration_min - 25, 20)
             lines = [
                 f"- 10m {pace_z2}",
+                f"- 5m {pace_z1}",                           # gammes
+                f"- 5m {pace_z2}",                           # accélérations
                 "",
                 f"- {bloc_min}m {pace_seuil}",
                 "",
-                f"- 10m {pace_z1}",
+                f"- 5m {pace_z1}",
             ]
         elif "Sortie longue" in wtype or "long" in wtype.lower():
-            bloc_min = max(duration_min - 20, 30)
+            bloc_min = max(duration_min - 25, 30)
             lines = [
                 f"- 10m {pace_z1}",
+                f"- 5m {pace_z1}",                           # gammes légères
+                f"- 5m {pace_z2}",
                 "",
                 f"- {bloc_min}m {pace_z2}",
                 "",
-                f"- 10m {pace_z1}",
+                f"- 5m {pace_z1}",
             ]
         else:
-            bloc_min = max(duration_min - 10, 20)
+            bloc_min = max(duration_min - 25, 20)
             lines = [
-                f"- 5m {pace_z1}",
+                f"- 10m {pace_z1}",
+                f"- 5m {pace_z1}",                           # gammes
+                f"- 5m {pace_z2}",
                 "",
                 f"- {bloc_min}m {pace_z2}",
                 "",
@@ -245,6 +255,7 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
 
     # ---- VÉLO ----
     elif sport in ("VirtualRide", "Ride"):
+        # Échauffement vélo : 15 min, retour au calme : 5 min
         if "sweet spot" in wtype.lower() or "Seuil" in wtype:
             lines = [
                 "- Échauffement 15m 56-75%",
@@ -253,21 +264,21 @@ def build_workout_text(item: dict, thresholds: dict) -> str | None:
                 "- Sweet Spot 12m 88-94%",
                 "- Récupération 4m 50-60%",
                 "",
-                "- Retour au calme 8m 50-60%",
+                "- Retour au calme 5m 50-60%",
             ]
         elif "Sortie longue" in wtype:
             bloc_min = max(duration_min - 20, 60)
             lines = [
-                "- Mise en route 10m 50-65%",
+                "- Mise en route 15m 50-65%",
                 "",
                 f"- Endurance {bloc_min}m 56-75%",
                 "",
-                "- Retour au calme 10m 50-60%",
+                "- Retour au calme 5m 50-60%",
             ]
         else:
-            bloc_min = max(duration_min - 15, 30)
+            bloc_min = max(duration_min - 20, 30)
             lines = [
-                "- Mise en route 10m 50-65%",
+                "- Mise en route 15m 50-65%",
                 "",
                 f"- Endurance {bloc_min}m 56-75%",
                 "",

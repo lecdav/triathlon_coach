@@ -203,13 +203,14 @@
     "warmup_cooldown": {
       "required": true,
       "exceptions": ["Strength", "Renforcement musculaire"],
-      "warmup_run_min": 10,
+      "warmup_run_min": 20,
+      "warmup_run_content": "10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives",
       "warmup_bike_min": 15,
       "warmup_swim_m": 400,
-      "cooldown_run_min": 10,
-      "cooldown_bike_min": 8,
+      "cooldown_run_min": 5,
+      "cooldown_bike_min": 5,
       "cooldown_swim_m": 200,
-      "note": "Toutes les séances cardio (run, vélo, natation, brick) doivent inclure un échauffement progressif et un retour au calme explicites dans la description de la structure."
+      "note": "CAP : 20' échauffement avec gammes obligatoires, 5' retour au calme. Vélo : 15' échauffement, 5' retour au calme. Natation : 400m écha, 200m retour au calme. Renforcement musculaire : pas d'écha/cool cardio."
     },
     "notes": [
       "Préfère les séances du matin ou en soirée selon contraintes pro.",

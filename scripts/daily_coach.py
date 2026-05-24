@@ -328,17 +328,17 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
             if deload:
                 item.update(sport="Run", type="Endurance souple",
                             duration_min=avg_run["avg_minutes"],
-                            structure=f"10' échauffement trot léger Z1 → "
+                            structure=f"20' échauffement : 10' trot Z1 + 5' gammes légères + 5' Z2 → "
                                       f"footing continu en Z2 ({p_run_easy}) → "
-                                      f"10' retour au calme marche/trot Z1.",
+                                      f"5' retour au calme marche/trot Z1.",
                             zones="Z1-Z2 — FC <80% LTHR",
                             rationale="Volume sans intensité, ATL trop élevé.")
             else:
                 item.update(sport="Run", type="VO2max — intervalles courts",
                             duration_min=max(avg_run["avg_minutes"], 45),
-                            structure=f"10' échauffement trot progressif Z1→Z2 + éducatifs → "
+                            structure=f"20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → "
                                       f"6 à 8 × 3' à allure 5km ({p_run_z4}) r=2' trot → "
-                                      f"10' retour au calme trot léger + étirements.",
+                                      f"5' retour au calme trot léger.",
                             zones=f"Z5 — FC 92-97% FCmax",
                             rationale="Bloc 80/20 : la séance dure du haut du spectre, "
                                       "stimulation VO2max (Helgerud 2007).")
@@ -358,8 +358,8 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                 item.update(sport="VirtualRide", type="Endurance",
                             duration_min=avg_bike["avg_minutes"],
                             structure=f"15' échauffement progressif Z1→Z2 (cadence libre) → "
-                                      f"Z2 continu {z2_low}-{z2_high} W (~{max(int(avg_bike['avg_minutes']) - 23, 20)}') → "
-                                      f"8' retour au calme Z1 (<{z2_low} W).",
+                                      f"Z2 continu {z2_low}-{z2_high} W (~{max(int(avg_bike['avg_minutes']) - 20, 20)}') → "
+                                      f"5' retour au calme Z1 (<{z2_low} W).",
                             zones=f"Z2 — {z2_low}-{z2_high} W",
                             rationale="Volume aérobie pur, pas de stress neuromusculaire.")
             else:
@@ -367,7 +367,7 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                             duration_min=max(avg_bike["avg_minutes"], 60),
                             structure=f"15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → "
                                       f"3×12' à {z4_low}-{ftp} W r=4' Z1 → "
-                                      f"8' retour au calme Z1 (<{z2_low} W, cadence souple).",
+                                      f"5' retour au calme Z1 (<{z2_low} W, cadence souple).",
                             zones=f"Z4 (sweet spot 88-94% FTP)",
                             rationale="Travail seuil = pilier triathlon M. "
                                       "Sweet spot = bon ratio stimulus/coût (Seiler).")
@@ -413,18 +413,18 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                     item.update(sport="VirtualRide", type="Sortie longue vélo",
                                 duration_min=int(long_bike_min),
                                 structure=f"15' échauffement progressif Z1→Z2 → "
-                                          f"vélo {int(long_bike_min) - 23}' continu Z2 ({z2_low}-{z2_high} W, cadence 85-90 rpm) → "
-                                          f"8' retour au calme Z1 (<{z2_low} W).",
+                                          f"vélo {int(long_bike_min) - 20}' continu Z2 ({z2_low}-{z2_high} W, cadence 85-90 rpm) → "
+                                          f"5' retour au calme Z1 (<{z2_low} W).",
                                 zones=f"Z2 — {z2_low}-{z2_high} W",
                                 rationale="Sortie longue vélo dominicale (semaine paire) — volume aérobie "
                                           "spécifique triathlon, développement du moteur lipidique à vélo.")
                 else:
                     item.update(sport="Run", type="Sortie longue CAP",
                                 duration_min=long_run_min,
-                                structure=f"10' échauffement trot Z1 → "
-                                          f"{long_run_min - 20}' en Z2 ({p_run_easy}) → "
-                                          f"optionnel : 10' à allure marathon ({p_run_thr}) → "
-                                          f"10' retour au calme trot Z1 + étirements.",
+                                structure=f"20' échauffement : 10' trot Z1 + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' Z2 → "
+                                          f"{long_run_min - 25}' en Z2 ({p_run_easy}) → "
+                                          f"optionnel : 5' à allure marathon ({p_run_thr}) → "
+                                          f"5' retour au calme trot Z1.",
                                 zones="Z2 — FC 75-85% LTHR",
                                 rationale="Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, "
                                           "oxydation lipidique (Seiler). Unique sortie longue de la semaine.")
