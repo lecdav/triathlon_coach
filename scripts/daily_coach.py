@@ -1239,11 +1239,7 @@ def run() -> dict:
     # Message coach généré après le snapshot complet (a besoin du plan enrichi)
     snapshot["coach_message"] = generate_coach_message(snapshot)
 
-    # Sortie : Markdown + JSON cache
-    md = render_markdown(snapshot)
-    md_path = REPORT_DIR / f"{today.isoformat()}.md"
-    md_path.write_text(md)
-
+    # Sortie : JSON cache uniquement (plus de rapport Markdown)
     cache_path = CACHE_DIR / "today.json"
     cache_path.write_text(json.dumps(snapshot, indent=2, default=str))
 
@@ -1254,8 +1250,6 @@ def run() -> dict:
     # Dashboard GitHub Pages — met à jour index.html et pousse sur GitHub
     gh_pages_path = build_github_pages_dashboard(snapshot)
 
-    print(md)
-    print(f"\n---\nRapport sauvegardé : {md_path}")
     print(f"Cache JSON : {cache_path}")
     if dashboard_path:
         print(f"Dashboard Cowork : {dashboard_path}")

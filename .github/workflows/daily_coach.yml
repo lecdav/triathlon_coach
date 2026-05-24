@@ -41,12 +41,12 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scripts/daily_coach.py
 
-      # 5. Commit et pousse index.html + rapport du jour
+      # 5. Commit et pousse index.html uniquement
       - name: Commit & push dashboard
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html reports/daily/ --force
+          git add index.html --force
           # Ne commite que s'il y a des changements
           git diff --cached --quiet || git commit -m "chore: snapshot quotidien $(date -u '+%Y-%m-%d')"
           git push

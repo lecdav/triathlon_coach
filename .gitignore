@@ -15,3 +15,6 @@ __pycache__/
 # car il contient le snapshot avec des données perso ; seul index.html
 # (version GitHub Pages) est poussé par le workflow CI.
 reports/dashboard.html
+
+# Rapports daily — générés à chaque run, non versionnés
+reports/daily/
