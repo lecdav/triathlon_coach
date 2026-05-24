@@ -109,8 +109,8 @@
 <!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
 <script type="application/json" id="snapshot">
 {
-  "today": "2026-05-23",
-  "generated_at": "2026-05-23T07:11:29",
+  "today": "2026-05-24",
+  "generated_at": "2026-05-24T06:49:08",
   "week_monday": "2026-05-18",
   "week_sunday": "2026-05-24",
   "form": {
@@ -121,13 +121,13 @@
     "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
   },
   "metrics": {
-    "ctl": 37.091885,
-    "atl": 27.794712,
-    "tsb": 9.297172999999997,
-    "ramp_rate": -0.56765366,
-    "resting_hr": 54,
-    "sleep_hours": 7.85,
-    "hrv_status": "HRV nettement basse (-8%) — signal de fatigue parasympathique."
+    "ctl": 36.219173,
+    "atl": 24.094622,
+    "tsb": 12.124550999999997,
+    "ramp_rate": -2.5071487,
+    "resting_hr": null,
+    "sleep_hours": null,
+    "hrv_status": null
   },
   "thresholds": {
     "resting_hr": 54,
@@ -153,8 +153,8 @@
     ],
     "lthr": 168,
     "hr_max": 190,
-    "threshold_pace_run_mps": 3.3898306,
-    "threshold_pace_run_str": "4:55/km",
+    "threshold_pace_run_mps": 3.4129694,
+    "threshold_pace_run_str": "4:53/km",
     "pace_zones_run_pct": [
       77.5,
       87.7,
@@ -177,12 +177,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-02-22",
-      "ctl": 35.45,
-      "atl": 49.21,
-      "tsb": -13.76
-    },
     {
       "date": "2026-02-23",
       "ctl": 36.52,
@@ -722,6 +716,12 @@
       "ctl": 37.09,
       "atl": 27.79,
       "tsb": 9.3
+    },
+    {
+      "date": "2026-05-24",
+      "ctl": 36.22,
+      "atl": 24.09,
+      "tsb": 12.12
     }
   ],
   "load_7d": {
@@ -826,7 +826,7 @@
       "date": "2026-05-18",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -5,
+      "rel_day": -6,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -841,11 +841,11 @@
       "date": "2026-05-19",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -4,
+      "rel_day": -5,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
-      "structure": "15' échauffement + 6 à 8 × 3' à allure 5km (5:04/km) r=2' trot + 10' retour calme.",
+      "structure": "15' échauffement + 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot + 10' retour calme.",
       "zones": "Z5 — FC 92-97% FCmax",
       "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
       "tss_estimate": 54,
@@ -866,7 +866,7 @@
       "date": "2026-05-20",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": -3,
+      "rel_day": -4,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -891,7 +891,7 @@
       "date": "2026-05-21",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 60,
@@ -916,7 +916,7 @@
       "date": "2026-05-22",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -931,7 +931,7 @@
       "date": "2026-05-23",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -946,15 +946,15 @@
       "date": "2026-05-24",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 1,
+      "rel_day": 0,
       "sport": "Run",
       "type": "Sortie longue CAP",
       "duration_min": 60,
-      "structure": "60' continu en Z2 (5:47/km). Optionnel : derniers 10' à allure marathon (4:55/km).",
+      "structure": "60' continu en Z2 (5:45/km). Optionnel : derniers 10' à allure marathon (4:53/km).",
       "zones": "Z2 — FC 75-85% LTHR",
       "rationale": "Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, oxydation lipidique (Seiler). Unique sortie longue de la semaine.",
       "tss_estimate": 52,
-      "status": "todo",
+      "status": "today",
       "actual_activities": []
     }
   ],
@@ -968,7 +968,7 @@
   "phase": "Préparation générale (base aérobie)",
   "race_name": "Triathlon M de Quimperlé",
   "race_date": "2026-08-30",
-  "coach_message": "# Message Coach — David, 23/05/2026\n\n**🔋 La forme est là, mec — TSB à +9.3, c'est ta fenêtre idéale pour frapper fort.**\n\n**Bilan semaine** : Trois belles séances en boîte (VO2max mardi, technique nage mercredi, seuil vélo jeudi). Mais tu as zappé le renforcement vendredi — ce n'est pas dramatique, mais c'est dommage en phase de base où le gainage prépare les semaines chargées qui arrivent.\n\n**Ce qui fonctionne** : Ton aérobie se construit solide (CTL 37.1, c'est cohérent pour 14 semaines avant Quimperlé). Ton FC repos à 54 bpm confirme une bonne récupération. Et honnêtement, ta gestion du seuil au vélo jeudi (163 TSS) montre que tu peux encaisser — c'est une vraie base.\n\n**À bosser en priorité** : \n1. **Rattrape ce renfo cette semaine** — 2×30 min de gainage/pliométrie. C'est ton assurance-blessure pour les 3 prochains mois.\n2. **Consolide ta CSS natation** (2:00/100m) avec 1-2 séances d'endurance natation pure avant d'ajouter de l'intensité. Pas d'urgence mais c'est ton maillon.\n\n**Où tu en es** : Fin de base aérobie. Dans 2-3 semaines, on monte graduellement la charge — tolérance augmente, et toi tu es prêt. Quimperlé, c'est loin mais bien en vue.\n\n**Repos aujourd'hui, recharge bien.**"
+  "coach_message": "# 🎯 Briefing Coach — Dimanche 24 mai\n\n**Franchement, tu es en excellente fenêtre aujourd'hui.**\nTSB +12 = tu as récupéré, l'énergie est là. C'est le moment idéal pour te donner une belle séance clé. Ta sortie longue CAP de 60' en Z2 est parfaite pour consolider cette base aérobie qui te manque pour tenir un M en août.\n\n**Semaine quasi complète, mais pas parfaite.**\nMardi (VO2max run) ✓ | Mercredi (swim technique) ✓ | Jeudi (seuil vélo) ✓ — tu construis bien. Le manque ? Le renforcement musculaire vendredi. C'est pas dramatique cette semaine, mais tu dois l'intégrer régulièrement : tes jambes auront besoin de cette stabilité en crawl et en pédalage à mesure qu'on monte en volume.\n\n**Tes vraies forces :**\n1. **Charge cohérente** : 244 TSS/sem en moyenne — c'est solide et durable pour une phase de base. Tu ne fonces pas tête baissée.\n2. **Équilibre multi-disciplinaire** : tu touches les trois sports + transition. Beaucoup de triathlètes négligent ça. Pas toi.\n3. **Travail seuil/intensité bien dosé** : ton Jeudi a été dur (163 TSS) mais sans te pourrir — c'est du travail intelligent.\n\n**Deux priorités maintenant :**\n1. **Réintègre le renforcement** — 2×/sem, 20-30 min. Ceinture, gainage, squats. Non négociable en prépa générale. Ça prévient les blessures et ça te rend plus efficace partout.\n2. **Consolidé la distance CAP** : ta sortie longue aujourd'hui doit devenir un repère (tu touches déjà ton seuil à 4:53). Dans 4 semaines, tu vises 90' en Z2. C'est ta fenêtre de progression immédiate.\n\n**Où tu en es :**\n14 semaines jusqu'à Quimperlé, tu es en phase générale. Les fondations (aérobie, technique) se construisent là. Le vrai travail intensité viendra en juin-juillet. Pour l'instant : consolide, renforce, construis la distance — tu es sur la bonne route.\n\nAllez, vas-y sec sur cette sortie longue. 💪"
 }
 </script>
 
