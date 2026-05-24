@@ -1,0 +1,210 @@
+{
+  "_meta": {
+    "description": "Profil athlète David — source de vérité pour la génération des plans et séances. À mettre à jour au fil de la saison.",
+    "last_updated": "2026-05-24",
+    "version": "1.0"
+  },
+
+  "identity": {
+    "name": "David",
+    "email": "lec.david@gmail.com",
+    "age": null,
+    "weight_kg": 78.0,
+    "sex": "M"
+  },
+
+  "performance_level": {
+    "category": "Amateur confirmé",
+    "years_in_triathlon": null,
+    "primary_discipline_strength": "Vélo",
+    "primary_discipline_weakness": "Natation",
+    "notes": "Bonne régularité sur les 3 disciplines. Natation à densifier (1 séance/sem actuellement, objectif 2/sem en build)."
+  },
+
+  "thresholds": {
+    "updated": "2026-05-24",
+    "cycling": {
+      "ftp_watts": 250,
+      "lthr_bpm": 168,
+      "hr_max_bpm": 190,
+      "hr_zones_bpm": [138, 153, 160, 171, 176, 181, 190],
+      "power_zones_pct_ftp": [55, 75, 90, 105, 120, 150, 999]
+    },
+    "run": {
+      "threshold_pace_str": "4:53/km",
+      "threshold_pace_mps": 3.4129694,
+      "lthr_bpm": null,
+      "hr_max_bpm": 190,
+      "hr_zones_bpm": [142, 149, 158, 167, 172, 177, 190],
+      "pace_zones_pct_threshold": [77.5, 87.7, 94.3, 100.0, 103.4, 111.5, 999.0]
+    },
+    "swim": {
+      "css_str": "2:00/100m",
+      "css_mps": 0.8333333,
+      "notes": "CSS estimée — à recalibrer avec test 400/200m."
+    },
+    "resting_hr_bpm": 51,
+    "history": [
+      {
+        "date": "2026-05-24",
+        "ftp_watts": 250,
+        "threshold_pace_run": "4:53/km",
+        "css_swim": "2:00/100m",
+        "weight_kg": 78.0,
+        "note": "Valeurs initiales extraites de Intervals.icu"
+      }
+    ]
+  },
+
+  "fitness_baseline": {
+    "updated": "2026-05-24",
+    "ctl": 37.6,
+    "atl": 32.1,
+    "tsb": 5.5,
+    "target_ctl_peak": 60,
+    "avg_weekly_tss_28d": 259,
+    "notes": "En phase de build. CTL à faire progresser de +3-4/sem max jusqu'au pic (semaine ~14 avant course)."
+  },
+
+  "season": {
+    "current_year": 2026,
+    "start_date": "2026-01-01",
+    "race": {
+      "name": "Triathlon M de Quimperlé",
+      "date": "2026-08-30",
+      "distance": "M",
+      "swim_km": 1.5,
+      "bike_km": 40,
+      "run_km": 10,
+      "goal": "Finisher avec bonne gestion des efforts — progression globale sur les 3 disciplines"
+    },
+    "phases": [
+      {
+        "name": "Préparation générale — Base aérobie",
+        "start": "2026-05-05",
+        "end": "2026-06-29",
+        "weeks": 8,
+        "focus": "Construire le moteur aérobie Z2, poser le volume, 80/20",
+        "tss_target_weekly": 260
+      },
+      {
+        "name": "Développement — Seuil et spécifique",
+        "start": "2026-06-30",
+        "end": "2026-07-26",
+        "weeks": 4,
+        "focus": "Intensités seuil, briques vélo/run, volume maintenu",
+        "tss_target_weekly": 300
+      },
+      {
+        "name": "Pic de charge",
+        "start": "2026-07-27",
+        "end": "2026-08-09",
+        "weeks": 2,
+        "focus": "Semaine de charge maximale, simulation course",
+        "tss_target_weekly": 340
+      },
+      {
+        "name": "Affûtage",
+        "start": "2026-08-10",
+        "end": "2026-08-23",
+        "weeks": 2,
+        "focus": "Réduction volume -40%, maintien intensité, récupération",
+        "tss_target_weekly": 180
+      },
+      {
+        "name": "Semaine de course",
+        "start": "2026-08-24",
+        "end": "2026-08-30",
+        "weeks": 1,
+        "focus": "Activation légère, repos, race day",
+        "tss_target_weekly": 80
+      }
+    ]
+  },
+
+  "weekly_structure": {
+    "methodology": "Polarisé 80/20 (Seiler) — 80% du volume en Z1-Z2, 20% en Z4-Z5",
+    "rest_days": ["Monday", "Saturday"],
+    "typical_week": {
+      "Monday": { "sport": "Repos", "type": "Récupération", "tss": 0 },
+      "Tuesday": { "sport": "Run", "type": "VO2max / intervalles", "duration_min": 45, "tss_est": 55 },
+      "Wednesday": { "sport": "Swim", "type": "Endurance + technique (CSS)", "duration_min": 50, "tss_est": 40 },
+      "Thursday": { "sport": "VirtualRide / Ride", "type": "Seuil — sweet spot", "duration_min": 60, "tss_est": 75 },
+      "Friday": { "sport": "Strength", "type": "Renforcement musculaire", "duration_min": 45, "tss": 0 },
+      "Saturday": { "sport": "Repos", "type": "Récupération active", "tss": 0 },
+      "Sunday": {
+        "sport": "Run ou Brick",
+        "type": "Sortie longue (semaines impaires Run, semaines paires Brick vélo+run)",
+        "duration_min": 70,
+        "tss_est": 65
+      }
+    },
+    "session_frequency": {
+      "swim_per_week": 1,
+      "swim_target_per_week": 2,
+      "bike_per_week": 1,
+      "run_per_week": 2,
+      "strength_per_week": 1
+    }
+  },
+
+  "training_preferences": {
+    "indoor_cycling": true,
+    "preferred_cycling_platform": "Zwift / home trainer",
+    "swim_pool_access": true,
+    "long_run_day": "Sunday",
+    "brick_day": "Sunday",
+    "strength_day": "Friday",
+    "tolerated_training_load": "Modéré-élevé — CTL max historique à déterminer",
+    "notes": [
+      "Préfère les séances du matin ou en soirée selon contraintes pro.",
+      "Renforcement musculaire vendredi = charge cardio nulle, préserve le week-end.",
+      "Sorties longues alternées Run/Brick selon semaine paire/impaire."
+    ]
+  },
+
+  "injuries_and_health": {
+    "current_injuries": [],
+    "injury_history": [],
+    "alerts": [],
+    "notes": "Aucune blessure connue au 2026-05-24. À mettre à jour dès qu'un problème survient.",
+    "monitoring": {
+      "hrv_baseline_ms": 47,
+      "resting_hr_baseline_bpm": 51,
+      "sleep_target_hours": 7.5
+    }
+  },
+
+  "key_metrics_targets": {
+    "race_day_targets": {
+      "swim_time": null,
+      "bike_time": null,
+      "run_time": null,
+      "total_time": null,
+      "notes": "Objectifs de temps à définir avec David en fonction de la progression."
+    },
+    "pre_race_fitness": {
+      "ctl_target": 55,
+      "tsb_target_race_day": "+10 à +15",
+      "ftp_target_watts": null,
+      "threshold_run_pace_target": null
+    }
+  },
+
+  "scientific_references": [
+    "Seiler, S. (2010). What is best practice for training intensity and duration distribution in endurance athletes? IJSPP.",
+    "Helgerud, J. et al. (2007). Aerobic high-intensity intervals improve VO2max more than moderate training. Medicine & Science in Sports & Exercise.",
+    "Beattie, K. et al. (2017). The effect of strength training on performance in endurance athletes. Sports Medicine.",
+    "Blagrove, R.C. et al. (2018). Effects of strength training on the physiological determinants of middle- and long-distance running performance. Sports Medicine.",
+    "Coggan, A. (2003). Performance Management Chart — CTL/ATL/TSB model.",
+    "Allen, H. & Coggan, A. (2010). Training and Racing with a Power Meter."
+  ],
+
+  "changelog": [
+    {
+      "date": "2026-05-24",
+      "author": "Claude / Cowork",
+      "note": "Création initiale du profil athlète — données extraites de Intervals.icu et des sessions d'entraînement précédentes."
+    }
+  ]
+}

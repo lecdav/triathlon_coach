@@ -32,6 +32,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports" / "daily"
 CACHE_DIR = ROOT / "data" / "cache"
 PROFILE_PATH = ROOT / "config" / "athlete_profile.yaml"
+ATHLETE_PROFILE_PATH = ROOT / "data" / "athlete_profile.json"
 # data/today.json est la seule sortie versionnée — chargée par index.html via fetch()
 
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1111,18 +1112,29 @@ def run() -> dict:
     client = IntervalsClient()
     today = date.today()
 
-    # Profil athlète YAML
+    # Profil athlète YAML (legacy)
     try:
         import yaml  # type: ignore
         prof_yaml = yaml.safe_load(PROFILE_PATH.read_text()) if PROFILE_PATH.exists() else {}
     except Exception:
         prof_yaml = {}
 
-    race = (prof_yaml or {}).get("race", {})
+    # Profil athlète JSON (source de vérité principale)
+    athlete_profile: dict = {}
+    try:
+        if ATHLETE_PROFILE_PATH.exists():
+            athlete_profile = json.loads(ATHLETE_PROFILE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        athlete_profile = {}
+
+    # Date de course : priorité au profil JSON, fallback YAML
     race_date = None
-    if race.get("date"):
+    _race_json = (athlete_profile.get("season") or {}).get("race", {})
+    _race_yaml = (prof_yaml or {}).get("race", {})
+    _race_date_str = _race_json.get("date") or _race_yaml.get("date")
+    if _race_date_str:
         try:
-            race_date = date.fromisoformat(race["date"])
+            race_date = date.fromisoformat(_race_date_str)
         except ValueError:
             race_date = None
 
@@ -1214,8 +1226,9 @@ def run() -> dict:
         "week_adaptations": week_adaptations,
         "weeks_to_race": weeks_to_race,
         "phase": phase,
-        "race_name": race.get("name"),
-        "race_date": race.get("date"),
+        "race_name": _race_json.get("name") or _race_yaml.get("name"),
+        "race_date": _race_date_str,
+        "athlete_profile": athlete_profile,
     }
 
     # Message coach généré après le snapshot complet (a besoin du plan enrichi)
