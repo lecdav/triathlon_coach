@@ -32,8 +32,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports" / "daily"
 CACHE_DIR = ROOT / "data" / "cache"
 PROFILE_PATH = ROOT / "config" / "athlete_profile.yaml"
-DASHBOARD_TEMPLATE = SCRIPT_DIR / "dashboard_template.html"
-DASHBOARD_OUTPUT = ROOT / "reports" / "dashboard.html"
+# data/today.json est la seule sortie versionnée — chargée par index.html via fetch()
 
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -67,22 +66,6 @@ def git_push_dashboard() -> bool:
     return True
 
 
-def build_dashboard_html(snapshot: dict) -> Path:
-    """Injecte le snapshot JSON dans le template HTML et écrit
-    reports/dashboard.html — version autonome, lisible hors-ligne et
-    réutilisable comme contenu de l'artifact Cowork triathlon-dashboard.
-    """
-    if not DASHBOARD_TEMPLATE.exists():
-        # Ne casse pas le pipeline si le template manque, mais avertit.
-        print(f"⚠️  Template absent ({DASHBOARD_TEMPLATE}) — dashboard.html non généré.")
-        return None
-    template = DASHBOARD_TEMPLATE.read_text(encoding="utf-8")
-    # ensure_ascii=False pour garder les accents/emoji lisibles dans le HTML.
-    snapshot_json = json.dumps(snapshot, indent=2, ensure_ascii=False, default=str)
-    html = template.replace("__SNAPSHOT_JSON__", snapshot_json)
-    DASHBOARD_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    DASHBOARD_OUTPUT.write_text(html, encoding="utf-8")
-    return DASHBOARD_OUTPUT
 
 
 # ---------- Helpers présentation ----------
