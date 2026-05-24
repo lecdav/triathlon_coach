@@ -38,24 +38,23 @@ DASHBOARD_OUTPUT = ROOT / "reports" / "dashboard.html"
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Chemin vers le dashboard public GitHub Pages
-GITHUB_PAGES_DASHBOARD = ROOT / "index.html"
+# Fichier de données public (chargé par index.html via fetch)
+DATA_DIR = ROOT / "data"
+TODAY_JSON_PUBLIC = DATA_DIR / "today.json"
 
 
 def build_github_pages_dashboard(snapshot: dict) -> Path | None:
-    """Génère index.html (GitHub Pages) depuis le même template que le dashboard Cowork.
+    """Écrit data/today.json — chargé par index.html via fetch() au runtime.
 
-    index.html est écrasé entièrement à chaque run — c'est toujours
-    une copie exacte du template avec le snapshot du jour embarqué.
+    index.html est désormais statique (code uniquement, pas de données embarquées).
+    GitHub Actions pousse uniquement data/today.json chaque matin.
     """
-    if not DASHBOARD_TEMPLATE.exists():
-        print(f"⚠️  Template absent ({DASHBOARD_TEMPLATE}) — index.html non généré.")
-        return None
-    template = DASHBOARD_TEMPLATE.read_text(encoding="utf-8")
-    snapshot_json = json.dumps(snapshot, indent=2, ensure_ascii=False, default=str)
-    html = template.replace("__SNAPSHOT_JSON__", snapshot_json)
-    GITHUB_PAGES_DASHBOARD.write_text(html, encoding="utf-8")
-    return GITHUB_PAGES_DASHBOARD
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    TODAY_JSON_PUBLIC.write_text(
+        json.dumps(snapshot, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8"
+    )
+    return TODAY_JSON_PUBLIC
 
 
 def git_push_dashboard() -> bool:
@@ -1239,23 +1238,14 @@ def run() -> dict:
     # Message coach généré après le snapshot complet (a besoin du plan enrichi)
     snapshot["coach_message"] = generate_coach_message(snapshot)
 
-    # Sortie : JSON cache uniquement (plus de rapport Markdown)
+    # Sortie : data/today.json (public, chargé par index.html) + cache local
+    today_json_path = build_github_pages_dashboard(snapshot)
+
     cache_path = CACHE_DIR / "today.json"
     cache_path.write_text(json.dumps(snapshot, indent=2, default=str))
 
-    # Dashboard HTML autonome (snapshot embarqué) — sera poussé dans
-    # l'artifact Cowork par la tâche planifiée.
-    dashboard_path = build_dashboard_html(snapshot)
-
-    # Dashboard GitHub Pages — met à jour index.html et pousse sur GitHub
-    gh_pages_path = build_github_pages_dashboard(snapshot)
-
-    print(f"Cache JSON : {cache_path}")
-    if dashboard_path:
-        print(f"Dashboard Cowork : {dashboard_path}")
-    if gh_pages_path:
-        print(f"Dashboard GitHub Pages : {gh_pages_path}")
-        git_push_dashboard()
+    print(f"Données du jour : {today_json_path}")
+    print(f"Cache local     : {cache_path}")
     return snapshot
 
 

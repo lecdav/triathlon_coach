@@ -1,0 +1,873 @@
+{
+  "today": "2026-05-24",
+  "generated_at": "2026-05-24T12:23:35",
+  "week_monday": "2026-05-18",
+  "week_sunday": "2026-05-24",
+  "form": {
+    "label": "Frais",
+    "code": "FRAIS",
+    "color": "green",
+    "emoji": "🟩",
+    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
+  },
+  "metrics": {
+    "ctl": 37.630875,
+    "atl": 32.081947,
+    "tsb": 5.548928000000004,
+    "ramp_rate": -1.0954475,
+    "resting_hr": 51,
+    "sleep_hours": 7.183333333333334,
+    "hrv_status": "HRV stable autour de la moyenne 7j (47 ms)."
+  },
+  "thresholds": {
+    "resting_hr": 51,
+    "weight_kg": 78.0,
+    "ftp_watts": 250,
+    "power_zones_pct": [
+      55,
+      75,
+      90,
+      105,
+      120,
+      150,
+      999
+    ],
+    "hr_zones_bike": [
+      138,
+      153,
+      160,
+      171,
+      176,
+      181,
+      190
+    ],
+    "lthr": 168,
+    "hr_max": 190,
+    "threshold_pace_run_mps": 3.4129694,
+    "threshold_pace_run_str": "4:53/km",
+    "pace_zones_run_pct": [
+      77.5,
+      87.7,
+      94.3,
+      100.0,
+      103.4,
+      111.5,
+      999.0
+    ],
+    "hr_zones_run": [
+      142,
+      149,
+      158,
+      167,
+      172,
+      177,
+      190
+    ],
+    "threshold_pace_swim_mps": 0.8333333,
+    "threshold_pace_swim_str": "2:00/100m"
+  },
+  "pmc_history": [
+    {
+      "date": "2026-02-23",
+      "ctl": 36.52,
+      "atl": 53.44,
+      "tsb": -16.92
+    },
+    {
+      "date": "2026-02-24",
+      "ctl": 35.66,
+      "atl": 46.32,
+      "tsb": -10.66
+    },
+    {
+      "date": "2026-02-25",
+      "ctl": 36.35,
+      "atl": 48.81,
+      "tsb": -12.46
+    },
+    {
+      "date": "2026-02-26",
+      "ctl": 35.87,
+      "atl": 44.44,
+      "tsb": -8.57
+    },
+    {
+      "date": "2026-02-27",
+      "ctl": 35.52,
+      "atl": 41.32,
+      "tsb": -5.8
+    },
+    {
+      "date": "2026-02-28",
+      "ctl": 34.69,
+      "atl": 35.82,
+      "tsb": -1.14
+    },
+    {
+      "date": "2026-03-01",
+      "ctl": 37.59,
+      "atl": 52.09,
+      "tsb": -14.5
+    },
+    {
+      "date": "2026-03-02",
+      "ctl": 37.6,
+      "atl": 50.21,
+      "tsb": -12.61
+    },
+    {
+      "date": "2026-03-03",
+      "ctl": 38.99,
+      "atl": 56.44,
+      "tsb": -17.45
+    },
+    {
+      "date": "2026-03-04",
+      "ctl": 38.08,
+      "atl": 48.93,
+      "tsb": -10.85
+    },
+    {
+      "date": "2026-03-05",
+      "ctl": 37.18,
+      "atl": 42.41,
+      "tsb": -5.23
+    },
+    {
+      "date": "2026-03-06",
+      "ctl": 37.93,
+      "atl": 45.95,
+      "tsb": -8.02
+    },
+    {
+      "date": "2026-03-07",
+      "ctl": 37.3,
+      "atl": 41.3,
+      "tsb": -4.0
+    },
+    {
+      "date": "2026-03-08",
+      "ctl": 40.72,
+      "atl": 60.16,
+      "tsb": -19.44
+    },
+    {
+      "date": "2026-03-09",
+      "ctl": 40.28,
+      "atl": 55.08,
+      "tsb": -14.8
+    },
+    {
+      "date": "2026-03-10",
+      "ctl": 39.34,
+      "atl": 47.75,
+      "tsb": -8.41
+    },
+    {
+      "date": "2026-03-11",
+      "ctl": 39.94,
+      "atl": 50.05,
+      "tsb": -10.11
+    },
+    {
+      "date": "2026-03-12",
+      "ctl": 39.0,
+      "atl": 43.38,
+      "tsb": -4.38
+    },
+    {
+      "date": "2026-03-13",
+      "ctl": 39.33,
+      "atl": 44.66,
+      "tsb": -5.33
+    },
+    {
+      "date": "2026-03-14",
+      "ctl": 38.4,
+      "atl": 38.72,
+      "tsb": -0.31
+    },
+    {
+      "date": "2026-03-15",
+      "ctl": 40.54,
+      "atl": 50.74,
+      "tsb": -10.2
+    },
+    {
+      "date": "2026-03-16",
+      "ctl": 40.01,
+      "atl": 46.38,
+      "tsb": -6.37
+    },
+    {
+      "date": "2026-03-17",
+      "ctl": 41.06,
+      "atl": 51.52,
+      "tsb": -10.46
+    },
+    {
+      "date": "2026-03-18",
+      "ctl": 40.1,
+      "atl": 44.66,
+      "tsb": -4.56
+    },
+    {
+      "date": "2026-03-19",
+      "ctl": 39.39,
+      "atl": 40.05,
+      "tsb": -0.66
+    },
+    {
+      "date": "2026-03-20",
+      "ctl": 39.92,
+      "atl": 42.97,
+      "tsb": -3.05
+    },
+    {
+      "date": "2026-03-21",
+      "ctl": 38.98,
+      "atl": 37.25,
+      "tsb": 1.73
+    },
+    {
+      "date": "2026-03-22",
+      "ctl": 41.74,
+      "atl": 53.06,
+      "tsb": -11.32
+    },
+    {
+      "date": "2026-03-23",
+      "ctl": 40.75,
+      "atl": 45.99,
+      "tsb": -5.24
+    },
+    {
+      "date": "2026-03-24",
+      "ctl": 41.65,
+      "atl": 50.39,
+      "tsb": -8.74
+    },
+    {
+      "date": "2026-03-25",
+      "ctl": 42.74,
+      "atl": 55.4,
+      "tsb": -12.65
+    },
+    {
+      "date": "2026-03-26",
+      "ctl": 41.97,
+      "atl": 49.35,
+      "tsb": -7.38
+    },
+    {
+      "date": "2026-03-27",
+      "ctl": 40.99,
+      "atl": 42.78,
+      "tsb": -1.8
+    },
+    {
+      "date": "2026-03-28",
+      "ctl": 40.37,
+      "atl": 39.08,
+      "tsb": 1.29
+    },
+    {
+      "date": "2026-03-29",
+      "ctl": 43.57,
+      "atl": 57.31,
+      "tsb": -13.75
+    },
+    {
+      "date": "2026-03-30",
+      "ctl": 43.93,
+      "atl": 57.54,
+      "tsb": -13.61
+    },
+    {
+      "date": "2026-03-31",
+      "ctl": 42.89,
+      "atl": 49.88,
+      "tsb": -6.98
+    },
+    {
+      "date": "2026-04-01",
+      "ctl": 43.04,
+      "atl": 49.76,
+      "tsb": -6.72
+    },
+    {
+      "date": "2026-04-02",
+      "ctl": 42.03,
+      "atl": 43.14,
+      "tsb": -1.11
+    },
+    {
+      "date": "2026-04-03",
+      "ctl": 42.97,
+      "atl": 48.31,
+      "tsb": -5.34
+    },
+    {
+      "date": "2026-04-04",
+      "ctl": 41.96,
+      "atl": 41.88,
+      "tsb": 0.08
+    },
+    {
+      "date": "2026-04-05",
+      "ctl": 44.66,
+      "atl": 57.2,
+      "tsb": -12.54
+    },
+    {
+      "date": "2026-04-06",
+      "ctl": 43.61,
+      "atl": 49.59,
+      "tsb": -5.98
+    },
+    {
+      "date": "2026-04-07",
+      "ctl": 44.49,
+      "atl": 53.77,
+      "tsb": -9.28
+    },
+    {
+      "date": "2026-04-08",
+      "ctl": 43.89,
+      "atl": 49.14,
+      "tsb": -5.25
+    },
+    {
+      "date": "2026-04-09",
+      "ctl": 42.86,
+      "atl": 42.6,
+      "tsb": 0.26
+    },
+    {
+      "date": "2026-04-10",
+      "ctl": 43.73,
+      "atl": 47.58,
+      "tsb": -3.85
+    },
+    {
+      "date": "2026-04-11",
+      "ctl": 46.56,
+      "atl": 63.08,
+      "tsb": -16.51
+    },
+    {
+      "date": "2026-04-12",
+      "ctl": 45.47,
+      "atl": 54.68,
+      "tsb": -9.21
+    },
+    {
+      "date": "2026-04-13",
+      "ctl": 44.4,
+      "atl": 47.4,
+      "tsb": -3.0
+    },
+    {
+      "date": "2026-04-14",
+      "ctl": 44.58,
+      "atl": 48.01,
+      "tsb": -3.44
+    },
+    {
+      "date": "2026-04-15",
+      "ctl": 43.53,
+      "atl": 41.62,
+      "tsb": 1.91
+    },
+    {
+      "date": "2026-04-16",
+      "ctl": 43.84,
+      "atl": 43.67,
+      "tsb": 0.18
+    },
+    {
+      "date": "2026-04-17",
+      "ctl": 43.31,
+      "atl": 40.65,
+      "tsb": 2.66
+    },
+    {
+      "date": "2026-04-18",
+      "ctl": 42.29,
+      "atl": 35.24,
+      "tsb": 7.05
+    },
+    {
+      "date": "2026-04-19",
+      "ctl": 43.86,
+      "atl": 45.06,
+      "tsb": -1.2
+    },
+    {
+      "date": "2026-04-20",
+      "ctl": 42.83,
+      "atl": 39.06,
+      "tsb": 3.77
+    },
+    {
+      "date": "2026-04-21",
+      "ctl": 43.02,
+      "atl": 40.65,
+      "tsb": 2.37
+    },
+    {
+      "date": "2026-04-22",
+      "ctl": 42.01,
+      "atl": 35.24,
+      "tsb": 6.77
+    },
+    {
+      "date": "2026-04-23",
+      "ctl": 41.86,
+      "atl": 35.34,
+      "tsb": 6.52
+    },
+    {
+      "date": "2026-04-24",
+      "ctl": 41.28,
+      "atl": 32.9,
+      "tsb": 8.38
+    },
+    {
+      "date": "2026-04-25",
+      "ctl": 40.31,
+      "atl": 28.52,
+      "tsb": 11.79
+    },
+    {
+      "date": "2026-04-26",
+      "ctl": 41.45,
+      "atl": 36.57,
+      "tsb": 4.88
+    },
+    {
+      "date": "2026-04-27",
+      "ctl": 40.48,
+      "atl": 31.7,
+      "tsb": 8.78
+    },
+    {
+      "date": "2026-04-28",
+      "ctl": 40.44,
+      "atl": 32.67,
+      "tsb": 7.77
+    },
+    {
+      "date": "2026-04-29",
+      "ctl": 39.49,
+      "atl": 28.32,
+      "tsb": 11.17
+    },
+    {
+      "date": "2026-04-30",
+      "ctl": 38.56,
+      "atl": 24.55,
+      "tsb": 14.01
+    },
+    {
+      "date": "2026-05-01",
+      "ctl": 38.36,
+      "atl": 25.28,
+      "tsb": 13.08
+    },
+    {
+      "date": "2026-05-02",
+      "ctl": 38.16,
+      "atl": 25.91,
+      "tsb": 12.26
+    },
+    {
+      "date": "2026-05-03",
+      "ctl": 43.13,
+      "atl": 55.61,
+      "tsb": -12.48
+    },
+    {
+      "date": "2026-05-04",
+      "ctl": 42.11,
+      "atl": 48.2,
+      "tsb": -6.09
+    },
+    {
+      "date": "2026-05-05",
+      "ctl": 41.12,
+      "atl": 41.79,
+      "tsb": -0.67
+    },
+    {
+      "date": "2026-05-06",
+      "ctl": 40.88,
+      "atl": 40.35,
+      "tsb": 0.53
+    },
+    {
+      "date": "2026-05-07",
+      "ctl": 40.74,
+      "atl": 39.64,
+      "tsb": 1.11
+    },
+    {
+      "date": "2026-05-08",
+      "ctl": 39.78,
+      "atl": 34.36,
+      "tsb": 5.42
+    },
+    {
+      "date": "2026-05-09",
+      "ctl": 40.19,
+      "atl": 37.38,
+      "tsb": 2.81
+    },
+    {
+      "date": "2026-05-10",
+      "ctl": 40.07,
+      "atl": 37.06,
+      "tsb": 3.01
+    },
+    {
+      "date": "2026-05-11",
+      "ctl": 40.37,
+      "atl": 39.18,
+      "tsb": 1.19
+    },
+    {
+      "date": "2026-05-12",
+      "ctl": 39.89,
+      "atl": 36.63,
+      "tsb": 3.26
+    },
+    {
+      "date": "2026-05-13",
+      "ctl": 38.95,
+      "atl": 31.75,
+      "tsb": 7.2
+    },
+    {
+      "date": "2026-05-14",
+      "ctl": 39.5,
+      "atl": 35.78,
+      "tsb": 3.72
+    },
+    {
+      "date": "2026-05-15",
+      "ctl": 38.57,
+      "atl": 31.02,
+      "tsb": 7.55
+    },
+    {
+      "date": "2026-05-16",
+      "ctl": 37.66,
+      "atl": 26.89,
+      "tsb": 10.77
+    },
+    {
+      "date": "2026-05-17",
+      "ctl": 38.73,
+      "atl": 34.36,
+      "tsb": 4.37
+    },
+    {
+      "date": "2026-05-18",
+      "ctl": 39.51,
+      "atl": 39.37,
+      "tsb": 0.14
+    },
+    {
+      "date": "2026-05-19",
+      "ctl": 38.58,
+      "atl": 34.13,
+      "tsb": 4.45
+    },
+    {
+      "date": "2026-05-20",
+      "ctl": 39.3,
+      "atl": 38.77,
+      "tsb": 0.53
+    },
+    {
+      "date": "2026-05-21",
+      "ctl": 38.37,
+      "atl": 33.61,
+      "tsb": 4.76
+    },
+    {
+      "date": "2026-05-22",
+      "ctl": 37.99,
+      "atl": 32.06,
+      "tsb": 5.92
+    },
+    {
+      "date": "2026-05-23",
+      "ctl": 37.09,
+      "atl": 27.79,
+      "tsb": 9.3
+    },
+    {
+      "date": "2026-05-24",
+      "ctl": 37.63,
+      "atl": 32.08,
+      "tsb": 5.55
+    }
+  ],
+  "load_7d": {
+    "total_load": 306,
+    "total_minutes": 336.18333333333334,
+    "by_sport": {
+      "Run": {
+        "count": 2,
+        "minutes": 117.6,
+        "load": 129,
+        "distance_km": 19.13975
+      },
+      "Swim": {
+        "count": 2,
+        "minutes": 68.05,
+        "load": 39,
+        "distance_km": 3.125
+      },
+      "VirtualRide": {
+        "count": 2,
+        "minutes": 150.53333333333333,
+        "load": 138,
+        "distance_km": 0.0
+      }
+    }
+  },
+  "load_28d": {
+    "total_load": 1036,
+    "total_minutes": 1044.8833333333334,
+    "by_sport": {
+      "Run": {
+        "count": 10,
+        "minutes": 382.41666666666663,
+        "load": 429,
+        "distance_km": 62.350150000000006
+      },
+      "Swim": {
+        "count": 4,
+        "minutes": 137.08333333333331,
+        "load": 71,
+        "distance_km": 6.15
+      },
+      "VirtualRide": {
+        "count": 8,
+        "minutes": 438.51666666666665,
+        "load": 404,
+        "distance_km": 0.0
+      },
+      "Transition": {
+        "count": 2,
+        "minutes": 1.15,
+        "load": 2,
+        "distance_km": 0.1719
+      },
+      "Ride": {
+        "count": 1,
+        "minutes": 85.71666666666667,
+        "load": 130,
+        "distance_km": 44.70342
+      }
+    }
+  },
+  "session_profile": {
+    "Run": {
+      "count_4w": 10,
+      "per_week": 2.5,
+      "avg_minutes": 38,
+      "avg_distance_km": 6.2,
+      "avg_load": 43
+    },
+    "Swim": {
+      "count_4w": 4,
+      "per_week": 1.0,
+      "avg_minutes": 34,
+      "avg_distance_km": 1.5,
+      "avg_load": 18
+    },
+    "VirtualRide": {
+      "count_4w": 8,
+      "per_week": 2.0,
+      "avg_minutes": 55,
+      "avg_distance_km": 0.0,
+      "avg_load": 50
+    },
+    "Transition": {
+      "count_4w": 2,
+      "per_week": 0.5,
+      "avg_minutes": 1,
+      "avg_distance_km": 0.1,
+      "avg_load": 1
+    },
+    "Ride": {
+      "count_4w": 1,
+      "per_week": 0.2,
+      "avg_minutes": 86,
+      "avg_distance_km": 44.7,
+      "avg_load": 130
+    }
+  },
+  "weekly_plan": [
+    {
+      "date": "2026-05-18",
+      "weekday": "Monday",
+      "weekday_fr": "Lundi",
+      "rel_day": -6,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Mobilité 15-20 min, étirements doux, marche.",
+      "zones": "",
+      "rationale": "Jour de repos défini dans ton profil — supercompensation.",
+      "tss_estimate": 0,
+      "status": "done",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-19",
+      "weekday": "Tuesday",
+      "weekday_fr": "Mardi",
+      "rel_day": -5,
+      "sport": "Run",
+      "type": "VO2max — intervalles courts",
+      "duration_min": 45,
+      "structure": "15' échauffement + 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot + 10' retour calme.",
+      "zones": "Z5 — FC 92-97% FCmax",
+      "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
+      "tss_estimate": 54,
+      "status": "done",
+      "actual_activities": [
+        {
+          "name": "Lyon - 60m 8x3' 94%LT",
+          "type": "Run",
+          "duration_min": 54,
+          "distance_km": 9.6,
+          "tss": 69
+        }
+      ],
+      "sport_match": "displaced",
+      "displacement_note": "Séance réalisée le 2026-05-20 (déplacée)"
+    },
+    {
+      "date": "2026-05-20",
+      "weekday": "Wednesday",
+      "weekday_fr": "Mercredi",
+      "rel_day": -4,
+      "sport": "Swim",
+      "type": "Endurance + technique",
+      "duration_min": 50,
+      "structure": "400 échauf. + 10×100 (2:00/100m) r=20s + 200 souple. Total ~2000 m.",
+      "zones": "Z3-Z4 (CSS = 2:00/100m)",
+      "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
+      "tss_estimate": 39,
+      "status": "done",
+      "actual_activities": [
+        {
+          "name": "Pool Swim",
+          "type": "Swim",
+          "duration_min": 36,
+          "distance_km": 1.8,
+          "tss": 22
+        }
+      ],
+      "sport_match": "displaced",
+      "displacement_note": "Séance réalisée le 2026-05-22 (déplacée)"
+    },
+    {
+      "date": "2026-05-21",
+      "weekday": "Thursday",
+      "weekday_fr": "Jeudi",
+      "rel_day": -3,
+      "sport": "VirtualRide",
+      "type": "Seuil — sweet spot",
+      "duration_min": 60,
+      "structure": "15' échauf. + 3×12' à 228-250 W r=4' + 8' calme.",
+      "zones": "Z4 (sweet spot 88-94% FTP)",
+      "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
+      "tss_estimate": 77,
+      "status": "done",
+      "actual_activities": [
+        {
+          "name": "60m 3x12' 90%FTP",
+          "type": "VirtualRide",
+          "duration_min": 60,
+          "distance_km": 0.0,
+          "tss": 72
+        }
+      ],
+      "sport_match": "displaced",
+      "displacement_note": "Séance réalisée le 2026-05-18 (déplacée)"
+    },
+    {
+      "date": "2026-05-22",
+      "weekday": "Friday",
+      "weekday_fr": "Vendredi",
+      "rel_day": -2,
+      "sport": "Strength",
+      "type": "Renforcement musculaire",
+      "duration_min": 45,
+      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+      "zones": "Force-endurance — pas de cardio",
+      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
+      "tss_estimate": 0,
+      "status": "past_missed",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-23",
+      "weekday": "Saturday",
+      "weekday_fr": "Samedi",
+      "rel_day": -1,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+      "zones": "",
+      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
+      "tss_estimate": 0,
+      "status": "done",
+      "actual_activities": []
+    },
+    {
+      "date": "2026-05-24",
+      "weekday": "Sunday",
+      "weekday_fr": "Dimanche",
+      "rel_day": 0,
+      "sport": "Run",
+      "type": "Sortie longue CAP",
+      "duration_min": 60,
+      "structure": "60' continu en Z2 (5:45/km). Optionnel : derniers 10' à allure marathon (4:53/km).",
+      "zones": "Z2 — FC 75-85% LTHR",
+      "rationale": "Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, oxydation lipidique (Seiler). Unique sortie longue de la semaine.",
+      "tss_estimate": 52,
+      "status": "done",
+      "sport_match": "exact",
+      "actual_activities": [
+        {
+          "name": "RUN 60' 75%Pace",
+          "type": "Run",
+          "duration_min": 64,
+          "distance_km": 9.6,
+          "tss": 60
+        }
+      ]
+    }
+  ],
+  "weekly_plan_totals": {
+    "total_minutes": 260,
+    "total_minutes_str": "~4h20",
+    "total_tss": 222
+  },
+  "week_adaptations": [
+    "⚠️ TSS réalisé (223) ≥ 80% de la cible hebdo (222) → séances futures allégées en Z1-Z2."
+  ],
+  "weeks_to_race": 14,
+  "phase": "Préparation générale (base aérobie)",
+  "race_name": "Triathlon M de Quimperlé",
+  "race_date": "2026-08-30",
+  "coach_message": "David, tu arrives à cette séance avec un TSB de +5.5 — tu es frais, bien récupéré. C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !\n\nCette semaine, tu as déjà coché 4 séances (Swim, VirtualRide, Run) pour environ 223 TSS réalisés. Une séance a été manquée (Vendredi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta capacité à encaisser un volume solide (259 tss/sem en moyenne sur 28j).\n— Ta ctl à 37.6 qui reflète un niveau de forme construit semaine après semaine — tu n'es pas là par hasard.\n— Ta progression maîtrisée (ramp rate -1.1 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~1.0 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Construire la base CTL** — Avec une CTL à 37.6, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** On est à 14 semaines de Triathlon M de Quimperlé. Phase de **Préparation générale (base aérobie)** : l'heure est à construire le moteur aérobie, pas à se presser. Chaque séance Z2 que tu poses maintenant sera du carburant en août. Le pic de charge est prévu dans ~8 semaines — on a le temps de faire les choses bien."
+}

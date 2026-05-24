@@ -1,8 +1,16 @@
 # Credentials — NE JAMAIS COMMITER
 config/credentials.env
 
-# Cache local (régénéré à chaque run)
+# Cache local (régénéré à chaque run, non versionné)
 data/cache/
+
+# data/today.json est versionné — c'est le seul fichier poussé par GitHub Actions
+
+# Dashboard HTML local (contient données perso, non versionné)
+reports/dashboard.html
+
+# Rapports daily supprimés — non versionnés
+reports/daily/
 
 # OS / IDE
 .DS_Store
@@ -10,11 +18,3 @@ data/cache/
 venv/
 __pycache__/
 *.pyc
-
-# Le dashboard HTML autonome (reports/dashboard.html) n'est pas commité
-# car il contient le snapshot avec des données perso ; seul index.html
-# (version GitHub Pages) est poussé par le workflow CI.
-reports/dashboard.html
-
-# Rapports daily — générés à chaque run, non versionnés
-reports/daily/

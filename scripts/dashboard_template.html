@@ -158,11 +158,6 @@
   <div id="content"><div class="loading">Rendu en cours…</div></div>
 </div>
 
-<!-- Snapshot embarqué par scripts/daily_coach.py — ne pas éditer à la main -->
-<script type="application/json" id="snapshot">
-__SNAPSHOT_JSON__
-</script>
-
 <script>
 const SPORT_INFO = {
   "Run":              ["🏃",   "CAP"],
@@ -700,13 +695,21 @@ function render(data) {
 }
 
 (function() {
-  try {
-    const snap = JSON.parse(document.getElementById("snapshot").textContent);
-    render(snap);
-  } catch (e) {
-    document.getElementById("content").innerHTML =
-      `<div class="error"><b>Erreur de rendu :</b> ${e.message || e}</div>`;
-  }
+  fetch("data/today.json")
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status} — data/today.json introuvable`);
+      return r.json();
+    })
+    .then(snap => render(snap))
+    .catch(e => {
+      document.getElementById("content").innerHTML =
+        `<div class="error"><b>Impossible de charger les données :</b> ${e.message}<br><br>
+        <span style="font-size:12px;color:#6b7a90">
+        En local, lance un serveur avec :<br>
+        <code>python3 -m http.server 8080</code><br>
+        puis ouvre <a href="http://localhost:8080" style="color:#7ab0e8">http://localhost:8080</a>
+        </span></div>`;
+    });
 })();
 </script>
 </body>
