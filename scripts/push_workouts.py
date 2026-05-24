@@ -38,12 +38,12 @@ ROOT = Path(__file__).resolve().parent.parent
 # ---------------------------------------------------------------------------
 SPORT_TYPE_MAP: dict[str, str] = {
     "Run": "Run",
-    "VirtualRide": "VirtualRide",
+    "VirtualRide": "VirtualRide",  # type réel utilisé par Garmin pour le home trainer
     "Ride": "Ride",
     "Swim": "Swim",
-    "Brick (Bike+Run)": "VirtualRide",  # on envoie la partie vélo en principal
-    "Strength": "WeightTraining",
-    "Repos": None,  # pas d'event pour les jours de repos
+    "Brick (Bike+Run)": "VirtualRide",
+    "Strength": None,  # Garmin ne supporte pas les workouts structurés de gym → pas d'event
+    "Repos": None,
 }
 
 # Couleurs par type de séance (code couleur Intervals.icu)
