@@ -38,11 +38,11 @@ ROOT = Path(__file__).resolve().parent.parent
 # ---------------------------------------------------------------------------
 SPORT_TYPE_MAP: dict[str, str] = {
     "Run": "Run",
-    "VirtualRide": "VirtualRide",  # type réel utilisé par Garmin pour le home trainer
+    "VirtualRide": "Ride",   # Garmin sync uniquement Ride pour les workouts vélo structurés
     "Ride": "Ride",
     "Swim": "Swim",
-    "Brick (Bike+Run)": "VirtualRide",
-    "Strength": None,  # Garmin ne supporte pas les workouts structurés de gym → pas d'event
+    "Brick (Bike+Run)": "Ride",
+    "Strength": None,        # Garmin ne supporte pas les workouts structurés de gym
     "Repos": None,
 }
 
