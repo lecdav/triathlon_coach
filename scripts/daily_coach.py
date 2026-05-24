@@ -1152,9 +1152,10 @@ def run() -> dict:
     wellness_90d = client.wellness(today - timedelta(days=90))
     wellness = [w for w in wellness_90d
                 if w.get("id", "") >= (today - timedelta(days=14)).isoformat()]
-    # Récupère 42j pour CTL/profil + toute la semaine courante pour le croisement
+    # Récupère les activités depuis le début de saison (pour la frise) + 42j pour profil/croisement
     week_monday = today - timedelta(days=today.weekday())
-    oldest_fetch = min(today - timedelta(days=42), week_monday)
+    season_start = date(2026, 5, 4)  # lundi de la semaine du 5 mai = début frise saison
+    oldest_fetch = min(today - timedelta(days=42), week_monday, season_start)
     activities = client.activities(oldest_fetch)
 
     # Métriques du jour
@@ -1202,6 +1203,20 @@ def run() -> dict:
 
     week_sunday = week_monday + timedelta(days=6)
 
+    # TSS réalisé par semaine depuis le début de saison (pour la frise)
+    season_weekly_tss: dict[str, float] = {}
+    _s = season_start
+    while _s <= today:
+        _week_end = _s + timedelta(days=6)
+        _tss = sum(
+            (a.get("icu_training_load") or 0)
+            for a in activities
+            if _s.isoformat() <= a.get("start_date_local", "")[:10] <= _week_end.isoformat()
+        )
+        # Semaine en cours : TSS partiel (pas terminée)
+        season_weekly_tss[_s.isoformat()] = round(_tss, 1)
+        _s += timedelta(days=7)
+
     # Historique PMC 90j pour le graphique CTL/ATL/TSB
     pmc_history = [
         {
@@ -1236,6 +1251,7 @@ def run() -> dict:
         "phase": phase,
         "race_name": _race_json.get("name") or _race_yaml.get("name"),
         "race_date": _race_date_str,
+        "season_weekly_tss": season_weekly_tss,
         "athlete_profile": athlete_profile,
     }
 

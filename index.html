@@ -131,14 +131,18 @@
   .season-wrap { margin-bottom: 8px; overflow-x: auto; }
   .season-bars { display: flex; align-items: flex-end; gap: 3px; min-width: 560px; padding-bottom: 4px; }
   .season-bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 28px; }
+  .season-bar-wrap { position: relative; width: 100%; }
   .season-bar { width: 100%; border-radius: 3px 3px 0 0; transition: opacity 0.2s; position: relative; }
   .season-bar-col.current .season-bar { outline: 2px solid #fff; outline-offset: 1px; }
-  .season-bar-col.past .season-bar { opacity: 0.35; }
+  .season-bar-col.past .season-bar { opacity: 0.25; }
+  .season-bar-actual { position: absolute; bottom: 0; left: 0; width: 100%; border-radius: 3px 3px 0 0; }
   .season-bar-label { font-size: 10px; color: #5a6a7e; margin-top: 4px; text-align: center; white-space: nowrap; }
   .season-bar-col.current .season-bar-label { color: #7ab0e8; font-weight: 700; }
   .season-bar-col.current .season-bar-arrow { font-size: 10px; color: #7ab0e8; margin-bottom: 2px; }
   .season-phases { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
   .season-phase { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .season-legend { display: flex; gap: 12px; font-size: 11px; color: #6b7a90; margin-bottom: 6px; align-items: center; flex-wrap: wrap; }
+  .season-legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 3px; vertical-align: middle; }
   /* --- Plan adaptatif --- */
   .adapted-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
   .adapted-badge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
@@ -197,8 +201,8 @@ function formatTotalDuration(totalMin) {
 function buildSeasonTimeline(data) {
   const raceDate = new Date("2026-08-30");
   const today = new Date(data.today);
-  // Début de la frise : lundi de la semaine du 5 mai 2026
-  const start = new Date("2026-05-05");
+  // Début de la frise : lundi 4 mai 2026
+  const start = new Date("2026-05-04");
 
   const PHASES = [
     { label: "Base aérobie",      color: "#1565c0", weeks: 6  },
@@ -208,6 +212,19 @@ function buildSeasonTimeline(data) {
     { label: "Course 🏁",         color: "#b71c1c", weeks: 1  },
   ];
 
+  // TSS cibles du profil athlète (clé = lundi ISO)
+  const TSS_TARGETS = {
+    "2026-05-04": 250, "2026-05-11": 270, "2026-05-18": 300,  // relance → build
+    "2026-05-25": 300, "2026-06-01": 320, "2026-06-08": 320,
+    "2026-06-15": 345, "2026-06-22": 345, "2026-06-29": 220,  // récup
+    "2026-07-06": 360, "2026-07-13": 380, "2026-07-20": 400,
+    "2026-07-27": 420, "2026-08-03": 430,                      // pic
+    "2026-08-10": 300, "2026-08-17": 220, "2026-08-24": 160,  // affûtage
+  };
+
+  // TSS réalisés (injectés par le script Python)
+  const weeklyActual = data.season_weekly_tss || {};
+
   // Construire les semaines
   const weeks = [];
   let d = new Date(start);
@@ -216,23 +233,30 @@ function buildSeasonTimeline(data) {
     const monday = new Date(d);
     const sunday = new Date(d); sunday.setDate(sunday.getDate() + 6);
     const isCurrent = today >= monday && today <= sunday;
-    const isPast = sunday < today;
-    const weeksToRace = Math.ceil((raceDate - monday) / (7 * 86400000));
+    const isPast = sunday < today && !isCurrent;
 
-    // Volume cible : cycle 3+1 avec montée progressive
-    const weekNum = weeks.length;
-    const cyclePos = weekNum % 4;
-    const baseLoad = 200 + Math.min(weekNum, 10) * 12;
-    let tss;
-    if (weeksToRace <= 1) tss = 80;           // course
-    else if (weeksToRace <= 2) tss = 130;      // affûtage lourd
-    else if (weeksToRace <= 3) tss = 100;      // affûtage
-    else if (cyclePos === 3) tss = Math.round(baseLoad * 0.6); // récup
-    else tss = Math.round(baseLoad * (0.85 + cyclePos * 0.075));
+    // Date ISO du lundi pour lookup
+    const mondayISO = monday.toISOString().slice(0, 10);
+
+    // TSS cible : depuis le profil ou fallback progressif
+    const tss = TSS_TARGETS[mondayISO] || (200 + weeks.length * 10);
+
+    // TSS réalisé (semaines passées + semaine en cours partielle)
+    const actualTss = weeklyActual[mondayISO] || 0;
+
+    // Taux de réalisation (semaines passées uniquement, hors semaine en cours)
+    const ratio = (isPast && tss > 0) ? actualTss / tss : null;
+
+    // Couleur de la barre réalisée selon taux
+    let actualColor;
+    if (ratio === null) actualColor = null;
+    else if (ratio >= 0.90) actualColor = "#4caf50";   // vert : ≥90%
+    else if (ratio >= 0.70) actualColor = "#ff9800";   // orange : 70-89%
+    else actualColor = "#f44336";                       // rouge : <70%
 
     const label = `${monday.getDate()}/${monday.getMonth() + 1}`;
     const phase = PHASES[phaseIdx];
-    weeks.push({ monday, sunday, isCurrent, isPast, tss, label, phase, weeksToRace });
+    weeks.push({ monday, mondayISO, sunday, isCurrent, isPast, tss, actualTss, ratio, actualColor, label, phase });
 
     phaseRemaining--;
     if (phaseRemaining === 0 && phaseIdx < PHASES.length - 1) {
@@ -244,14 +268,24 @@ function buildSeasonTimeline(data) {
 
   const maxTss = Math.max(...weeks.map(w => w.tss));
   const curPhase = weeks.find(w => w.isCurrent)?.phase || PHASES[0];
-  const weeksLeft = data.weeks_to_race ?? weeks.filter(w => !w.isPast).length;
+  const weeksLeft = data.weeks_to_race ?? weeks.filter(w => !w.isPast && !w.isCurrent).length;
 
-  // Phases legend
+  // Légende phases
   let phasesHtml = `<div class="season-phases">`;
   for (const ph of PHASES) {
     phasesHtml += `<span class="season-phase" style="background:${ph.color}22;color:${ph.color};border:1px solid ${ph.color}44">${ph.label}</span>`;
   }
   phasesHtml += `</div>`;
+
+  // Légende réalisation
+  const legendHtml = `
+    <div class="season-legend">
+      <span>Réalisation :</span>
+      <span><span class="season-legend-dot" style="background:#4caf50"></span>≥ 90%</span>
+      <span><span class="season-legend-dot" style="background:#ff9800"></span>70–89%</span>
+      <span><span class="season-legend-dot" style="background:#f44336"></span>&lt; 70%</span>
+      <span><span class="season-legend-dot" style="background:#334155"></span>À venir</span>
+    </div>`;
 
   // Barres
   let barsHtml = `<div class="season-bars">`;
@@ -259,10 +293,37 @@ function buildSeasonTimeline(data) {
     const h = Math.round((w.tss / maxTss) * 100);
     const cls = w.isCurrent ? "current" : w.isPast ? "past" : "future";
     const arrow = w.isCurrent ? `<div class="season-bar-arrow">▼</div>` : `<div style="height:14px"></div>`;
+
+    // Barre cible (fond discret)
+    let barContent;
+    if (w.isPast && w.ratio !== null) {
+      // Semaine passée : barre cible + barre réalisée superposée
+      const hActual = Math.round((Math.min(w.actualTss, w.tss * 1.2) / maxTss) * 100);
+      const pct = Math.round(w.ratio * 100);
+      const tooltip = `${w.label} — Cible: ${w.tss} TSS | Réalisé: ${w.actualTss} TSS (${pct}%)`;
+      barContent = `
+        <div class="season-bar-wrap" style="height:${h}px" title="${tooltip}">
+          <div class="season-bar" style="height:${h}px;background:${w.phase.color}33;border-radius:3px 3px 0 0;position:absolute;bottom:0;left:0;width:100%"></div>
+          <div class="season-bar-actual" style="height:${hActual}px;background:${w.actualColor};opacity:0.85"></div>
+        </div>`;
+    } else if (w.isCurrent && w.actualTss > 0) {
+      // Semaine en cours : barre cible + réalisé partiel en blanc
+      const hActual = Math.round((w.actualTss / maxTss) * 100);
+      const tooltip = `${w.label} (en cours) — Cible: ${w.tss} TSS | Réalisé: ${w.actualTss} TSS`;
+      barContent = `
+        <div class="season-bar-wrap" style="height:${h}px" title="${tooltip}">
+          <div class="season-bar" style="height:${h}px;background:${w.phase.color}cc;border-radius:3px 3px 0 0;position:absolute;bottom:0;left:0;width:100%;outline:2px solid #fff;outline-offset:1px"></div>
+          <div class="season-bar-actual" style="height:${hActual}px;background:rgba(255,255,255,0.5)"></div>
+        </div>`;
+    } else {
+      // Semaine future
+      barContent = `<div class="season-bar" style="height:${h}px;background:${w.phase.color}55" title="${w.label} — Cible: ${w.tss} TSS"></div>`;
+    }
+
     barsHtml += `
-      <div class="season-bar-col ${cls}" title="${w.label} — TSS cible ~${w.tss}">
+      <div class="season-bar-col ${cls}">
         ${arrow}
-        <div class="season-bar" style="height:${h}px;background:${w.phase.color}${w.isPast ? '' : 'cc'}"></div>
+        ${barContent}
         <div class="season-bar-label">${w.label}</div>
       </div>`;
   }
@@ -272,6 +333,7 @@ function buildSeasonTimeline(data) {
     <h2>Plan de saison — ${data.race_name || "Course objectif"} · ${raceDate.toLocaleDateString("fr-FR", {day:"numeric",month:"long"})}</h2>
     <div class="season-wrap">
       ${phasesHtml}
+      ${legendHtml}
       ${barsHtml}
     </div>
     <div style="font-size:12px;color:#6b7a90;margin-bottom:8px">
