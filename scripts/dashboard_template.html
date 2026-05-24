@@ -10,6 +10,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Coach Triathlon — Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3Cfilter id='gc'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3Cfilter id='gm'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3Cfilter id='gg'%3E%3CfeGaussianBlur stdDeviation='1.2' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Crect width='32' height='32' rx='5' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%2300ffea' stroke-width='1.6' filter='url(%23gc)'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23ff2fff' stroke-width='1.6' filter='url(%23gm)'/%3E%3Ccircle cx='16' cy='16' r='4' fill='none' stroke='%23aaff00' stroke-width='1.6' filter='url(%23gg)'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
@@ -97,6 +98,57 @@
   .pmc-legend i.ctl { background: #4da6ff; }
   .pmc-legend i.atl { background: #ff6b6b; }
   .pmc-legend i.tsb { background: #6fcf7d; }
+
+  /* --- Responsive mobile --- */
+  @media (max-width: 600px) {
+    .wrap { padding: 10px 12px 24px; }
+    h1 { font-size: 18px; }
+    h2 { font-size: 14px; margin: 18px 0 8px; }
+    .grid { grid-template-columns: 1fr 1fr; }
+    .kpi .v { font-size: 16px; }
+    .form-banner { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
+    .form-banner .tsb { margin-left: 0; font-size: 20px; }
+    .pmc-chart-wrap { height: 180px; }
+    /* Plan semaine : tableau → cartes */
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    tr { margin-bottom: 10px; border: 1px solid #2e3a4e; border-radius: 8px; padding: 8px 10px; background: #1a2030; }
+    tr.done-row { background: #131e17; }
+    tr.missed-row { background: #251a10; }
+    tr.next-row { background: #2a2410; }
+    tr.total-row { background: #1a2030; border-top: 2px solid #3a4860; }
+    td { padding: 2px 0; border: none; font-size: 13px; }
+    td.day { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    td.tss::before { content: "TSS : "; color: #6b7a90; font-size: 11px; }
+    td.intensite { font-size: 11px; color: #5a6a7e; }
+    /* Frise : scroll horizontal */
+    .season-bars { min-width: 420px; }
+    /* Plan adaptatif : idem */
+    .adapted-header { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* --- Frise saisonnière --- */
+  .season-wrap { margin-bottom: 8px; overflow-x: auto; }
+  .season-bars { display: flex; align-items: flex-end; gap: 3px; min-width: 560px; padding-bottom: 4px; }
+  .season-bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 28px; }
+  .season-bar { width: 100%; border-radius: 3px 3px 0 0; transition: opacity 0.2s; position: relative; }
+  .season-bar-col.current .season-bar { outline: 2px solid #fff; outline-offset: 1px; }
+  .season-bar-col.past .season-bar { opacity: 0.35; }
+  .season-bar-label { font-size: 10px; color: #5a6a7e; margin-top: 4px; text-align: center; white-space: nowrap; }
+  .season-bar-col.current .season-bar-label { color: #7ab0e8; font-weight: 700; }
+  .season-bar-col.current .season-bar-arrow { font-size: 10px; color: #7ab0e8; margin-bottom: 2px; }
+  .season-phases { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+  .season-phase { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  /* --- Plan adaptatif --- */
+  .adapted-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .adapted-badge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .adapted-tss-bar { margin-bottom: 12px; }
+  .adapted-tss-track { height: 8px; border-radius: 4px; background: #1e2533; position: relative; overflow: hidden; }
+  .adapted-tss-done { height: 100%; border-radius: 4px; background: #4caf50; }
+  .adapted-tss-proj { height: 100%; border-radius: 4px; background: #2196f3; position: absolute; left: 0; top: 0; }
+  .adapted-sep { border: none; border-top: 1px dashed #2e3a4e; margin: 8px 0; }
+  .adapted-totals { display: flex; gap: 16px; font-size: 12px; color: #6b7a90; margin-top: 8px; flex-wrap: wrap; }
+  .adapted-totals span { font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -146,6 +198,227 @@ function formatTotalDuration(totalMin) {
   return `~${h}h${String(m).padStart(2, "0")}`;
 }
 
+// ── Frise saisonnière ──────────────────────────────────────────────────────
+function buildSeasonTimeline(data) {
+  const raceDate = new Date("2026-08-30");
+  const today = new Date(data.today);
+  // Début de la frise : lundi de la semaine du 5 mai 2026
+  const start = new Date("2026-05-05");
+
+  const PHASES = [
+    { label: "Base aérobie",      color: "#1565c0", weeks: 6  },
+    { label: "Développement",     color: "#6a1b9a", weeks: 5  },
+    { label: "Pic / spécifique",  color: "#e65100", weeks: 3  },
+    { label: "Affûtage",          color: "#2e7d32", weeks: 2  },
+    { label: "Course 🏁",         color: "#b71c1c", weeks: 1  },
+  ];
+
+  // Construire les semaines
+  const weeks = [];
+  let d = new Date(start);
+  let phaseIdx = 0, phaseRemaining = PHASES[0].weeks;
+  while (d <= raceDate) {
+    const monday = new Date(d);
+    const sunday = new Date(d); sunday.setDate(sunday.getDate() + 6);
+    const isCurrent = today >= monday && today <= sunday;
+    const isPast = sunday < today;
+    const weeksToRace = Math.ceil((raceDate - monday) / (7 * 86400000));
+
+    // Volume cible : cycle 3+1 avec montée progressive
+    const weekNum = weeks.length;
+    const cyclePos = weekNum % 4;
+    const baseLoad = 200 + Math.min(weekNum, 10) * 12;
+    let tss;
+    if (weeksToRace <= 1) tss = 80;           // course
+    else if (weeksToRace <= 2) tss = 130;      // affûtage lourd
+    else if (weeksToRace <= 3) tss = 100;      // affûtage
+    else if (cyclePos === 3) tss = Math.round(baseLoad * 0.6); // récup
+    else tss = Math.round(baseLoad * (0.85 + cyclePos * 0.075));
+
+    const label = `${monday.getDate()}/${monday.getMonth() + 1}`;
+    const phase = PHASES[phaseIdx];
+    weeks.push({ monday, sunday, isCurrent, isPast, tss, label, phase, weeksToRace });
+
+    phaseRemaining--;
+    if (phaseRemaining === 0 && phaseIdx < PHASES.length - 1) {
+      phaseIdx++;
+      phaseRemaining = PHASES[phaseIdx].weeks;
+    }
+    d.setDate(d.getDate() + 7);
+  }
+
+  const maxTss = Math.max(...weeks.map(w => w.tss));
+  const curPhase = weeks.find(w => w.isCurrent)?.phase || PHASES[0];
+  const weeksLeft = data.weeks_to_race ?? weeks.filter(w => !w.isPast).length;
+
+  // Phases legend
+  let phasesHtml = `<div class="season-phases">`;
+  for (const ph of PHASES) {
+    phasesHtml += `<span class="season-phase" style="background:${ph.color}22;color:${ph.color};border:1px solid ${ph.color}44">${ph.label}</span>`;
+  }
+  phasesHtml += `</div>`;
+
+  // Barres
+  let barsHtml = `<div class="season-bars">`;
+  for (const w of weeks) {
+    const h = Math.round((w.tss / maxTss) * 100);
+    const cls = w.isCurrent ? "current" : w.isPast ? "past" : "future";
+    const arrow = w.isCurrent ? `<div class="season-bar-arrow">▼</div>` : `<div style="height:14px"></div>`;
+    barsHtml += `
+      <div class="season-bar-col ${cls}" title="${w.label} — TSS cible ~${w.tss}">
+        ${arrow}
+        <div class="season-bar" style="height:${h}px;background:${w.phase.color}${w.isPast ? '' : 'cc'}"></div>
+        <div class="season-bar-label">${w.label}</div>
+      </div>`;
+  }
+  barsHtml += `</div>`;
+
+  return `
+    <h2>Plan de saison — ${data.race_name || "Course objectif"} · ${raceDate.toLocaleDateString("fr-FR", {day:"numeric",month:"long"})}</h2>
+    <div class="season-wrap">
+      ${phasesHtml}
+      ${barsHtml}
+    </div>
+    <div style="font-size:12px;color:#6b7a90;margin-bottom:8px">
+      📍 Phase actuelle : <strong style="color:${curPhase.color}">${curPhase.label}</strong> · ${weeksLeft} sem. avant la course
+    </div>`;
+}
+
+// ── Plan adaptatif ──────────────────────────────────────────────────────────
+function buildAdaptedPlan(data) {
+  const plan = data.weekly_plan || [];
+  const totals = data.weekly_plan_totals || {};
+  const today = data.today;
+
+  if (plan.length === 0) return "";
+
+  const STATUS_ICON = { done: "✅", today: "⏳", todo: "⬜", past_missed: "❌" };
+
+  // Calcul TSS réalisé et projeté
+  let tssDone = 0, tssProjected = 0;
+  const tssTarget = totals.total_tss || plan.reduce((s, p) => s + (p.tss_estimate || 0), 0);
+
+  for (const p of plan) {
+    const status = p.status || "todo";
+    const tss = p.tss_estimate || 0;
+    if (status === "done") {
+      const realTss = (p.actual_activities || []).reduce((s, a) => s + (a.tss || 0), 0);
+      tssDone += realTss > 0 ? realTss : tss;
+    } else if (status === "today" || status === "todo") {
+      tssProjected += tss;
+    }
+  }
+  const tssTotal = tssDone + tssProjected;
+  const pctDone = tssTarget > 0 ? Math.min(100, Math.round(tssDone / tssTarget * 100)) : 0;
+  const pctProj = tssTarget > 0 ? Math.min(100, Math.round(tssTotal / tssTarget * 100)) : 0;
+
+  // Badge statut
+  let badgeColor, badgeText;
+  if (pctDone >= 95) { badgeColor = "#2e7d32"; badgeText = "🎯 Objectif atteint"; }
+  else if (tssTotal > tssTarget * 1.1) { badgeColor = "#e65100"; badgeText = "⚡ Semaine chargée"; }
+  else if (tssTotal < tssTarget * 0.75) { badgeColor = "#1565c0"; badgeText = "📉 Semaine légère"; }
+  else { badgeColor = "#1b5e20"; badgeText = "✅ Sur les rails"; }
+
+  // Séparation passé/futur
+  const pastRows = plan.filter(p => p.status === "done" || p.status === "past_missed");
+  const futureRows = plan.filter(p => p.status === "today" || p.status === "todo");
+
+  function renderRow(p, adapted) {
+    const status = p.status || "todo";
+    const isDone = status === "done";
+    const isMissed = status === "past_missed";
+    const isToday = status === "today";
+    const icon = STATUS_ICON[status] || "⬜";
+
+    let cls = "";
+    if (isToday) cls = "next-row";
+    else if (isDone) cls = "done-row";
+    else if (isMissed) cls = "missed-row";
+
+    const jour = `${icon} ${p.weekday_fr || p.weekday}`;
+
+    // Contenu
+    let seanceHtml, contenuHtml;
+    if (isDone && p.actual_activities && p.actual_activities.length > 0) {
+      // Jours passés : afficher le réalisé
+      const acts = p.actual_activities.map(a => {
+        const sportInfo = (SPORT_INFO[a.type] || SPORT_INFO[a.sport] || ["", a.type || ""]);
+        const [em, fr] = sportInfo;
+        const parts = [];
+        if (a.duration_min) parts.push(`${a.duration_min} min`);
+        if (a.distance_km) parts.push(`${a.distance_km} km`);
+        if (a.tss) parts.push(`TSS ${a.tss}`);
+        return `<span style="color:#4caf50;font-weight:600">${em} ${a.name || fr}</span> — ${parts.join(" · ")}`;
+      }).join("<br>");
+      seanceHtml = `<span style="color:#6b7a90;font-size:12px">Prévu : ${formatSeance(p)}</span>`;
+      contenuHtml = `<div style="font-size:12.5px">${acts}</div>`;
+    } else if (isMissed) {
+      seanceHtml = `<span style="color:#b71c1c;text-decoration:line-through">${formatSeance(p)}</span>`;
+      contenuHtml = `<span style="color:#6b7a90;font-size:12px">Non réalisée</span>`;
+    } else {
+      seanceHtml = formatSeance(p);
+      contenuHtml = formatContenu(p);
+      if (adapted) {
+        contenuHtml += `<div style="font-size:11px;color:#e65100;margin-top:2px">${adapted}</div>`;
+      }
+    }
+
+    const tss = p.tss_estimate || 0;
+    return `<tr class="${cls}">
+      <td class="day">${jour}</td>
+      <td class="seance">${seanceHtml}</td>
+      <td class="contenu">${contenuHtml}</td>
+      <td class="intensite">${p.zones || "—"}</td>
+      <td class="tss">${tss > 0 ? tss : "—"}</td>
+    </tr>`;
+  }
+
+  // Construire le tableau
+  let rows = "";
+  for (const p of pastRows) rows += renderRow(p, null);
+  if (pastRows.length > 0 && futureRows.length > 0) {
+    rows += `<tr><td colspan="5" style="padding:0"><hr class="adapted-sep"></td></tr>`;
+  }
+  for (const p of futureRows) rows += renderRow(p, p.adaptation || null);
+
+  // Totaux
+  const donMin = pastRows.reduce((s, p) => {
+    if (p.status === "done") return s + (p.actual_activities || []).reduce((ss, a) => ss + (a.duration_min || 0), 0);
+    return s;
+  }, 0);
+  const remMin = futureRows.reduce((s, p) => s + (p.duration_min || 0), 0);
+
+  // Semaine dates
+  const weekLabel = data.week_monday && data.week_sunday
+    ? ` <span style="color:#5a6a7e;font-weight:400;font-size:13px">${
+        new Date(data.week_monday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
+      } – ${
+        new Date(data.week_sunday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
+      }</span>`
+    : "";
+
+  return `
+    <h2>Plan adaptatif${weekLabel}</h2>
+    <div class="adapted-header">
+      <span class="adapted-badge" style="background:${badgeColor}22;color:${badgeColor};border:1px solid ${badgeColor}44">${badgeText}</span>
+      <span style="font-size:12px;color:#6b7a90">TSS réalisé : <strong style="color:#e2e2e2">${Math.round(tssDone)}</strong> / projeté : <strong style="color:#7ab0e8">${Math.round(tssTotal)}</strong> / cible : <strong style="color:#e2e2e2">${tssTarget}</strong></span>
+    </div>
+    <div class="adapted-tss-bar">
+      <div class="adapted-tss-track">
+        <div class="adapted-tss-proj" style="width:${pctProj}%;background:#2196f344"></div>
+        <div class="adapted-tss-done" style="width:${pctDone}%;background:#4caf50"></div>
+      </div>
+    </div>
+    <table><thead><tr><th>Jour</th><th>Séance</th><th>Contenu / Réalisé</th><th>Intensité</th><th>TSS</th></tr></thead>
+    <tbody>${rows}
+    <tr class="total-row">
+      <td colspan="2">Réalisé / Reste à faire</td>
+      <td colspan="2" style="color:#6b7a90;font-size:12px">${donMin > 0 ? formatTotalDuration(donMin) + " fait" : "—"} · ${remMin > 0 ? formatTotalDuration(remMin) + " restant" : "—"}</td>
+      <td class="tss">${Math.round(tssDone)} / ${Math.round(tssProjected)}</td>
+    </tr>
+    </tbody></table>`;
+}
+
 function render(data) {
   const c = document.getElementById("content");
   const sub = document.getElementById("subtitle");
@@ -164,7 +437,21 @@ function render(data) {
 
   let html = "";
 
-  html += `<h2>Plan de la semaine — polarisé 80/20</h2>`;
+  // 1. Frise saisonnière
+  try { html += buildSeasonTimeline(data); } catch(e) { console.warn("Season timeline error:", e); }
+
+  // 2. Plan adaptatif
+  try { html += buildAdaptedPlan(data); } catch(e) { console.warn("Adapted plan error:", e); }
+
+  // 3. Plan idéal de la semaine
+  const weekLabel = data.week_monday && data.week_sunday
+    ? ` <span style="color:#5a6a7e;font-weight:400;font-size:14px">${
+        new Date(data.week_monday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
+      } – ${
+        new Date(data.week_sunday).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})
+      }</span>`
+    : "";
+  html += `<h2>Plan de la semaine — polarisé 80/20${weekLabel}</h2>`;
 
   const adaptations = data.week_adaptations || [];
   if (adaptations.length > 0) {
