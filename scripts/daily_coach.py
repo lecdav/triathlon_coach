@@ -716,7 +716,7 @@ def adapt_plan_to_week(plan: list[dict], atl: float, ctl: float,
 
 # ---------- Chargement du plan théorique IA ----------
 
-def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, dict]:
+def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, dict, dict, dict]:
     """Charge les plans théoriques depuis data/weekly_plans.json.
 
     Retourne (ideal_week_plan, next_week_plan, ideal_totals, next_totals).
@@ -732,12 +732,12 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
       dashboard soit déjà à jour le dimanche soir.
     """
     if not WEEKLY_PLANS_PATH.exists():
-        return [], [], {}, {}
+        return [], [], {}, {}, {}, {}
 
     try:
         data = json.loads(WEEKLY_PLANS_PATH.read_text())
     except Exception:
-        return [], [], {}, {}
+        return [], [], {}, {}, {}, {}
 
     week_monday = today - timedelta(days=today.weekday())  # lundi de cette semaine
     next_monday = week_monday + timedelta(days=7)           # lundi de la semaine prochaine
@@ -759,23 +759,35 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
     next_plan: list[dict] = []
     ideal_totals: dict = {}
     next_totals: dict = {}
+    ideal_meta: dict = {}
+    next_meta: dict = {}
+
+    def make_meta(w: dict) -> dict:
+        return {
+            "coach_note": w.get("coach_note", ""),
+            "phase": w.get("phase", ""),
+            "bloc_week": w.get("bloc_week", ""),
+            "is_recovery": w.get("is_recovery", False),
+        }
 
     # Cas 1 : fichier aligné sur la semaine courante (généré lundi ou en cours de semaine)
     if w1_monday == week_monday.isoformat():
         ideal_plan = w1.get("days", [])
         ideal_totals = make_totals(w1)
+        ideal_meta = make_meta(w1)
         if w2_monday == next_monday.isoformat():
             next_plan = w2.get("days", [])
             next_totals = make_totals(w2)
+            next_meta = make_meta(w2)
 
     # Cas 2 : fichier généré le dimanche — week1 correspond déjà à la semaine prochaine.
-    # On prend week1 comme plan "de la semaine courante" (qui commence demain lundi)
-    # et week2 comme plan de la semaine suivante.
     elif w1_monday == next_monday.isoformat():
         ideal_plan = w1.get("days", [])
         ideal_totals = make_totals(w1)
+        ideal_meta = make_meta(w1)
         next_plan = w2.get("days", [])
         next_totals = make_totals(w2)
+        next_meta = make_meta(w2)
         print(f"ℹ️  Plans IA chargés en avance (générés ce dimanche) : "
               f"semaine 1 = {w1_monday}, semaine 2 = {w2_monday}")
 
@@ -783,7 +795,7 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
     else:
         print(f"⚠️  Plans IA périmés (week1={w1_monday}, today={today}) — fallback algorithmique.")
 
-    return ideal_plan, next_plan, ideal_totals, next_totals
+    return ideal_plan, next_plan, ideal_totals, next_totals, ideal_meta, next_meta
 
 
 # ---------- Plan adaptatif IA ----------
@@ -1447,8 +1459,8 @@ def run() -> dict:
     next_week_monday = week_monday + timedelta(days=7)
     next_week_sunday = next_week_monday + timedelta(days=6)
 
-    ideal_week_plan, next_week_plan, ideal_week_plan_totals, next_week_plan_totals = \
-        load_theoretical_plans(today)
+    ideal_week_plan, next_week_plan, ideal_week_plan_totals, next_week_plan_totals, \
+        ideal_week_meta, next_week_meta = load_theoretical_plans(today)
 
     ia_plans_loaded = bool(ideal_week_plan)
 
@@ -1477,6 +1489,8 @@ def run() -> dict:
             "total_tss": next_plan_total_tss,
         }
         ia_plans_source = "algo"
+        ideal_week_meta = {"coach_note": "", "phase": phase, "bloc_week": "", "is_recovery": False}
+        next_week_meta  = {"coach_note": "", "phase": phase, "bloc_week": "", "is_recovery": False}
     else:
         print("✅  Plans théoriques IA chargés depuis data/weekly_plans.json.")
         # Recalcule weeks_to_race / phase depuis le profil
@@ -1563,6 +1577,12 @@ def run() -> dict:
         # Plan théorique idéal (statique, référence de semaine)
         "ideal_week_plan": ideal_week_plan,
         "ideal_week_plan_totals": ideal_week_plan_totals,
+        "ideal_week_coach_note": ideal_week_meta.get("coach_note", ""),
+        "ideal_week_phase": ideal_week_meta.get("phase", ""),
+        "ideal_week_bloc_week": ideal_week_meta.get("bloc_week", ""),
+        "ideal_week_is_recovery": ideal_week_meta.get("is_recovery", False),
+        "next_week_coach_note": next_week_meta.get("coach_note", ""),
+        "next_week_phase": next_week_meta.get("phase", ""),
         "next_week_monday": next_week_monday.isoformat(),
         "next_week_sunday": next_week_sunday.isoformat(),
         "next_week_plan": next_week_plan,

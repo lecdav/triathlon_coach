@@ -424,13 +424,46 @@ function buildIdealPlan(data) {
 
   const algoAlert = data.ia_plans_source === "algo"
     ? `<div style="background:#2e1a0044;border:1px solid #e6510066;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#e65100">
-        ⚠️ <strong>Plans générés algorithmiquement</strong> — l'IA était indisponible lors de la dernière génération. Les séances sont basées sur la méthode polarisée 80/20 mais sans personnalisation IA.
+        ⚠️ <strong>Plans générés algorithmiquement</strong> — l'IA était indisponible lors de la dernière génération. Les séances sont basées sur les principes de périodisation par blocs mais sans personnalisation IA.
        </div>`
     : "";
 
+  // Justification scientifique de la semaine courante
+  const curWeek = data.ideal_week_plan ? (data.weekly_plans_meta || {}) : {};
+  const curPlanMeta = {
+    coach_note: (data.ideal_week_plan_meta || {}).coach_note || "",
+    phase: (data.ideal_week_plan_meta || {}).phase || "",
+    bloc_week: (data.ideal_week_plan_meta || {}).bloc_week || "",
+    is_recovery: (data.ideal_week_plan_meta || {}).is_recovery || false,
+    tss_target: (data.ideal_week_plan_totals || {}).total_tss || 0,
+  };
+  // Récupère coach_note depuis le premier jour qui en a une, ou depuis la meta semaine
+  const coachNote = data.ideal_week_coach_note || "";
+  const phase = data.ideal_week_phase || "";
+  const blocWeek = data.ideal_week_bloc_week || "";
+  const isRecovery = data.ideal_week_is_recovery || false;
+  const tssTarget = (data.ideal_week_plan_totals || {}).total_tss || 0;
+
+  let justifSemaine = "";
+  if (coachNote || phase) {
+    const blocLabel = blocWeek ? `Semaine ${blocWeek}/5 du bloc${isRecovery ? " — <em>récupération</em>" : ""}` : "";
+    const phaseLabel = phase ? `Phase : <strong>${phase}</strong>` : "";
+    const tssLabel = tssTarget ? `TSS cible : <strong>${tssTarget}</strong>` : "";
+    const meta = [phaseLabel, blocLabel, tssLabel].filter(Boolean).join(" · ");
+    justifSemaine = `
+    <details class="justifs" style="margin-bottom:10px">
+      <summary>Objectif de la semaine</summary>
+      <div style="padding:6px 0 2px 0">
+        ${meta ? `<div style="font-size:11.5px;color:#5a6a7e;margin-bottom:6px">${meta}</div>` : ""}
+        ${coachNote ? `<div style="font-size:13px;color:#b0bec5;line-height:1.6">${coachNote}</div>` : ""}
+      </div>
+    </details>`;
+  }
+
   return `
-    <h2>Plan prévu — polarisé 80/20</h2>
+    <h2>Plan prévu</h2>
     ${algoAlert}
+    ${justifSemaine}
     <div class="week-tabs" id="idealTabs">
       <button class="week-tab active" onclick="switchIdealTab(0)" id="itab0">Cette semaine<br><span class="tab-dates">${curLabel}</span></button>
       <button class="week-tab" onclick="switchIdealTab(1)" id="itab1">Semaine suivante<br><span class="tab-dates">${nxtLabel}</span></button>
