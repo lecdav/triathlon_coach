@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from intervals_client import IntervalsClient
 from claude_client import call_claude_json, SYSTEM_PROMPT
+from session_builder import compute_session
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
@@ -96,7 +97,12 @@ def build_prompt(
     wellness: dict,
     recent_activities: list[dict],
 ) -> str:
-    """Construit le prompt utilisateur pour la génération des 2 plans théoriques."""
+    """Construit le prompt pour la génération des 2 plans théoriques.
+
+    Claude ne calcule PAS les allures/watts ni les durées totales — il fournit
+    uniquement des blocs structurés avec des % d'intensité.
+    Le calcul réel est fait par session_builder.compute_session().
+    """
 
     race_date_str = profile.get("season", {}).get("race", {}).get("date", "inconnue")
     race_name = profile.get("season", {}).get("race", {}).get("name", "Course objectif")
@@ -111,59 +117,32 @@ def build_prompt(
         d = a.get("start_date_local", "")[:10]
         sport = a.get("type", "?")
         dur = round((a.get("moving_time") or 0) / 60)
-        dist = round((a.get("distance") or 0) / 1000, 1)
         tss = a.get("icu_training_load") or 0
-        name = a.get("name", "")
-        recent_summary.append(f"  {d} {sport} — {dur}' {dist}km TSS={tss:.0f} ({name})")
+        recent_summary.append(f"  {d} {sport} — {dur}' TSS={tss:.0f}")
 
-    # Seuils
     ftp = thresholds.get("ftp_watts", 250)
     thr_run = thresholds.get("threshold_pace_run_str", "4:53/km")
-    thr_run_mps = thresholds.get("threshold_pace_run_mps", 3.41)
     css = thresholds.get("threshold_pace_swim_str", "2:00/100m")
-
-    # Zones vélo
-    def z(pct): return round(ftp * pct)
-    zones_bike = f"Z1<{z(0.55)}W Z2={z(0.55)}-{z(0.75)}W Z3={z(0.75)}-{z(0.90)}W Z4={z(0.90)}-{z(1.05)}W Z5>{z(1.05)}W"
-
-    # Zones CAP (allures en min/km)
-    def pace_str(mps_factor):
-        if not thr_run_mps: return "—"
-        mps = thr_run_mps * mps_factor
-        total_s = round(60 / mps * 10) * 6  # arrondi 10s
-        return f"{total_s // 60}:{total_s % 60:02d}/km"
-
-    zones_run = (f"Z1<{pace_str(0.77)} Z2={pace_str(0.88)}-{pace_str(0.94)} "
-                 f"Z3={pace_str(0.94)}-{pace_str(1.00)} Z4={pace_str(1.00)}-{pace_str(1.06)} "
-                 f"Seuil={thr_run}")
-
-    # Préférences warmup/cooldown
-    wu = profile.get("training_preferences", {}).get("warmup_cooldown", {})
 
     w1_days = week_dates(week1_monday)
     w2_days = week_dates(week2_monday)
 
     prompt = f"""# Contexte athlète
 
-**Athlète** : {profile.get("identity", {}).get("name", "David")}, {profile.get("identity", {}).get("weight_kg", 78)} kg, amateur confirmé
+**Athlète** : {profile.get("identity", {}).get("name", "David")}, amateur confirmé
 **Objectif** : {race_name} le {race_date_str} ({weeks_to_race} semaines)
 **Point fort** : {profile.get("performance_level", {}).get("primary_discipline_strength", "Vélo")}
 **Point faible** : {profile.get("performance_level", {}).get("primary_discipline_weakness", "Natation")}
-**Méthodologie** : {profile.get("weekly_structure", {}).get("methodology", "Polarisé 80/20")}
 
-# Seuils physiologiques
+# Références physiologiques (pour contexte seulement — NE PAS calculer les allures)
 
-- FTP vélo : {ftp} W | {zones_bike}
-- Seuil CAP : {thr_run} | {zones_run}
+- FTP vélo : {ftp} W
+- Seuil CAP : {thr_run}
 - CSS natation : {css}
-- FC repos : {thresholds.get("resting_hr_bpm", 51)} bpm | FCmax : {thresholds.get("hr_max_bpm", 190)} bpm
-- LTHR vélo : {thresholds.get("lthr_bpm", 168)} bpm
 
 # Forme du moment (PMC Coggan)
 
-- CTL (forme chronique) : {wellness.get("ctl", 0):.1f}
-- ATL (fatigue aiguë)   : {wellness.get("atl", 0):.1f}
-- TSB (forme nette)     : {wellness.get("tsb", 0):.1f}
+- CTL : {wellness.get("ctl", 0):.1f} | ATL : {wellness.get("atl", 0):.1f} | TSB : {wellness.get("tsb", 0):.1f}
 
 # Activités récentes (2 dernières semaines)
 
@@ -171,82 +150,73 @@ def build_prompt(
 
 # Structure hebdomadaire fixe
 
-- Lundi : repos
-- Mardi : CAP (séance qualité)
-- Mercredi : Natation (endurance + technique)
-- Jeudi : Vélo home trainer (séance seuil/sweet spot)
-- Vendredi : Renforcement musculaire (pas d'écha cardio)
-- Samedi : repos
-- Dimanche : sortie longue alternée — semaines ISO paires = vélo longue, impaires = CAP longue (ou Brick à partir de la phase spécifique)
+- Lundi : Repos
+- Mardi : Run (séance qualité avec intervalles)
+- Mercredi : Swim (endurance + technique)
+- Jeudi : VirtualRide (home trainer, séance seuil/sweet spot)
+- Vendredi : Strength (renforcement musculaire, sans écha cardio)
+- Samedi : Repos
+- Dimanche : Sortie longue — semaine ISO {week1_monday.isocalendar()[1]} ({"paire → VirtualRide longue" if week1_monday.isocalendar()[1] % 2 == 0 else "impaire → Run longue"})
 
-# Échauffements / retours au calme OBLIGATOIRES
+# Séances à planifier
 
-- CAP : {wu.get("warmup_run_content", "20' écha avec gammes")} | {wu.get("cooldown_run_min", 5)}' retour au calme trot Z1
-- Vélo : {wu.get("warmup_bike_min", 15)}' écha progressif Z1→Z2 + 3×30s à 100rpm | {wu.get("cooldown_bike_min", 5)}' retour au calme Z1
-- Natation : {wu.get("warmup_swim_m", 400)}m écha nage souple | {wu.get("cooldown_swim_m", 200)}m retour au calme
-- Renforcement : AUCUN échauffement cardio
+## SEMAINE 1 — {week1_monday.isoformat()} au {(week1_monday + timedelta(days=6)).isoformat()}
+- Phase : {ctx1["phase"]} | Semaine {ctx1["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION" if ctx1["is_recovery"] else "CHARGE"})
+- TSS cible : {ctx1["tss_target"]} (sem. précédente : {ctx1["tss_prev_week"]}, sem. suivante : {ctx1["tss_next_week"]})
+- Jours : {[d["date"] + " " + d["weekday_fr"] for d in w1_days]}
 
-# Séances à générer
-
-## SEMAINE 1 — du {week1_monday.isoformat()} au {(week1_monday + timedelta(days=6)).isoformat()}
-
-- Phase : {ctx1["phase"]}
-- Semaine {ctx1["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION — intensité réduite, pas d'intervalles intenses" if ctx1["is_recovery"] else "CHARGE"})
-- TSS cible : {ctx1["tss_target"]} (semaine précédente : {ctx1["tss_prev_week"]}, semaine suivante cible : {ctx1["tss_next_week"]})
-- Semaine ISO : {week1_monday.isocalendar()[1]} ({"paire → dimanche VÉLO longue" if week1_monday.isocalendar()[1] % 2 == 0 else "impaire → dimanche CAP longue"})
-
-Jours : {[d["date"] + " " + d["weekday_fr"] for d in w1_days]}
-
-## SEMAINE 2 — du {week2_monday.isoformat()} au {(week2_monday + timedelta(days=6)).isoformat()}
-
-- Phase : {ctx2["phase"]}
-- Semaine {ctx2["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION — intensité réduite, pas d'intervalles intenses" if ctx2["is_recovery"] else "CHARGE"})
-- TSS cible : {ctx2["tss_target"]} (semaine précédente : {ctx2["tss_prev_week"]}, semaine suivante cible : {ctx2["tss_next_week"]})
-- Semaine ISO : {week2_monday.isocalendar()[1]} ({"paire → dimanche VÉLO longue" if week2_monday.isocalendar()[1] % 2 == 0 else "impaire → dimanche CAP longue"})
-
-Jours : {[d["date"] + " " + d["weekday_fr"] for d in w2_days]}
+## SEMAINE 2 — {week2_monday.isoformat()} au {(week2_monday + timedelta(days=6)).isoformat()}
+- Phase : {ctx2["phase"]} | Semaine {ctx2["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION" if ctx2["is_recovery"] else "CHARGE"})
+- TSS cible : {ctx2["tss_target"]} (sem. précédente : {ctx2["tss_prev_week"]}, sem. suivante : {ctx2["tss_next_week"]})
+- Jours : {[d["date"] + " " + d["weekday_fr"] for d in w2_days]}
 
 # Format de réponse
 
-Réponds UNIQUEMENT avec ce JSON (sans markdown, sans texte) :
+Réponds UNIQUEMENT avec ce JSON (sans markdown, sans texte avant/après).
+
+IMPORTANT : Ne calcule PAS les allures ni les watts — fournis uniquement des % d'intensité.
+Les champs duration_min et tss_estimate seront calculés par l'application à partir des blocs.
 
 {{
-  "generated_at": "YYYY-MM-DDTHH:MM:SS",
   "week1": {{
     "monday": "{week1_monday.isoformat()}",
-    "sunday": "{(week1_monday + timedelta(days=6)).isoformat()}",
     "tss_target": {ctx1["tss_target"]},
     "bloc_week": {ctx1["bloc_week"]},
     "is_recovery": {"true" if ctx1["is_recovery"] else "false"},
     "phase": "{ctx1["phase"]}",
-    "coach_note": "Note courte du coach sur l'objectif de la semaine",
+    "coach_note": "Objectif de la semaine en 1-2 phrases",
     "days": [
       {{
         "date": "YYYY-MM-DD",
-        "weekday": "Monday",
         "weekday_fr": "Lundi",
-        "sport": "Repos|Run|Swim|VirtualRide|Ride|Strength|Brick (Bike+Run)",
-        "type": "Nom court du type de séance",
-        "duration_min": 0,
-        "structure": "Description détaillée de la séance avec allures/watts précis",
-        "zones": "Zones cibles",
-        "rationale": "Justification scientifique courte",
-        "tss_estimate": 0
+        "sport": "Repos|Run|Swim|VirtualRide|Strength",
+        "type": "Nom court (ex: Intervalles Z4, Sweet spot, Endurance fondamentale)",
+        "rationale": "Justification scientifique courte (1 phrase)",
+        "blocks": [
+          {{
+            "type": "endurance|interval|recovery|strength_exercise",
+            "duration_min": 20,
+            "reps": 1,
+            "recovery_min": 0,
+            "intensity_pct": 75,
+            "zone": "Z2",
+            "description": "Texte libre pour renfo/gammes/exercices spéciaux"
+          }}
+        ]
       }}
     ]
   }},
-  "week2": {{ ... même structure ... }}
+  "week2": {{ "monday": "{week2_monday.isoformat()}", "tss_target": {ctx2["tss_target"]}, "bloc_week": {ctx2["bloc_week"]}, "is_recovery": {"true" if ctx2["is_recovery"] else "false"}, "phase": "{ctx2["phase"]}", "coach_note": "...", "days": [...] }}
 }}
 
-RÈGLES IMPORTANTES :
-1. Les durées incluent l'échauffement et le retour au calme
-2. Les structures doivent mentionner les allures/watts précis avec les zones vélo ({zones_bike}) et CAP ({zones_run})
-3. La progression entre semaine 1 et 2 doit être visible (durée intervalles, nombre répétitions, durée sortie longue)
-4. Repos et Renforcement musculaire : tss_estimate = 0
-5. La natation du mercredi : 1 séance/semaine uniquement, ~50 min
-6. Le renforcement du vendredi : exercices fonctionnels triathlon (gainage, squat unipodal, fentes, mollets, proprioception)
-7. Adapte le volume des séances au TSS cible hebdomadaire
-8. Si semaine de récupération : supprimer les intervalles intenses, réduire les durées, garder Z2 uniquement"""
+RÈGLES :
+1. Pour Repos : blocks = [] (liste vide)
+2. Pour Strength : blocks = liste d'exercices avec type="strength_exercise" et description (ex: "3×15 squats unipodaux", "4×30s gainage")
+3. Pour Swim : inclure blocs warmup (400m), corps, cooldown (200m) — utiliser duration_min en équivalent temps
+4. Pour Run/VirtualRide : NE PAS inclure warmup/cooldown dans les blocs — ils sont ajoutés automatiquement
+5. La progression semaine 1→2 doit être visible : +1 répétition OU +2' par intervalle OU +10' sur la sortie longue
+6. Si semaine de récupération : pas d'intervalles (pas de Z4/Z5), blocs endurance Z1-Z2 uniquement, durées réduites
+7. Adapte le nombre/durée des blocs pour atteindre le TSS cible hebdomadaire"""
 
     return prompt
 
@@ -306,19 +276,23 @@ def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
     print(f"\n🤖 Appel Claude Sonnet pour générer les 2 semaines...")
     result = call_claude_json(prompt)
 
-    # Enrichir avec les métadonnées de dates complètes (par sécurité)
+    # Enrichir avec les métadonnées de dates + calcul algorithmique des séances
     from daily_coach import FR_WEEKDAYS as FR_WD
+    wu_profile = profile.get("training_preferences", {}).get("warmup_cooldown", {})
+
     for week_key, week_monday in [("week1", week1_monday), ("week2", week2_monday)]:
         if week_key not in result:
             continue
         days = result[week_key].get("days", [])
         for i, day in enumerate(days):
+            # Dates
             d = week_monday + timedelta(days=i)
             day["date"] = d.isoformat()
             day["weekday"] = d.strftime("%A")
             day["weekday_fr"] = FR_WD.get(d.strftime("%A"), d.strftime("%A"))
             day.setdefault("status", "ideal")
-            day.setdefault("tss_estimate", 0)
+            # Calcul algorithmique : allures, durée totale, TSS, structure
+            compute_session(day, thresholds, wu_profile)
 
     # Ajouter les totaux
     for week_key in ["week1", "week2"]:

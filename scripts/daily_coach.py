@@ -26,6 +26,7 @@ from typing import Any
 # Permet d'importer le client quel que soit le cwd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from intervals_client import IntervalsClient, pace_mps_to_minkm, pace_mps_to_per100m
+from session_builder import compute_session
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -845,63 +846,60 @@ def generate_adaptive_plan_ia(
 
     prompt = f"""# Plan adaptatif — semaine du {week_monday.isoformat()} au {week_sunday.isoformat()}
 
-## Données de forme du jour ({today.isoformat()})
-- CTL : {ctl:.1f} | ATL : {atl:.1f} | TSB : {tsb:+.1f}
-- Forme : {form.get("label", "?")} — {form.get("guidance", "")}
-- FTP vélo : {ftp} W | Seuil CAP : {thr_run}
+## Forme du jour ({today.isoformat()})
+CTL : {ctl:.1f} | ATL : {atl:.1f} | TSB : {tsb:+.1f}
+Forme : {form.get("label", "?")} — {form.get("guidance", "")}
 
-## Plan théorique de la semaine (référence)
+## Plan théorique de référence
 {chr(10).join(plan_summary)}
 
-## Activités déjà réalisées cette semaine
-{chr(10).join(acts_summary) if acts_summary else "  Aucune activité cette semaine."}
+## Activités réalisées cette semaine
+{chr(10).join(acts_summary) if acts_summary else "  Aucune."}
 
-## Ta mission
-Tu dois produire le plan adaptatif de la semaine complète (lundi → dimanche).
+## Mission
+Produis le plan adaptatif complet (lundi → dimanche).
 
-Pour les jours PASSÉS avec activité réalisée :
-- Marque status="done" et remplis actual_activities avec les données réelles
-- Garde le contenu du plan théorique dans structure/zones/rationale
+- Jours PASSÉS avec activité → status="done", remplis actual_activities
+- Jours PASSÉS sans activité → status="past_missed", blocks=[]
+- AUJOURD'HUI ({today.isoformat()}) → status="today", adapte selon TSB {tsb:+.1f}
+- Jours FUTURS → status="todo", ajuste si retard/avance TSS
 
-Pour les jours PASSÉS sans activité (séance manquée) :
-- Marque status="past_missed"
-
-Pour AUJOURD'HUI ({today.isoformat()}, {today.strftime("%A")}) :
-- Marque status="today"
-- Adapte la séance selon la forme actuelle (TSB {tsb:+.1f}) — si très fatigué (TSB < -15), allège l'intensité
-
-Pour les jours FUTURS :
-- Marque status="todo"
-- Adapte le volume/intensité si la semaine est en retard ou en avance sur le TSS cible
-- Si des séances ont été manquées, propose si pertinent un rattrapage (sans surcharger)
+IMPORTANT : Ne calcule PAS les allures ni les watts. Fournis uniquement des blocs avec % d'intensité.
+Les durées et allures réelles seront calculées automatiquement.
 
 Réponds UNIQUEMENT avec ce JSON :
 
 {{
-  "adaptations": ["Message court sur adaptation si nécessaire", ...],
+  "adaptations": ["Note d'adaptation courte si nécessaire"],
   "days": [
     {{
       "date": "YYYY-MM-DD",
-      "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "sport": "Repos|Run|Swim|VirtualRide|Strength|Brick (Bike+Run)",
-      "type": "Nom court du type",
-      "duration_min": 0,
-      "structure": "Description détaillée",
-      "zones": "Zones cibles",
+      "sport": "Repos|Run|Swim|VirtualRide|Strength",
+      "type": "Nom court",
       "rationale": "Justification courte",
-      "tss_estimate": 0,
+      "adaptation": "Note si séance modifiée vs plan théorique (sinon null)",
       "status": "done|past_missed|today|todo",
-      "adaptation": "Note d'adaptation si la séance a été modifiée (sinon null)",
-      "actual_activities": []
+      "actual_activities": [],
+      "blocks": [
+        {{
+          "type": "endurance|interval|recovery|strength_exercise",
+          "duration_min": 20,
+          "reps": 1,
+          "recovery_min": 0,
+          "intensity_pct": 75,
+          "zone": "Z2",
+          "description": "Texte libre pour renfo/exercices"
+        }}
+      ]
     }}
   ]
 }}
 
-Pour status="done", actual_activities doit contenir :
-{{"name": "nom activité", "type": "Run/Ride/etc", "duration_min": X, "distance_km": X, "tss": X}}
-
-Les activités réelles à utiliser sont celles de la liste ci-dessus."""
+Pour status="done" : actual_activities = [{{"name":"...", "type":"Run/Ride/etc", "duration_min":X, "distance_km":X, "tss":X}}]
+Pour status="done"/"past_missed" : blocks peut être vide (séance déjà passée)
+Pour Run/VirtualRide : NE PAS inclure warmup/cooldown dans les blocs (ajoutés automatiquement)
+Pour Repos : blocks = []"""
 
     try:
         import anthropic
@@ -928,12 +926,10 @@ Les activités réelles à utiliser sont celles de la liste ci-dessus."""
         adaptive_days = result.get("days", [])
         adaptations = result.get("adaptations", [])
 
-        # Sécurité : corriger les dates
-        week_acts_by_date: dict[str, list] = {}
-        for a in week_acts:
-            d = a.get("start_date_local", "")[:10]
-            week_acts_by_date.setdefault(d, []).append(a)
+        # Récupère le profil warmup/cooldown depuis le profil athlète
+        wu_profile = profile.get("training_preferences", {}).get("warmup_cooldown", {})
 
+        # Corriger les dates + calcul algorithmique allures/durée/TSS
         for i, day in enumerate(adaptive_days):
             d_obj = week_monday + timedelta(days=i)
             day["date"] = d_obj.isoformat()
@@ -941,6 +937,9 @@ Les activités réelles à utiliser sont celles de la liste ci-dessus."""
             day["weekday_fr"] = FR_WEEKDAYS.get(d_obj.strftime("%A"), d_obj.strftime("%A"))
             day.setdefault("actual_activities", [])
             day.setdefault("adaptation", None)
+            # Pour les jours futurs/aujourd'hui : calcul de structure/durée/TSS
+            if day.get("status") not in ("done", "past_missed"):
+                compute_session(day, thresholds, wu_profile)
 
         print(f"✅  Plan adaptatif généré par Claude Sonnet ({len(adaptive_days)} jours).")
         return adaptive_days, adaptations

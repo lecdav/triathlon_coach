@@ -86,7 +86,7 @@ def build_workout_name(item: dict, workout_text: str | None, thresholds: dict) -
 
     Exemples :
       BIKE 60' 3×12' 88-94%FTP
-      RUN 45' 7×3' 105%Pace
+      RUN 45' 7×3' 105%LT
       SWIM 10×100m
       GYM 45'
       BIKE 90' Z2
@@ -113,11 +113,11 @@ def build_workout_name(item: dict, workout_text: str | None, thresholds: dict) -
     # ---- CAP ----
     if sport == "Run":
         if "VO2max" in wtype or "intervalles" in wtype.lower():
-            return f"RUN {total_min}' 7×3' 105%Pace"
+            return f"RUN {total_min}' 7×3' 105%LT"
         elif "Seuil" in wtype or "tempo" in wtype.lower():
-            return f"RUN {total_min}' 95-100%Pace"
+            return f"RUN {total_min}' 95-100%LT"
         elif "Sortie longue" in wtype or "long" in wtype.lower():
-            return f"RUN {total_min}' 75%Pace"
+            return f"RUN {total_min}' 75%LT"
         else:
             return f"RUN {total_min}' Z2"
 
