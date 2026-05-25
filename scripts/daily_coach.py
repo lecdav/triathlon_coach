@@ -496,7 +496,11 @@ def match_activities_to_plan(plan: list[dict], activities: list[dict]) -> list[d
 
         if planned_sport == "Repos":
             item["status"] = "done" if d <= today else "todo"
-            item["actual_activities"] = []
+            # Si une activité a quand même été réalisée ce jour de repos, on la note
+            any_acts = [a for a in day_acts
+                        if a.get("type") not in {"", None}
+                        and a.get("icu_training_load", 0) > 0]
+            item["actual_activities"] = [fmt_activity(a) for a in any_acts]
             continue
 
         exact_match = [a for a in day_acts if a.get("type") in compatible_types]

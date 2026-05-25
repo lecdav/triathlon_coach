@@ -526,8 +526,8 @@ function buildAdaptedPlan(data) {
 
     const isRest = (p.sport === "Repos" || !p.sport);
 
-    if (isRest && isDone) {
-      // Jour de repos passé : affichage simple sans "Prévu"
+    if (isRest && isDone && (!p.actual_activities || p.actual_activities.length === 0)) {
+      // Jour de repos passé sans activité : affichage simple
       seanceHtml = `<span style="color:#5a6a7e">Repos</span>`;
       contenuHtml = `<span style="color:#5a6a7e;font-size:12px">—</span>`;
     } else if (isDone && p.actual_activities && p.actual_activities.length > 0) {
@@ -553,12 +553,24 @@ function buildAdaptedPlan(data) {
       }
     }
 
-    const tss = p.tss_estimate || 0;
+    // Pour les séances réalisées : TSS et intensité depuis les activités réelles
+    let tss, zonesHtml;
+    if (isDone && p.actual_activities && p.actual_activities.length > 0) {
+      const realTss = p.actual_activities.reduce((s, a) => s + (a.tss || 0), 0);
+      tss = realTss > 0 ? realTss : (p.tss_estimate || 0);
+      // Zones prévues en petit + TSS réel
+      zonesHtml = p.zones && p.zones !== "—"
+        ? `<span style="color:#5a6a7e;font-size:11px">${p.zones}</span>`
+        : "—";
+    } else {
+      tss = p.tss_estimate || 0;
+      zonesHtml = p.zones || "—";
+    }
     return `<tr class="${cls}">
       <td class="day">${jour}</td>
       <td class="seance">${seanceHtml}</td>
       <td class="contenu">${contenuHtml}</td>
-      <td class="intensite">${p.zones || "—"}</td>
+      <td class="intensite">${zonesHtml}</td>
       <td class="tss">${tss > 0 ? tss : "—"}</td>
     </tr>`;
   }
