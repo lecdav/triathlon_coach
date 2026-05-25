@@ -126,30 +126,41 @@ def parse_blocks(blocks: list[dict], sport: str, thresholds: dict) -> dict:
         block_total_min = block_active_min + block_rec_min
         total_min += block_total_min
 
-        # Texte du bloc
+        # Texte du bloc — format compact : "3×6' @ 220W (88%, r=3')"
         if sport == "Run":
             pace = pace_factor_to_str(thr_run_mps, pct)
             if reps > 1:
-                rec_txt = f"récup {int(rec)}' trot Z1" if rec > 0 else ""
-                parts.append(f"{reps}×{int(dur)}' à {pace} ({zone})" + (f" — {rec_txt}" if rec_txt else ""))
+                rec_txt = f", r={int(rec)}'" if rec > 0 else ""
+                parts.append(f"{reps}×{int(dur)}' @ {pace} ({zone}{rec_txt})")
+            elif desc:
+                parts.append(desc)
             else:
-                parts.append(desc or f"{int(dur)}' à {pace} ({zone})")
+                parts.append(f"{int(dur)}' {zone} @ {pace}")
             if_val = pct
         elif sport in ("VirtualRide", "Ride"):
-            w = watts(ftp, pct)
+            w_lo = watts(ftp, pct - 0.02)
+            w_hi = watts(ftp, pct + 0.02)
+            pct_lo = int(round((pct - 0.02) * 100))
+            pct_hi = int(round((pct + 0.02) * 100))
+            w_str = f"{w_lo}–{w_hi}W" if w_lo != w_hi else f"{w_lo}W"
+            p_str = f"{pct_lo}–{pct_hi}%" if pct_lo != pct_hi else f"{pct_lo}%"
             if reps > 1:
-                rec_txt = f"récup {int(rec)}' Z1" if rec > 0 else ""
-                parts.append(f"{reps}×{int(dur)}' à {w}W / {int(pct*100)}% FTP ({zone})" + (f" — {rec_txt}" if rec_txt else ""))
+                rec_txt = f", r={int(rec)}'" if rec > 0 else ""
+                parts.append(f"{reps}×{int(dur)}' @ {w_str} ({p_str} FTP{rec_txt})")
+            elif desc:
+                parts.append(desc)
             else:
-                parts.append(desc or f"{int(dur)}' à {w}W / {int(pct*100)}% FTP ({zone})")
+                parts.append(f"{int(dur)}' {zone} @ {w_str} ({p_str} FTP)")
             if_val = pct
         elif sport == "Swim":
             p = swim_pace_factor_to_str(css_mps, pct)
             if reps > 1:
-                rec_txt = f"récup {int(rec)}' nage souple" if rec > 0 else ""
-                parts.append(f"{reps}×{int(dur)}' à {p} ({zone})" + (f" — {rec_txt}" if rec_txt else ""))
+                rec_txt = f", r={int(rec)}'" if rec > 0 else ""
+                parts.append(f"{reps}×{int(dur)}' @ {p} ({zone}{rec_txt})")
+            elif desc:
+                parts.append(desc)
             else:
-                parts.append(desc or f"{int(dur)}' à {p} ({zone})")
+                parts.append(f"{int(dur)}' {zone} @ {p}")
             if_val = pct
         else:
             # Strength / Brick / autre — texte libre
@@ -243,15 +254,27 @@ def compute_session(day: dict, thresholds: dict, wu_profile: dict | None = None)
     # Durée totale = warmup + corps + cooldown
     total_min = wu_min + body["duration_min"] + cd_min
 
-    # Structure textuelle complète
-    parts = []
+    # Structure textuelle complète — format compact avec → comme séparateur
+    # ex : "55' : 15' Z1→Z2 → 2×15' @ 220–225W (88–90% FTP, r=5') → 5' souple"
+    seg = []
     if wu_txt:
-        parts.append(f"Échauffement : {wu_txt}")
+        # Version courte du warmup
+        if sport == "Run":
+            seg.append(f"{wu_min}' écha Z1")
+        elif sport in ("VirtualRide", "Ride"):
+            seg.append(f"{wu_min}' Z1→Z2")
+        else:
+            seg.append(wu_txt)
     if body["structure"]:
-        parts.append(f"Corps : {body['structure']}")
+        seg.append(body["structure"])
     if cd_txt:
-        parts.append(f"Retour au calme : {cd_txt}")
-    structure = " | ".join(parts)
+        if sport == "Run":
+            seg.append(f"{cd_min}' souple")
+        elif sport in ("VirtualRide", "Ride"):
+            seg.append(f"{cd_min}' souple")
+        else:
+            seg.append(cd_txt)
+    structure = f"{total_min}' : " + " → ".join(seg) if seg else ""
 
     # TSS recalculé sur la durée totale (warmup/cooldown à ~Z1 = 55%)
     ftp = thresholds.get("ftp_watts", 250)

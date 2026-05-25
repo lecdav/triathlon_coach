@@ -216,7 +216,8 @@ RÈGLES :
 4. Pour Run/VirtualRide : NE PAS inclure warmup/cooldown dans les blocs — ils sont ajoutés automatiquement
 5. La progression semaine 1→2 doit être visible : +1 répétition OU +2' par intervalle OU +10' sur la sortie longue
 6. Si semaine de récupération : pas d'intervalles (pas de Z4/Z5), blocs endurance Z1-Z2 uniquement, durées réduites
-7. Adapte le nombre/durée des blocs pour atteindre le TSS cible hebdomadaire"""
+7. Adapte le nombre/durée des blocs pour atteindre le TSS cible hebdomadaire
+8. HIGH ANAEROBIC (Z5-Z6) : intègre 1 séquence d'efforts courts très intenses par semaine, sur la séance Run du mardi OU vélo du jeudi (pas les deux). Format : 3 à 6 répétitions de 20–30 secondes à 110–120% FTP (vélo) ou 105–110% seuil (run), récup complète 2–3'. Ces efforts stimulent le système anaérobie lactique et maintiennent les adaptations neuromusculaires (Laursen & Jenkins 2002). Ne pas ajouter si semaine de récupération."""
 
     return prompt
 

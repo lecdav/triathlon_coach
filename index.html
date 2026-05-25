@@ -213,8 +213,9 @@ function formatTotalDuration(totalMin) {
 
 // ── Frise saisonnière ──────────────────────────────────────────────────────
 function buildSeasonTimeline(data) {
-  const raceDate = new Date("2026-08-30");
-  const today = new Date(data.today);
+  const raceDate = new Date("2026-08-30T12:00:00");
+  // Forcer midi pour éviter le décalage UTC→local qui ferait glisser la date d'un jour
+  const today = new Date(data.today + "T12:00:00");
   // Début de la frise : lundi 4 mai 2026
   const start = new Date("2026-05-04");
 
@@ -428,7 +429,7 @@ function buildIdealPlan(data) {
     : "";
 
   return `
-    <h2>Plan de la semaine — polarisé 80/20</h2>
+    <h2>Plan prévu — polarisé 80/20</h2>
     ${algoAlert}
     <div class="week-tabs" id="idealTabs">
       <button class="week-tab active" onclick="switchIdealTab(0)" id="itab0">Cette semaine<br><span class="tab-dates">${curLabel}</span></button>
@@ -490,7 +491,13 @@ function buildAdaptedPlan(data) {
       ? `<span title="Généré algorithmiquement (IA indisponible)" style="font-size:10px;background:#2e1a00;color:#e65100;border:1px solid #e6510055;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">⚙️ algo</span>`
       : `<span title="Généré par IA" style="font-size:10px;background:#001a2e;color:#7ab0e8;border:1px solid #7ab0e855;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">🤖 IA</span>`;
 
-    if (isDone && p.actual_activities && p.actual_activities.length > 0) {
+    const isRest = (p.sport === "Repos" || !p.sport);
+
+    if (isRest && isDone) {
+      // Jour de repos passé : affichage simple sans "Prévu"
+      seanceHtml = `<span style="color:#5a6a7e">Repos</span>`;
+      contenuHtml = `<span style="color:#5a6a7e;font-size:12px">—</span>`;
+    } else if (isDone && p.actual_activities && p.actual_activities.length > 0) {
       const acts = p.actual_activities.map(a => {
         const sportInfo = (SPORT_INFO[a.type] || SPORT_INFO[a.sport] || ["", a.type || ""]);
         const [em, fr] = sportInfo;
@@ -611,10 +618,13 @@ function render(data) {
   // 1. Frise saisonnière
   try { html += buildSeasonTimeline(data); } catch(e) { console.warn("Season timeline error:", e); }
 
-  // 2. Plan théorique idéal (onglets sem. courante / suivante)
+  // 2. Suivi adaptatif (semaine en cours uniquement)
+  try { html += buildAdaptedPlan(data); } catch(e) { console.warn("Adapted plan error:", e); }
+
+  // 3. Plan théorique idéal (onglets sem. courante / suivante)
   try { html += buildIdealPlan(data); } catch(e) { console.warn("Ideal plan error:", e); }
 
-  // 2b. Justifications (plan théorique)
+  // 3b. Justifications (plan théorique)
   const idealPlan = data.ideal_week_plan || [];
   const justifs = idealPlan.filter(p => p.rationale);
   if (justifs.length) {
@@ -624,9 +634,6 @@ function render(data) {
     }
     html += `</ul></details>`;
   }
-
-  // 3. Suivi adaptatif (semaine en cours uniquement)
-  try { html += buildAdaptedPlan(data); } catch(e) { console.warn("Adapted plan error:", e); }
 
   // Adaptations dynamiques (alertes)
   const adaptations = data.week_adaptations || [];

@@ -681,24 +681,35 @@ def adapt_plan_to_week(plan: list[dict], atl: float, ctl: float,
             adaptations.append(f"⚠️ {reason} → séances futures allégées en Z1-Z2.")
 
     # --- Règle 3 : récupérer une séance clé manquée sur le prochain jour libre ---
+    # Seulement si le TSS projeté reste dans la cible hebdomadaire (±15%)
     elif missed_key and free_slots:
-        missed = missed_key[0]   # on récupère la première séance clé manquée
-        slot = free_slots[0]     # sur le premier jour de repos à venir
-
-        slot["sport"] = missed["sport"]
-        slot["type"] = missed["type"]
-        slot["duration_min"] = missed["duration_min"]
-        slot["structure"] = missed["structure"]
-        slot["zones"] = missed["zones"]
-        slot["tss_estimate"] = missed["tss_estimate"]
-        slot["adaptation"] = (
-            f"🔄 Récupération de la séance manquée du {missed['weekday_fr']} "
-            f"({missed['type']})."
+        missed = missed_key[0]
+        slot = free_slots[0]
+        tss_todo = sum(
+            p.get("tss_estimate", 0) for p in future_items
+            if p.get("sport") not in ("Repos", None)
         )
-        adaptations.append(
-            f"🔄 Séance '{missed['type']}' du {missed['weekday_fr']} manquée → "
-            f"reportée au {slot['weekday_fr']}."
-        )
+        tss_projected = tss_done + tss_todo + missed.get("tss_estimate", 0)
+        if tss_projected <= tss_target_week * 1.10:
+            slot["sport"] = missed["sport"]
+            slot["type"] = missed["type"]
+            slot["duration_min"] = missed["duration_min"]
+            slot["structure"] = missed["structure"]
+            slot["zones"] = missed["zones"]
+            slot["tss_estimate"] = missed["tss_estimate"]
+            slot["adaptation"] = (
+                f"🔄 Récupération de la séance manquée du {missed['weekday_fr']} "
+                f"({missed['type']})."
+            )
+            adaptations.append(
+                f"🔄 Séance '{missed['type']}' du {missed['weekday_fr']} manquée → "
+                f"reportée au {slot['weekday_fr']}."
+            )
+        else:
+            adaptations.append(
+                f"⏭️ Séance '{missed['type']}' du {missed['weekday_fr']} manquée — "
+                f"non récupérée (TSS projeté {tss_projected:.0f} dépasserait la cible {tss_target_week})."
+            )
 
     return plan, adaptations
 
