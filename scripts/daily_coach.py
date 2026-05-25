@@ -35,6 +35,7 @@ CACHE_DIR = ROOT / "data" / "cache"
 PROFILE_PATH = ROOT / "config" / "athlete_profile.yaml"
 ATHLETE_PROFILE_PATH = ROOT / "data" / "athlete_profile.json"
 WEEKLY_PLANS_PATH = ROOT / "data" / "weekly_plans.json"
+PERIODIZATION_PATH = ROOT / "data" / "periodization.json"
 # data/today.json est la seule sortie versionnée — chargée par index.html via fetch()
 
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -720,6 +721,53 @@ def adapt_plan_to_week(plan: list[dict], atl: float, ctl: float,
 
 # ---------- Chargement du plan théorique IA ----------
 
+def get_tss_target_for_week(week_monday: date) -> int:
+    """Retourne le TSS cible pour une semaine.
+
+    Priorité :
+    1. data/periodization.json (généré par IA le dimanche)
+    2. weekly_plans.json (tss_target dans le plan)
+    3. athlete_profile.json (valeurs de base)
+    """
+    monday_str = week_monday.isoformat()
+
+    # 1. periodization.json
+    if PERIODIZATION_PATH.exists():
+        try:
+            data = json.loads(PERIODIZATION_PATH.read_text())
+            tss = data.get("tss_by_week", {}).get(monday_str)
+            if tss:
+                return int(tss)
+        except Exception:
+            pass
+
+    # 2. weekly_plans.json
+    if WEEKLY_PLANS_PATH.exists():
+        try:
+            data = json.loads(WEEKLY_PLANS_PATH.read_text())
+            for wk in ["week1", "week2"]:
+                if data.get(wk, {}).get("monday") == monday_str:
+                    tss = data[wk].get("tss_target")
+                    if tss:
+                        return int(tss)
+        except Exception:
+            pass
+
+    # 3. athlete_profile.json
+    if ATHLETE_PROFILE_PATH.exists():
+        try:
+            profile = json.loads(ATHLETE_PROFILE_PATH.read_text())
+            tss = profile.get("fitness_baseline", {}).get(
+                "weekly_tss_targets", {}
+            ).get(monday_str)
+            if tss:
+                return int(tss)
+        except Exception:
+            pass
+
+    return 270  # valeur par défaut raisonnable
+
+
 def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, dict, dict, dict]:
     """Charge les plans théoriques depuis data/weekly_plans.json.
 
@@ -870,12 +918,29 @@ def generate_adaptive_plan_ia(
     tsb = snapshot_meta.get("tsb", 0)
     ctl = snapshot_meta.get("ctl", 0)
     atl = snapshot_meta.get("atl", 0)
+    tss_target = snapshot_meta.get("tss_target_week", 270)
+
+    # TSS déjà réalisé cette semaine
+    week_monday_d = today - timedelta(days=today.weekday())
+    week_sunday_d = week_monday_d + timedelta(days=6)
+    tss_done_week = sum(
+        a.get("icu_training_load", 0) or 0
+        for a in activities
+        if week_monday_d.isoformat() <= a.get("start_date_local", "")[:10] <= today.isoformat()
+    )
+    tss_remaining = max(0, tss_target - tss_done_week)
 
     prompt = f"""# Plan adaptatif — semaine du {week_monday.isoformat()} au {week_sunday.isoformat()}
 
 ## Forme du jour ({today.isoformat()})
 CTL : {ctl:.1f} | ATL : {atl:.1f} | TSB : {tsb:+.1f}
 Forme : {form.get("label", "?")} — {form.get("guidance", "")}
+
+## Contrainte TSS (PRIORITAIRE)
+- TSS cible semaine : **{tss_target}** (périodisation saison)
+- TSS déjà réalisé : {tss_done_week:.0f}
+- TSS restant à distribuer sur les jours futurs : **{tss_remaining:.0f}**
+- La somme des tss_estimate des jours todo/today doit être entre {int(tss_remaining*0.92)} et {int(tss_remaining*1.08)}
 
 ## Plan théorique de référence
 {chr(10).join(plan_summary)}
@@ -1507,7 +1572,8 @@ def run() -> dict:
 
     # ── Plan adaptatif (semaine en cours) — généré par IA chaque jour ────────
     # Tente la génération IA ; fallback algo si API indisponible.
-    snapshot_meta = {"ctl": ctl, "atl": atl, "tsb": tsb}
+    tss_target_week = get_tss_target_for_week(week_monday)
+    snapshot_meta = {"ctl": ctl, "atl": atl, "tsb": tsb, "tss_target_week": tss_target_week}
     ia_adaptive_days, week_adaptations = generate_adaptive_plan_ia(
         today, ideal_week_plan, activities, form, thresholds, athlete_profile, snapshot_meta
     )
@@ -1597,6 +1663,7 @@ def run() -> dict:
         "week_adaptations": week_adaptations,
         "ia_plans_source": ia_plans_source,
         "ia_adaptive_source": ia_adaptive_source,
+        "tss_target_week": tss_target_week,
         "weeks_to_race": weeks_to_race,
         "phase": phase,
         "race_name": _race_json.get("name") or _race_yaml.get("name"),

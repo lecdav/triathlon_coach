@@ -26,6 +26,7 @@ from session_builder import compute_session
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 PLANS_FILE = DATA_DIR / "weekly_plans.json"
+PERIODIZATION_FILE = DATA_DIR / "periodization.json"
 ATHLETE_PROFILE_PATH = DATA_DIR / "athlete_profile.json"
 
 FR_WEEKDAYS = {
@@ -96,6 +97,8 @@ def build_prompt(
     thresholds: dict,
     wellness: dict,
     recent_activities: list[dict],
+    tss_target_w1: int = 0,
+    tss_target_w2: int = 0,
 ) -> str:
     """Construit le prompt pour la génération des 2 plans théoriques.
 
@@ -110,6 +113,9 @@ def build_prompt(
 
     ctx1 = bloc_context(week1_monday, profile)
     ctx2 = bloc_context(week2_monday, profile)
+    # TSS cibles IA (depuis periodization.json) ou fallback profil
+    tss1 = tss_target_w1 or ctx1["tss_target"]
+    tss2 = tss_target_w2 or ctx2["tss_target"]
 
     # Résumé des activités des 2 dernières semaines
     recent_summary = []
@@ -162,12 +168,12 @@ def build_prompt(
 
 ## SEMAINE 1 — {week1_monday.isoformat()} au {(week1_monday + timedelta(days=6)).isoformat()}
 - Phase : {ctx1["phase"]} | Semaine {ctx1["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION" if ctx1["is_recovery"] else "CHARGE"})
-- TSS cible : {ctx1["tss_target"]} (sem. précédente : {ctx1["tss_prev_week"]}, sem. suivante : {ctx1["tss_next_week"]})
+- **TSS CIBLE : {tss1}** — la somme des tss_estimate de tous les jours doit être entre {int(tss1*0.95)} et {int(tss1*1.05)}
 - Jours : {[d["date"] + " " + d["weekday_fr"] for d in w1_days]}
 
 ## SEMAINE 2 — {week2_monday.isoformat()} au {(week2_monday + timedelta(days=6)).isoformat()}
 - Phase : {ctx2["phase"]} | Semaine {ctx2["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION" if ctx2["is_recovery"] else "CHARGE"})
-- TSS cible : {ctx2["tss_target"]} (sem. précédente : {ctx2["tss_prev_week"]}, sem. suivante : {ctx2["tss_next_week"]})
+- **TSS CIBLE : {tss2}** — la somme des tss_estimate de tous les jours doit être entre {int(tss2*0.95)} et {int(tss2*1.05)}
 - Jours : {[d["date"] + " " + d["weekday_fr"] for d in w2_days]}
 
 # Format de réponse
@@ -180,7 +186,7 @@ Les champs duration_min et tss_estimate seront calculés par l'application à pa
 {{
   "week1": {{
     "monday": "{week1_monday.isoformat()}",
-    "tss_target": {ctx1["tss_target"]},
+    "tss_target": {tss1},
     "bloc_week": {ctx1["bloc_week"]},
     "is_recovery": {"true" if ctx1["is_recovery"] else "false"},
     "phase": "{ctx1["phase"]}",
@@ -206,7 +212,7 @@ Les champs duration_min et tss_estimate seront calculés par l'application à pa
       }}
     ]
   }},
-  "week2": {{ "monday": "{week2_monday.isoformat()}", "tss_target": {ctx2["tss_target"]}, "bloc_week": {ctx2["bloc_week"]}, "is_recovery": {"true" if ctx2["is_recovery"] else "false"}, "phase": "{ctx2["phase"]}", "coach_note": "...", "days": [...] }}
+  "week2": {{ "monday": "{week2_monday.isoformat()}", "tss_target": {tss2}, "bloc_week": {ctx2["bloc_week"]}, "is_recovery": {"true" if ctx2["is_recovery"] else "false"}, "phase": "{ctx2["phase"]}", "coach_note": "...", "days": [...] }}
 }}
 
 RÈGLES :
@@ -220,6 +226,133 @@ RÈGLES :
 8. HIGH ANAEROBIC (Z5-Z6) : intègre 1 séquence d'efforts courts très intenses par semaine, sur la séance Run du mardi OU vélo du jeudi (pas les deux). Format : 3 à 6 répétitions de 20–30 secondes à 110–120% FTP (vélo) ou 105–110% seuil (run), récup complète 2–3'. Ces efforts stimulent le système anaérobie lactique et maintiennent les adaptations neuromusculaires (Laursen & Jenkins 2002). Ne pas ajouter si semaine de récupération."""
 
     return prompt
+
+
+def build_periodization_prompt(profile: dict, wellness: dict, week1_monday: date) -> str:
+    """Prompt pour ajuster les TSS cibles de la saison selon la forme actuelle."""
+    race = profile.get("season", {}).get("race", {})
+    race_date_str = race.get("date", "")
+    race_name = race.get("name", "Course objectif")
+    phases = profile.get("season", {}).get("phases", [])
+    base_targets = profile.get("fitness_baseline", {}).get("weekly_tss_targets", {})
+
+    ctl = wellness.get("ctl", 0)
+    atl = wellness.get("atl", 0)
+    tsb = wellness.get("tsb", 0)
+
+    # Semaines restantes depuis week1_monday
+    remaining = {k: v for k, v in sorted(base_targets.items()) if k >= week1_monday.isoformat()}
+
+    phases_txt = "\n".join(
+        f"  {ph['name']} ({ph['start']} → {ph['end']}) : TSS cible base {ph['tss_target_weekly']}/sem"
+        for ph in phases
+    )
+    targets_txt = "\n".join(f"  {k}: {v}" for k, v in list(remaining.items()))
+
+    return f"""# Ajustement périodisation saison — {race_name} le {race_date_str}
+
+## Forme actuelle
+- CTL : {ctl:.1f} | ATL : {atl:.1f} | TSB : {tsb:+.1f}
+- Semaine courante : {week1_monday.isoformat()}
+
+## Phases de la saison (base profil)
+{phases_txt}
+
+## TSS cibles hebdomadaires actuels (base profil, semaines restantes)
+{targets_txt}
+
+## Ta mission
+Ajuste les TSS cibles hebdomadaires pour les semaines restantes en tenant compte de :
+1. La forme actuelle (CTL {ctl:.1f}) — si CTL < 40 allège les premières semaines, si CTL > 60 peut progresser plus vite
+2. La progression en blocs 4+1 (4 semaines charge + 1 récup à 60-65% du pic) — respecter ce pattern
+3. La phase d'affûtage finale (-40% volume) et la semaine de course (très léger)
+4. Ne pas dépasser +10 TSS/semaine de progression (Gabbett 2016 — ramp rate)
+5. Reste proche des valeurs de base (±15% max) sauf si la forme l'exige vraiment
+
+Réponds UNIQUEMENT avec ce JSON :
+{{
+  "generated_at": "YYYY-MM-DDTHH:MM:SS",
+  "ctl_at_generation": {ctl:.1f},
+  "tss_by_week": {{
+    "YYYY-MM-DD": 270,
+    ...
+  }},
+  "coach_rationale": "Explication courte des ajustements principaux (2-3 phrases)"
+}}
+
+Les clés de tss_by_week sont les lundis ISO des semaines restantes : {list(remaining.keys())}"""
+
+
+def generate_periodization(profile: dict, wellness: dict, week1_monday: date,
+                           dry_run: bool = False) -> dict:
+    """Génère/ajuste la périodisation saison via Claude et sauvegarde dans periodization.json."""
+    prompt = build_periodization_prompt(profile, wellness, week1_monday)
+
+    if dry_run:
+        print("\n" + "="*60)
+        print("PROMPT PÉRIODISATION (dry-run) :")
+        print(prompt)
+        return {}
+
+    print("\n🤖 Appel Claude Sonnet pour ajuster la périodisation saison...")
+    try:
+        result = call_claude_json(prompt)
+    except Exception as e:
+        print(f"⚠️  Erreur génération périodisation IA ({e}) — conservation des valeurs profil.")
+        # Fallback : utilise les valeurs du profil telles quelles
+        base_targets = profile.get("fitness_baseline", {}).get("weekly_tss_targets", {})
+        remaining = {k: v for k, v in sorted(base_targets.items())
+                     if k >= week1_monday.isoformat()}
+        result = {
+            "generated_at": week1_monday.isoformat(),
+            "ctl_at_generation": wellness.get("ctl", 0),
+            "tss_by_week": remaining,
+            "coach_rationale": "Valeurs de base du profil athlète (fallback).",
+        }
+
+    # Sauvegarde
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    PERIODIZATION_FILE.write_text(
+        json.dumps(result, indent=2, ensure_ascii=False, default=str)
+    )
+    print(f"✅ Périodisation sauvegardée dans {PERIODIZATION_FILE}")
+    rationale = result.get("coach_rationale", "")
+    if rationale:
+        print(f"   → {rationale}")
+    return result
+
+
+def get_tss_target(week_monday: date) -> int | None:
+    """Lit le TSS cible pour une semaine depuis periodization.json.
+
+    Fallback sur athlete_profile.json si le fichier n'existe pas.
+    Retourne None si introuvable.
+    """
+    monday_str = week_monday.isoformat()
+
+    # 1. periodization.json (prioritaire)
+    if PERIODIZATION_FILE.exists():
+        try:
+            data = json.loads(PERIODIZATION_FILE.read_text())
+            tss = data.get("tss_by_week", {}).get(monday_str)
+            if tss:
+                return int(tss)
+        except Exception:
+            pass
+
+    # 2. Fallback athlete_profile.json
+    if ATHLETE_PROFILE_PATH.exists():
+        try:
+            profile = json.loads(ATHLETE_PROFILE_PATH.read_text())
+            tss = profile.get("fitness_baseline", {}).get(
+                "weekly_tss_targets", {}
+            ).get(monday_str)
+            if tss:
+                return int(tss)
+        except Exception:
+            pass
+
+    return None
 
 
 def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
@@ -263,12 +396,23 @@ def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
     atl = today_w.get("atl") or 0
     wellness = {"ctl": ctl, "atl": atl, "tsb": ctl - atl}
 
-    # Construire le prompt
-    prompt = build_prompt(week1_monday, week2_monday, profile, thresholds, wellness, activities)
+    # 1. Générer/ajuster la périodisation saison
+    periodization = generate_periodization(profile, wellness, week1_monday, dry_run=dry_run)
+    tss1 = (periodization.get("tss_by_week", {}).get(week1_monday.isoformat())
+            or get_tss_target(week1_monday)
+            or bloc_context(week1_monday, profile)["tss_target"])
+    tss2 = (periodization.get("tss_by_week", {}).get(week2_monday.isoformat())
+            or get_tss_target(week2_monday)
+            or bloc_context(week2_monday, profile)["tss_target"])
+    print(f"   TSS cibles : semaine 1 = {tss1}, semaine 2 = {tss2}")
+
+    # 2. Construire le prompt des séances avec les TSS cibles IA
+    prompt = build_prompt(week1_monday, week2_monday, profile, thresholds, wellness, activities,
+                          tss_target_w1=tss1, tss_target_w2=tss2)
 
     if dry_run:
         print("\n" + "="*60)
-        print("PROMPT (dry-run) :")
+        print("PROMPT SÉANCES (dry-run) :")
         print("="*60)
         print(prompt)
         return {}
