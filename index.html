@@ -429,7 +429,6 @@ function buildIdealPlan(data) {
     : "";
 
   // Justification scientifique de la semaine courante
-  const curWeek = data.ideal_week_plan ? (data.weekly_plans_meta || {}) : {};
   const curPlanMeta = {
     coach_note: (data.ideal_week_plan_meta || {}).coach_note || "",
     phase: (data.ideal_week_plan_meta || {}).phase || "",
@@ -640,16 +639,6 @@ function buildAdaptedPlan(data) {
     </tbody></table>`;
 }
 
-function switchTab(idx) {
-  [0, 1].forEach(i => {
-    const tab = document.getElementById("tab" + i);
-    const panel = document.getElementById("tabPanel" + i);
-    if (!tab || !panel) return;
-    if (i === idx) { tab.classList.add("active"); panel.style.display = ""; }
-    else { tab.classList.remove("active"); panel.style.display = "none"; }
-  });
-}
-
 function switchIdealTab(idx) {
   [0, 1].forEach(i => {
     const tab = document.getElementById("itab" + i);
@@ -670,7 +659,6 @@ function render(data) {
   const th = data.thresholds;
   const l7 = data.load_7d;
   const l28 = data.load_28d;
-  const sp = data.session_profile;
   // plan et totals utilisés uniquement par buildAdaptedPlan via data directement
 
   sub.textContent = `Snapshot du ${today} — généré ${(data.generated_at || "").replace("T", " à ").slice(0, 19)}`;

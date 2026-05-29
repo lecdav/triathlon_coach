@@ -60,17 +60,6 @@ def build_github_pages_dashboard(snapshot: dict) -> Path | None:
     return TODAY_JSON_PUBLIC
 
 
-def git_push_dashboard() -> bool:
-    """Push désactivé — maintenant géré par GitHub Actions (.github/workflows/daily_coach.yml).
-
-    Le workflow CI commit et pousse index.html automatiquement après chaque run.
-    Cette fonction est conservée pour rétrocompatibilité mais ne fait plus rien.
-    """
-    print("ℹ️  git push local désactivé — GitHub Actions s'en charge.")
-    return True
-
-
-
 
 # ---------- Helpers présentation ----------
 
@@ -290,7 +279,6 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
             phase = "Préparation générale (base aérobie)"
 
     # Modulation selon forme
-    intensity_today_ok = form["code"] in ("NEUTRE", "FRAIS")
     deload = form["code"] in ("FATIGUE_AIGUE", "FATIGUE")
 
     # Pace targets
@@ -1297,148 +1285,6 @@ def generate_coach_message(snapshot: dict) -> str:
     return "\n".join(lines).strip()
 
 
-# ---------- Rapport Markdown ----------
-
-def render_markdown(snapshot: dict) -> str:
-    s = snapshot
-    today = s["today"]
-    form = s["form"]
-    th = s["thresholds"]
-    metrics = s["metrics"]
-    load_7 = s["load_7d"]
-    load_28 = s["load_28d"]
-    plan = s["weekly_plan"]
-    phase = s["phase"]
-    weeks_to_race = s["weeks_to_race"]
-
-    md = []
-    md.append(f"# Coach quotidien — {today}")
-    md.append("")
-    md.append(f"**État du jour : {form['emoji']} {form['label']}** — TSB = {metrics['tsb']:+.1f}")
-    md.append(f"_{form['guidance']}_")
-    md.append("")
-
-    md.append("## 1. État de forme (Banister / PMC)")
-    md.append("")
-    md.append(f"| Indicateur | Valeur | Interprétation |")
-    md.append(f"|---|---|---|")
-    md.append(f"| **CTL** (forme, charge chronique 42j) | {metrics['ctl']:.1f} | "
-              f"Capacité d'absorption d'entraînement |")
-    md.append(f"| **ATL** (fatigue, charge aigüe 7j) | {metrics['atl']:.1f} | "
-              f"Coût de la dernière semaine |")
-    md.append(f"| **TSB** (forme = CTL−ATL) | {metrics['tsb']:+.1f} | "
-              f"{form['label']} |")
-    md.append(f"| **Ramp rate** | {metrics['ramp_rate']:+.1f} CTL/sem | "
-              f"{'Sain (<5)' if abs(metrics['ramp_rate']) < 5 else 'Risque blessure si >7 (Gabbett)'} |")
-    rhr = metrics.get("resting_hr")
-    if rhr:
-        md.append(f"| **FC repos** | {rhr} bpm | Référence {th.get('resting_hr', 56)} bpm |")
-    if metrics.get("hrv_status"):
-        md.append(f"| **HRV** | — | {metrics['hrv_status']} |")
-    sleep_h = metrics.get("sleep_hours")
-    if sleep_h:
-        md.append(f"| **Sommeil** | {sleep_h:.1f} h | {'OK' if sleep_h >= 7 else 'Sous la cible 7h+'} |")
-    md.append("")
-
-    md.append("## 2. Charge & contexte")
-    md.append("")
-    md.append(f"- **Phase de prépa** : {phase}")
-    if weeks_to_race is not None:
-        md.append(f"- **Course objectif** : {s['race_name']} dans **{weeks_to_race} semaines** ({s['race_date']})")
-    md.append(f"- **Charge 7j** : {load_7['total_load']:.0f} TSS | {load_7['total_minutes']:.0f} min")
-    md.append(f"- **Charge 28j moyenne / sem** : {load_28['total_load']/4:.0f} TSS | "
-              f"{load_28['total_minutes']/4:.0f} min")
-    md.append("")
-    md.append("**Distribution moyenne 4 semaines** (calibre du plan ci-dessous) :")
-    md.append("")
-    md.append("| Discipline | Séances/sem | Durée moy | Distance moy | TSS moy |")
-    md.append("|---|---|---|---|---|")
-    for sport, p in s["session_profile"].items():
-        md.append(f"| {sport} | {p['per_week']} | {p['avg_minutes']} min | "
-                  f"{p['avg_distance_km']} km | {p['avg_load']} |")
-    md.append("")
-
-    STATUS_ICON = {
-        "done": "✅",
-        "today": "⏳",
-        "todo": "⬜",
-        "past_missed": "❌",
-    }
-
-    md.append("## 3. Plan de la semaine (calibré 80/20 polarisé)")
-    md.append("")
-    week_monday = s.get("week_monday", "")
-    week_sunday = s.get("week_sunday", "")
-    md.append(f"_Semaine du {week_monday} au {week_sunday}. "
-              f"✅ Réalisé · ⏳ Aujourd'hui · ⬜ À venir · ❌ Manqué_")
-    md.append("")
-    md.append("| Statut | Jour | Séance | Réalisé / Prévu | Intensité | TSS |")
-    md.append("|---|---|---|---|---|---|")
-    total_min = 0
-    total_tss = 0
-    done_tss = 0
-    for p in plan:
-        status = p.get("status", "todo")
-        icon = STATUS_ICON.get(status, "⬜")
-        jour = f"**{p.get('weekday_fr', p['weekday'])} {p['date'][5:]}**"
-        seance = format_seance(p)
-        intensite = p.get("zones") or "—"
-
-        actual = p.get("actual_activities", [])
-        if actual:
-            # Affiche le résumé réel
-            act = actual[0]
-            real_dur = act.get("duration_min", 0)
-            real_dist = act.get("distance_km", 0)
-            real_tss = act.get("tss") or 0
-            contenu = f"_{act.get('name', act.get('type', '?'))}_ — {real_dur}' / {real_dist} km"
-            tss_str = str(real_tss) if real_tss else "—"
-            total_tss += real_tss
-            done_tss += real_tss
-        else:
-            # Affiche la prescription planifiée
-            contenu = p.get("structure") or "—"
-            if p.get("duration_min", 0) > 0:
-                contenu = f"({p['duration_min']}') {contenu}"
-            tss = p.get("tss_estimate", 0)
-            tss_str = str(tss) if tss > 0 else "—"
-            total_tss += tss
-
-        total_min += p.get("duration_min", 0)
-        md.append(f"| {icon} | {jour} | {seance} | {contenu} | {intensite} | {tss_str} |")
-
-    md.append(f"| | **Total semaine** | **{format_duration_total(total_min)}** | "
-              f"TSS réalisé : {done_tss} | | **~{total_tss}** |")
-    md.append("")
-
-    md.append("## 4. Justifications par séance")
-    md.append("")
-    for p in plan:
-        if not p.get("rationale"):
-            continue
-        md.append(f"- **{p.get('weekday_fr', p['weekday'])} {p['date'][5:]} — "
-                  f"{format_seance(p)}** : {p['rationale']}")
-    md.append("")
-
-    md.append("## 5. Zones de référence (synchronisées)")
-    md.append("")
-    md.append(f"- **FTP vélo** : {th.get('ftp_watts')} W")
-    md.append(f"- **Allure seuil CAP** : {th.get('threshold_pace_run_str')}")
-    md.append(f"- **CSS natation** : {th.get('threshold_pace_swim_str')}")
-    md.append(f"- **LTHR / FCmax** : {th.get('lthr')} / {th.get('hr_max')} bpm")
-    md.append("")
-    md.append("## 6. Notes scientifiques")
-    md.append("")
-    md.append("- Distribution **80/20 polarisée** (Seiler 2010, Stöggl 2014) : majoritairement "
-              "Z1-Z2 (sous LT1), 15-20% en Z4-Z5 (sopra LT2), ~0% en Z3 hors blocs spécifiques.")
-    md.append("- **Sweet spot** (88-94% FTP) : meilleur ratio gain CTL/coût ATL pour un athlète "
-              "amateur 6-10 h/sem (Seiler).")
-    md.append("- **TSB** = forme prédictive : pic course visé entre +5 et +20 (Coggan).")
-    md.append("- **Ramp rate** > +5-7 CTL/sem associé à risque blessure accru (Gabbett 2016).")
-    md.append("")
-
-    return "\n".join(md)
-
 
 # ---------- Main ----------
 
@@ -1554,7 +1400,7 @@ def run() -> dict:
             next_week_meta = {"coach_note": "", "phase": phase, "bloc_week": "", "is_recovery": False}
     else:
         print("✅  Plans théoriques IA chargés depuis data/weekly_plans.json.")
-        # Recalcule weeks_to_race / phase depuis le profil
+        # Calcule weeks_to_race / phase (non disponibles quand plans IA sont chargés)
         _, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
                                                      thresholds, race_date)
         # Marque chaque séance comme générée par IA
@@ -1643,8 +1489,6 @@ def run() -> dict:
         "ideal_week_phase": ideal_week_meta.get("phase", ""),
         "ideal_week_bloc_week": ideal_week_meta.get("bloc_week", ""),
         "ideal_week_is_recovery": ideal_week_meta.get("is_recovery", False),
-        "next_week_coach_note": next_week_meta.get("coach_note", ""),
-        "next_week_phase": next_week_meta.get("phase", ""),
         "next_week_monday": next_week_monday.isoformat(),
         "next_week_sunday": next_week_sunday.isoformat(),
         "next_week_plan": next_week_plan,
@@ -1661,7 +1505,6 @@ def run() -> dict:
         "race_name": _race_json.get("name") or _race_yaml.get("name"),
         "race_date": _race_date_str,
         "season_weekly_tss": season_weekly_tss,
-        "athlete_profile": athlete_profile,
     }
 
     # Message coach généré après le snapshot complet (a besoin du plan enrichi)
