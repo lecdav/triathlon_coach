@@ -1,26 +1,25 @@
 #!/bin/bash
-# commit.sh — Commite et pousse toutes les modifications locales
-# Usage : ./commit.sh "message de commit"
-#    ou : ./commit.sh   (message automatique avec la date)
-
 set -e
-
 cd "$(dirname "$0")"
 
-# Supprime le lock s'il existe (résidu d'un processus interrompu)
-[ -f .git/index.lock ] && rm -f .git/index.lock && echo "🔓 index.lock supprimé"
+git add scripts/daily_coach.py index.html
 
-# Message de commit
-MSG="${1:-"chore: mise à jour locale $(date '+%Y-%m-%d %H:%M')"}"
+git commit -m "fix: sync plan adaptatif -> Intervals.icu + corrections régressions
 
-# Vérifie s'il y a des changements
-if git diff --quiet && git diff --cached --quiet; then
-  echo "✅ Rien à commiter — le repo est propre."
-  exit 0
-fi
+- sync_adaptive_plan_to_intervals() : appelée automatiquement après chaque run
+  Supprime les WORKOUT futurs puis recrée avec titre exact du plan adaptatif
+  (ex: RUN 49' -- Intervalles Z4). Ne touche pas aux jours passés ni Repos.
 
-git add -A
-git commit -m "$MSG"
-git push
+- load_theoretical_plans() Cas 2 : weekly_plans.json semaine prochaine ->
+  ideal_plan=[] fallback algo semaine courante, next_week_plan=IA préservé.
 
-echo "✅ Commit et push réussis : $MSG"
+- actual_activities reconstruites depuis Intervals.icu (source de vérité)
+  après réception JSON IA, évite tss_estimate=None sur jours done.
+
+- index.html : jour done sur Repos prévu -> Séance non planifiée."
+
+git push origin main
+echo ""
+echo "Pushe OK. Lance maintenant :"
+echo "  python3 scripts/daily_coach.py"
+echo "  git add data/today.json && git commit -m 'data: today.json' && git push"

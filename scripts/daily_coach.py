@@ -833,15 +833,16 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
             next_meta = make_meta(w2)
 
     # Cas 2 : fichier généré le dimanche — week1 correspond déjà à la semaine prochaine.
+    # On charge week1 comme plan de la semaine PROCHAINE uniquement (pas comme plan courant).
+    # ideal_plan reste vide → fallback algorithmique pour la semaine en cours.
     elif w1_monday == next_monday.isoformat():
-        ideal_plan = w1.get("days", [])
-        ideal_totals = make_totals(w1)
-        ideal_meta = make_meta(w1)
-        next_plan = w2.get("days", [])
-        next_totals = make_totals(w2)
-        next_meta = make_meta(w2)
-        print(f"ℹ️  Plans IA chargés en avance (générés ce dimanche) : "
-              f"semaine 1 = {w1_monday}, semaine 2 = {w2_monday}")
+        next_plan = w1.get("days", [])
+        next_totals = make_totals(w1)
+        next_meta = make_meta(w1)
+        # week2 devient la semaine d'après
+        # ideal_plan vide → daily_coach utilisera le fallback algo pour la semaine courante
+        print(f"ℹ️  Plans IA pour la semaine prochaine disponibles ({w1_monday}). "
+              f"Semaine en cours ({week_monday.isoformat()}) → fallback algorithmique.")
 
     # Cas 3 : fichier périmé (semaines passées) → fallback algo
     else:
@@ -1021,14 +1022,36 @@ Pour Repos : blocks = []"""
         # Récupère le profil warmup/cooldown depuis le profil athlète
         wu_profile = profile.get("training_preferences", {}).get("warmup_cooldown", {})
 
+        # Index des activités réelles par date (source de vérité : Intervals.icu)
+        acts_by_date: dict[str, list[dict]] = {}
+        for a in week_acts:
+            d_key = a.get("start_date_local", "")[:10]
+            acts_by_date.setdefault(d_key, []).append(a)
+
         # Corriger les dates + calcul algorithmique allures/durée/TSS
         for i, day in enumerate(adaptive_days):
             d_obj = week_monday + timedelta(days=i)
             day["date"] = d_obj.isoformat()
             day["weekday"] = d_obj.strftime("%A")
             day["weekday_fr"] = FR_WEEKDAYS.get(d_obj.strftime("%A"), d_obj.strftime("%A"))
-            day.setdefault("actual_activities", [])
             day.setdefault("adaptation", None)
+
+            # Reconstruire actual_activities depuis Intervals.icu (source de vérité)
+            # — on ignore ce que l'IA a mis dans ce champ
+            real_acts = acts_by_date.get(d_obj.isoformat(), [])
+            day["actual_activities"] = [
+                {
+                    "name": a.get("name", ""),
+                    "type": a.get("type", ""),
+                    "sport": a.get("type", ""),
+                    "duration_min": round((a.get("moving_time") or 0) / 60),
+                    "distance_km": round((a.get("distance") or 0) / 1000, 1),
+                    "tss": round(a.get("icu_training_load") or 0),
+                }
+                for a in real_acts
+                if (a.get("icu_training_load") or 0) > 0 or (a.get("moving_time") or 0) > 0
+            ]
+
             # Pour les jours futurs/aujourd'hui : calcul de structure/durée/TSS
             if day.get("status") not in ("done", "past_missed"):
                 compute_session(day, thresholds, wu_profile)
@@ -1534,7 +1557,7 @@ def run() -> dict:
     ia_plans_loaded = bool(ideal_week_plan)
 
     if not ia_plans_loaded:
-        print("ℹ️  Aucun plan IA trouvé — fallback génération algorithmique.")
+        print("ℹ️  Aucun plan IA pour la semaine en cours — fallback génération algorithmique.")
         ideal_plan_raw, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
                                                                   thresholds, race_date)
         ideal_week_plan = [{**p, "status": "ideal", "generated_by_ia": False} for p in ideal_plan_raw]
@@ -1545,21 +1568,27 @@ def run() -> dict:
             "total_minutes_str": format_duration_total(ideal_plan_total_min),
             "total_tss": ideal_plan_total_tss,
         }
-
-        next_week_plan_raw, _, _ = build_weekly_plan(
-            next_week_monday, form, session_profile, thresholds, race_date
-        )
-        next_week_plan = [{**p, "status": "ideal", "generated_by_ia": False} for p in next_week_plan_raw]
-        next_plan_total_min = sum(p.get("duration_min", 0) for p in next_week_plan)
-        next_plan_total_tss = sum(p.get("tss_estimate", 0) for p in next_week_plan)
-        next_week_plan_totals = {
-            "total_minutes": next_plan_total_min,
-            "total_minutes_str": format_duration_total(next_plan_total_min),
-            "total_tss": next_plan_total_tss,
-        }
         ia_plans_source = "algo"
         ideal_week_meta = {"coach_note": "", "phase": phase, "bloc_week": "", "is_recovery": False}
-        next_week_meta  = {"coach_note": "", "phase": phase, "bloc_week": "", "is_recovery": False}
+
+        # Plan semaine prochaine : utilise le plan IA si disponible (Cas 2), sinon algo
+        if next_week_plan:
+            # Plan IA disponible (chargé depuis weekly_plans.json, Cas 2)
+            next_week_plan = [{**p, "generated_by_ia": True} for p in next_week_plan]
+            # next_week_plan_totals et next_week_meta déjà remplis par load_theoretical_plans
+        else:
+            next_week_plan_raw, _, _ = build_weekly_plan(
+                next_week_monday, form, session_profile, thresholds, race_date
+            )
+            next_week_plan = [{**p, "status": "ideal", "generated_by_ia": False} for p in next_week_plan_raw]
+            next_plan_total_min = sum(p.get("duration_min", 0) for p in next_week_plan)
+            next_plan_total_tss = sum(p.get("tss_estimate", 0) for p in next_week_plan)
+            next_week_plan_totals = {
+                "total_minutes": next_plan_total_min,
+                "total_minutes_str": format_duration_total(next_plan_total_min),
+                "total_tss": next_plan_total_tss,
+            }
+            next_week_meta = {"coach_note": "", "phase": phase, "bloc_week": "", "is_recovery": False}
     else:
         print("✅  Plans théoriques IA chargés depuis data/weekly_plans.json.")
         # Recalcule weeks_to_race / phase depuis le profil
@@ -1683,7 +1712,92 @@ def run() -> dict:
 
     print(f"Données du jour : {today_json_path}")
     print(f"Cache local     : {cache_path}")
+
+    # ── Synchronisation plan adaptatif → Intervals.icu ───────────────────────
+    # Pousse les séances FUTURES du plan adaptatif vers Intervals.icu
+    # en remplaçant les séances déjà planifiées sur ces jours.
+    try:
+        sync_adaptive_plan_to_intervals(client, plan, thresholds, today)
+    except Exception as e:
+        print(f"⚠️  Sync Intervals.icu échouée : {e}")
+
     return snapshot
+
+
+def sync_adaptive_plan_to_intervals(
+    client: "IntervalsClient",
+    plan: list[dict],
+    thresholds: dict,
+    today: date,
+) -> None:
+    """Supprime et recrée les séances planifiées (WORKOUT) sur les jours futurs
+    du plan adaptatif dans Intervals.icu.
+
+    - Ne touche PAS aux jours passés (status=done/past_missed) ni à aujourd'hui.
+    - Supprime uniquement les events de type WORKOUT (pas les activités réelles).
+    - Le titre de la séance dans Intervals.icu correspond au champ 'type' du plan.
+    """
+    # Import ici pour éviter la dépendance circulaire au niveau module
+    sys.path.insert(0, str(SCRIPT_DIR))
+    from push_workouts import plan_item_to_event
+
+    # Jours futurs uniquement (status=todo, pas aujourd'hui ni passé)
+    future_days = [
+        p for p in plan
+        if p.get("status") == "todo"
+        and p.get("sport") not in ("Repos", None, "Strength")
+    ]
+
+    if not future_days:
+        print("ℹ️  Aucune séance future à synchroniser sur Intervals.icu.")
+        return
+
+    # Dates concernées
+    future_dates = [date.fromisoformat(p["date"]) for p in future_days]
+    min_date = min(future_dates)
+    max_date = max(future_dates)
+
+    print(f"\n🔄 Sync Intervals.icu : {len(future_days)} séances futures "
+          f"({min_date.isoformat()} → {max_date.isoformat()})")
+
+    # Supprime les WORKOUT existants sur ces dates uniquement
+    existing_events = client.events(min_date, max_date)
+    deleted = 0
+    for ev in existing_events:
+        ev_date_str = (ev.get("start_date_local") or "")[:10]
+        if ev.get("category") == "WORKOUT" and ev_date_str >= today.isoformat():
+            try:
+                client.delete_event(ev["id"])
+                deleted += 1
+            except Exception as e:
+                print(f"  ⚠️  Suppression event {ev['id']} ({ev_date_str}) échouée : {e}")
+
+    if deleted:
+        print(f"  🗑️  {deleted} séances supprimées.")
+
+    # Crée les nouvelles séances
+    sent, errors = 0, 0
+    for item in future_days:
+        # Nom de la séance = type du plan adaptatif (ex: "Intervalles Z4", "Sweet Spot")
+        event = plan_item_to_event(item, thresholds)
+        if not event:
+            continue
+        # Remplace le nom générique par le titre exact du plan adaptatif
+        sport_prefix = {"Run": "RUN", "VirtualRide": "BIKE", "Ride": "BIKE", "Swim": "SWIM"}.get(
+            item.get("sport", ""), item.get("sport", "").upper()
+        )
+        dur = item.get("duration_min", 0)
+        event["name"] = f"{sport_prefix} {dur}' — {item.get('type', '')}"
+        try:
+            result = client.create_event(event)
+            print(f"  ✅ {item['date']} [{item.get('weekday_fr',''):>8}] {event['name']} "
+                  f"(id={result.get('id')})")
+            sent += 1
+        except Exception as e:
+            print(f"  ❌ {item['date']} {event['name']} : {e}")
+            errors += 1
+
+    print(f"  → {sent} séances créées, {errors} erreurs.")
 
 
 if __name__ == "__main__":

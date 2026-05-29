@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-06-01T10:00:00",
+  "ctl_at_generation": 39.4,
+  "tss_by_week": {
+    "2026-06-01": 270,
+    "2026-06-08": 280,
+    "2026-06-15": 290,
+    "2026-06-22": 300,
+    "2026-06-29": 190,
+    "2026-07-06": 305,
+    "2026-07-13": 315,
+    "2026-07-20": 325,
+    "2026-07-27": 335,
+    "2026-08-03": 215,
+    "2026-08-10": 325,
+    "2026-08-17": 200,
+    "2026-08-24": 80
+  },
+  "coach_rationale": "CTL à 39.4 nécessite une progression prudente : premier bloc (S1-S5) allégé avec +10 TSS/sem max puis récup à 63% en S5. Second bloc (S6-S10) monte progressivement vers le pic à 335 TSS avec récup à 64%. Affûtage classique -40% sur S11, taper léger S12, semaine course minimale pour TSB optimal (+15-20) le jour J."
+}

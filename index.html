@@ -543,7 +543,12 @@ function buildAdaptedPlan(data) {
         if (a.tss) parts.push(`TSS ${a.tss}`);
         return `<span style="color:#4caf50;font-weight:600">${em} ${a.name || fr}</span> — ${parts.join(" · ")}`;
       }).join("<br>");
-      seanceHtml = `<span style="color:#6b7a90;font-size:12px">Prévu : ${formatSeance(p)}</span>${adaptIaBadge}`;
+      // N'affiche "Prévu" que si la séance planifiée n'était pas un Repos
+      if (!isRest) {
+        seanceHtml = `<span style="color:#6b7a90;font-size:12px">Prévu : ${formatSeance(p)}</span>${adaptIaBadge}`;
+      } else {
+        seanceHtml = `<span style="color:#4caf50">✅ Séance non planifiée</span>`;
+      }
       contenuHtml = `<div style="font-size:12.5px">${acts}</div>`;
     } else if (isMissed) {
       seanceHtml = `<span style="color:#b71c1c;text-decoration:line-through">${formatSeance(p)}</span>${adaptIaBadge}`;
