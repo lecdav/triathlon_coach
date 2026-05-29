@@ -931,80 +931,43 @@ def generate_adaptive_plan_ia(
     )
     tss_remaining = max(0, tss_target - tss_done_week)
 
-    prompt = f"""# Plan adaptatif — semaine du {week_monday.isoformat()} au {week_sunday.isoformat()}
+    # Jours passés (statut fixe, blocs vides — l'IA ne les calcule pas)
+    past_dates_str = ", ".join(
+        (week_monday + timedelta(days=i)).isoformat()
+        for i in range(today.weekday())
+    )
+    future_dates_str = ", ".join(
+        (week_monday + timedelta(days=i)).isoformat()
+        for i in range(today.weekday(), 7)
+    )
 
-## Forme du jour ({today.isoformat()})
-CTL : {ctl:.1f} | ATL : {atl:.1f} | TSB : {tsb:+.1f}
-Forme : {form.get("label", "?")} — {form.get("guidance", "")}
+    prompt = f"""Semaine {week_monday.isoformat()}→{week_sunday.isoformat()} | Aujourd'hui : {today.isoformat()}
+TSB {tsb:+.1f} (CTL {ctl:.1f}/ATL {atl:.1f}) | {form.get("label","?")}
+TSS cible : {tss_target} | réalisé : {tss_done_week:.0f} | restant futurs : {tss_remaining:.0f} [{int(tss_remaining*0.92)}–{int(tss_remaining*1.08)}]
 
-## Contrainte TSS (PRIORITAIRE)
-- TSS cible semaine : **{tss_target}** (périodisation saison)
-- TSS déjà réalisé : {tss_done_week:.0f}
-- TSS restant à distribuer sur les jours futurs : **{tss_remaining:.0f}**
-- La somme des tss_estimate des jours todo/today doit être entre {int(tss_remaining*0.92)} et {int(tss_remaining*1.08)}
-
-## Plan théorique de référence
+Plan théorique :
 {chr(10).join(plan_summary)}
 
-## Activités réalisées cette semaine
+Activités réalisées :
 {chr(10).join(acts_summary) if acts_summary else "  Aucune."}
 
-## Mission
-Produis le plan adaptatif complet (lundi → dimanche).
+Jours passés ({past_dates_str}) → status done/past_missed, blocks=[].
+Jours futurs+aujourd'hui ({future_dates_str}) → blocs % intensité uniquement (pas d'allures/watts, pas de warmup/cooldown).
 
-- Jours PASSÉS avec activité → status="done", remplis actual_activities
-- Jours PASSÉS sans activité → status="past_missed", blocks=[]
-- AUJOURD'HUI ({today.isoformat()}) → status="today", adapte selon TSB {tsb:+.1f}
-- Jours FUTURS → status="todo", ajuste si retard/avance TSS
-
-IMPORTANT : Ne calcule PAS les allures ni les watts. Fournis uniquement des blocs avec % d'intensité.
-Les durées et allures réelles seront calculées automatiquement.
-
-Réponds UNIQUEMENT avec ce JSON :
-
-{{
-  "adaptations": ["Note d'adaptation courte si nécessaire"],
-  "days": [
-    {{
-      "date": "YYYY-MM-DD",
-      "weekday_fr": "Lundi",
-      "sport": "Repos|Run|Swim|VirtualRide|Strength",
-      "type": "Nom court",
-      "rationale": "Justification courte",
-      "adaptation": "Note si séance modifiée vs plan théorique (sinon null)",
-      "status": "done|past_missed|today|todo",
-      "actual_activities": [],
-      "blocks": [
-        {{
-          "type": "endurance|interval|recovery|strength_exercise",
-          "duration_min": 20,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 75,
-          "zone": "Z2",
-          "description": "Texte libre pour renfo/exercices"
-        }}
-      ]
-    }}
-  ]
-}}
-
-Pour status="done" : actual_activities = [{{"name":"...", "type":"Run/Ride/etc", "duration_min":X, "distance_km":X, "tss":X}}]
-Pour status="done"/"past_missed" : blocks peut être vide (séance déjà passée)
-Pour Run/VirtualRide : NE PAS inclure warmup/cooldown dans les blocs (ajoutés automatiquement)
-Pour Repos : blocks = []"""
+JSON : {{"adaptations":["..."],"days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","adaptation":null,"status":"done|past_missed|today|todo","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}}"""
 
     try:
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
-        from claude_client import SYSTEM_PROMPT
+        from claude_client import SYSTEM_PROMPT, _log_exchange
         response = client.messages.create(
             model="claude-sonnet-4-5",
-            max_tokens=4096,
+            max_tokens=2048,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
         raw = response.content[0].text.strip()
+        _log_exchange(prompt, SYSTEM_PROMPT, raw)
 
         # Parse JSON
         import re

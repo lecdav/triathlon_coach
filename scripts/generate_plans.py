@@ -176,54 +176,11 @@ def build_prompt(
 - **TSS CIBLE : {tss2}** — la somme des tss_estimate de tous les jours doit être entre {int(tss2*0.95)} et {int(tss2*1.05)}
 - Jours : {[d["date"] + " " + d["weekday_fr"] for d in w2_days]}
 
-# Format de réponse
+Réponds UNIQUEMENT avec ce JSON (sans markdown). Pas d'allures/watts — % intensité uniquement, duration_min/tss_estimate calculés par l'app.
 
-Réponds UNIQUEMENT avec ce JSON (sans markdown, sans texte avant/après).
+{{"week1":{{"monday":"{week1_monday.isoformat()}","tss_target":{tss1},"bloc_week":{ctx1["bloc_week"]},"is_recovery":{"true" if ctx1["is_recovery"] else "false"},"phase":"{ctx1["phase"]}","coach_note":"...","days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}},"week2":{{"monday":"{week2_monday.isoformat()}","tss_target":{tss2},"bloc_week":{ctx2["bloc_week"]},"is_recovery":{"true" if ctx2["is_recovery"] else "false"},"phase":"{ctx2["phase"]}","coach_note":"...","days":[...]}}}}
 
-IMPORTANT : Ne calcule PAS les allures ni les watts — fournis uniquement des % d'intensité.
-Les champs duration_min et tss_estimate seront calculés par l'application à partir des blocs.
-
-{{
-  "week1": {{
-    "monday": "{week1_monday.isoformat()}",
-    "tss_target": {tss1},
-    "bloc_week": {ctx1["bloc_week"]},
-    "is_recovery": {"true" if ctx1["is_recovery"] else "false"},
-    "phase": "{ctx1["phase"]}",
-    "coach_note": "Objectif de la semaine en 1-2 phrases",
-    "days": [
-      {{
-        "date": "YYYY-MM-DD",
-        "weekday_fr": "Lundi",
-        "sport": "Repos|Run|Swim|VirtualRide|Strength",
-        "type": "Nom court (ex: Intervalles Z4, Sweet spot, Endurance fondamentale)",
-        "rationale": "Justification scientifique courte (1 phrase)",
-        "blocks": [
-          {{
-            "type": "endurance|interval|recovery|strength_exercise",
-            "duration_min": 20,
-            "reps": 1,
-            "recovery_min": 0,
-            "intensity_pct": 75,
-            "zone": "Z2",
-            "description": "Texte libre pour renfo/gammes/exercices spéciaux"
-          }}
-        ]
-      }}
-    ]
-  }},
-  "week2": {{ "monday": "{week2_monday.isoformat()}", "tss_target": {tss2}, "bloc_week": {ctx2["bloc_week"]}, "is_recovery": {"true" if ctx2["is_recovery"] else "false"}, "phase": "{ctx2["phase"]}", "coach_note": "...", "days": [...] }}
-}}
-
-RÈGLES :
-1. Pour Repos : blocks = [] (liste vide)
-2. Pour Strength : blocks = liste d'exercices avec type="strength_exercise" et description (ex: "3×15 squats unipodaux", "4×30s gainage")
-3. Pour Swim : inclure blocs warmup (400m), corps, cooldown (200m) — utiliser duration_min en équivalent temps
-4. Pour Run/VirtualRide : NE PAS inclure warmup/cooldown dans les blocs — ils sont ajoutés automatiquement
-5. La progression semaine 1→2 doit être visible : +1 répétition OU +2' par intervalle OU +10' sur la sortie longue
-6. Si semaine de récupération : pas d'intervalles (pas de Z4/Z5), blocs endurance Z1-Z2 uniquement, durées réduites
-7. Adapte le nombre/durée des blocs pour atteindre le TSS cible hebdomadaire
-8. HIGH ANAEROBIC (Z5-Z6) : intègre 1 séquence d'efforts courts très intenses par semaine, sur la séance Run du mardi OU vélo du jeudi (pas les deux). Format : 3 à 6 répétitions de 20–30 secondes à 110–120% FTP (vélo) ou 105–110% seuil (run), récup complète 2–3'. Ces efforts stimulent le système anaérobie lactique et maintiennent les adaptations neuromusculaires (Laursen & Jenkins 2002). Ne pas ajouter si semaine de récupération."""
+Règles : Repos→blocks=[] | Strength→type="strength_exercise"+description | Swim→inclure warmup/cooldown blocs | Run/Vélo→PAS de warmup/cooldown | Récup→Z1-Z2 uniquement, pas de Z4-Z5 | Progression S1→S2 visible (+1 rep OU +2' OU +10' sortie longue) | TSS hebdo dans ±5% cible | 1 séquence high anaerobic Z5-Z6 (3-6×20-30s, récup 2-3') sur Run mardi OU Vélo jeudi par semaine (pas récup)."""
 
     return prompt
 
