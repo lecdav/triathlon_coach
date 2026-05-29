@@ -608,8 +608,16 @@ function buildAdaptedPlan(data) {
        </div>`
     : "";
 
+  // Encart coach adaptatif (week_adaptations) — affiché en haut du plan
+  const adaptationsHtml = (data.week_adaptations || []).length > 0
+    ? `<div style="background:#0d1f12;border:1px solid #2e7d3244;border-radius:8px;padding:10px 16px;margin-bottom:12px;font-size:13.5px;color:#c8e6c9;line-height:1.6">
+        ${(data.week_adaptations).map(a => `⚡ ${a}`).join("<br>")}
+       </div>`
+    : "";
+
   return `
     <h2>Suivi adaptatif${weekLabel}</h2>
+    ${adaptationsHtml}
     ${adaptAlgoAlert}
     <div class="adapted-header">
       <span class="adapted-badge" style="background:${badgeColor}22;color:${badgeColor};border:1px solid ${badgeColor}44">${badgeText}</span>
@@ -687,16 +695,6 @@ function render(data) {
       html += `<li><b>${p.weekday_fr || p.weekday} — ${formatSeance(p)}</b> : ${p.rationale}</li>`;
     }
     html += `</ul></details>`;
-  }
-
-  // Adaptations dynamiques (alertes)
-  const adaptations = data.week_adaptations || [];
-  if (adaptations.length > 0) {
-    html += `<div style="background:#2a1f0e;border:1px solid #5c3e10;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px;color:#f0a050;">`;
-    for (const a of adaptations) {
-      html += `<div style="margin-bottom:4px">⚡ ${a}</div>`;
-    }
-    html += `</div>`;
   }
 
   html += `<div class="form-banner ${form.color}">
