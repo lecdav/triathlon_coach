@@ -12,6 +12,9 @@ reports/dashboard.html
 # Rapports daily supprimés — non versionnés
 reports/daily/
 
+# Logs des échanges Claude (contiennent les prompts complets — non versionnés)
+logs/
+
 # OS / IDE
 .DS_Store
 .venv/

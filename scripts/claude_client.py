@@ -14,11 +14,13 @@ from __future__ import annotations
 import json
 import os
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 CREDENTIALS_FILE = ROOT / "config" / "credentials.env"
+LOG_DIR = ROOT / "logs"
 
 MODEL = "claude-sonnet-4-5"
 MAX_TOKENS = 8192
@@ -60,16 +62,39 @@ Principes de progression intra-bloc (4 semaines charge + 1 récup) :
 Pour les séances de CAP :
 - Échauffement systématique : 20' (10' trot Z1 progressif + 5' gammes : talons-fesses, montées genoux, foulées bondissantes + 5' accélérations progressives)
 - Retour au calme : 5' trot léger Z1
+- Durée maximum : 90 minutes
 
 Pour les séances vélo :
 - Échauffement : 15' progressif Z1→Z2 (finir avec 3×30s à 100 rpm)
 - Retour au calme : 5' Z1 (<55% FTP, cadence souple)
 
 Pour la natation :
-- Échauffement : 400m nage souple
-- Retour au calme : 200m nage souple
+- Échauffement : 200m nage souple
+- Retour au calme : 100m nage souple
+- Durée maximum : 60 minutes
 
 Réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après le JSON."""
+
+
+def _log_exchange(prompt: str, system: str, response: str, error: str | None = None) -> None:
+    """Enregistre le prompt et la réponse dans logs/claude_YYYY-MM-DD.jsonl."""
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        log_file = LOG_DIR / f"claude_{datetime.now().strftime('%Y-%m-%d')}.jsonl"
+        entry = {
+            "ts": datetime.now().isoformat(timespec="seconds"),
+            "model": MODEL,
+            "system_hash": str(hash(system))[-6:],  # empreinte courte (pas le texte entier)
+            "prompt_chars": len(prompt),
+            "prompt": prompt,
+            "response": response,
+        }
+        if error:
+            entry["error"] = error
+        with log_file.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except Exception as e:
+        print(f"⚠️  Log Claude non écrit : {e}")
 
 
 def call_claude(prompt: str, system: str | None = None) -> str:
@@ -83,14 +108,21 @@ def call_claude(prompt: str, system: str | None = None) -> str:
 
     api_key = load_api_key()
     client = anthropic.Anthropic(api_key=api_key)
+    sys = system or SYSTEM_PROMPT
 
-    message = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS,
-        system=system or SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return message.content[0].text
+    try:
+        message = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS,
+            system=sys,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        response = message.content[0].text
+        _log_exchange(prompt, sys, response)
+        return response
+    except Exception as e:
+        _log_exchange(prompt, sys, "", error=str(e))
+        raise
 
 
 def call_claude_json(prompt: str, system: str | None = None) -> Any:
