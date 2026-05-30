@@ -1,6 +1,6 @@
 {
-  "today": "2026-05-29",
-  "generated_at": "2026-05-29T00:15:36",
+  "today": "2026-05-30",
+  "generated_at": "2026-05-30T00:13:51",
   "week_monday": "2026-05-25",
   "week_sunday": "2026-05-31",
   "form": {
@@ -11,16 +11,16 @@
     "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
   },
   "metrics": {
-    "ctl": 38.344284,
-    "atl": 38.06423,
-    "tsb": 0.2800539999999998,
-    "ramp_rate": 0.35866165,
-    "resting_hr": 56,
+    "ctl": 37.44211,
+    "atl": 32.99704,
+    "tsb": 4.445070000000001,
+    "ramp_rate": 0.35022354,
+    "resting_hr": 55,
     "sleep_hours": null,
     "hrv_status": null
   },
   "thresholds": {
-    "resting_hr": 56,
+    "resting_hr": 55,
     "weight_kg": 78.0,
     "ftp_watts": 250,
     "power_zones_pct": [
@@ -67,12 +67,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-02-28",
-      "ctl": 34.69,
-      "atl": 35.82,
-      "tsb": -1.14
-    },
     {
       "date": "2026-03-01",
       "ctl": 37.59,
@@ -612,11 +606,17 @@
       "ctl": 38.34,
       "atl": 38.06,
       "tsb": 0.28
+    },
+    {
+      "date": "2026-05-30",
+      "ctl": 37.44,
+      "atl": 33.0,
+      "tsb": 4.45
     }
   ],
   "load_7d": {
-    "total_load": 228,
-    "total_minutes": 252.91666666666666,
+    "total_load": 206,
+    "total_minutes": 216.79999999999998,
     "by_sport": {
       "Run": {
         "count": 2,
@@ -625,10 +625,10 @@
         "distance_km": 17.59813
       },
       "Swim": {
-        "count": 2,
-        "minutes": 85.51666666666667,
-        "load": 49,
-        "distance_km": 3.975
+        "count": 1,
+        "minutes": 49.4,
+        "load": 27,
+        "distance_km": 2.225
       },
       "Ride": {
         "count": 1,
@@ -639,14 +639,14 @@
     }
   },
   "load_28d": {
-    "total_load": 1054,
-    "total_minutes": 1079.0333333333335,
+    "total_load": 1024,
+    "total_minutes": 1046.6166666666668,
     "by_sport": {
       "Run": {
-        "count": 10,
-        "minutes": 414.5833333333333,
-        "load": 460,
-        "distance_km": 67.46501
+        "count": 9,
+        "minutes": 382.16666666666663,
+        "load": 430,
+        "distance_km": 62.67098000000001
       },
       "Swim": {
         "count": 5,
@@ -676,11 +676,11 @@
   },
   "session_profile": {
     "Run": {
-      "count_4w": 10,
-      "per_week": 2.5,
-      "avg_minutes": 41,
-      "avg_distance_km": 6.7,
-      "avg_load": 46
+      "count_4w": 9,
+      "per_week": 2.2,
+      "avg_minutes": 42,
+      "avg_distance_km": 7.0,
+      "avg_load": 48
     },
     "Swim": {
       "count_4w": 5,
@@ -713,11 +713,129 @@
   },
   "ideal_week_plan": [
     {
+      "date": "2026-05-25",
+      "weekday": "Monday",
+      "weekday_fr": "Lundi",
+      "rel_day": -5,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Mobilité 15-20 min, étirements doux, marche.",
+      "zones": "",
+      "rationale": "Jour de repos défini dans ton profil — supercompensation.",
+      "tss_estimate": 0,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-05-26",
+      "weekday": "Tuesday",
+      "weekday_fr": "Mardi",
+      "rel_day": -4,
+      "sport": "Run",
+      "type": "VO2max — intervalles courts",
+      "duration_min": 45,
+      "structure": "20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot → 5' retour au calme trot léger.",
+      "zones": "Z5 — FC 92-97% FCmax",
+      "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
+      "tss_estimate": 54,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-05-27",
+      "weekday": "Wednesday",
+      "weekday_fr": "Mercredi",
+      "rel_day": -3,
+      "sport": "Swim",
+      "type": "Endurance + technique",
+      "duration_min": 50,
+      "structure": "400 m échauffement nage souple (50 crawl + 50 dos alternés) → 10×100 m (2:00/100m) r=20s → 200 m retour au calme nage souple. Total ~2000 m.",
+      "zones": "Z3-Z4 (CSS = 2:00/100m)",
+      "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
+      "tss_estimate": 39,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-05-28",
+      "weekday": "Thursday",
+      "weekday_fr": "Jeudi",
+      "rel_day": -2,
+      "sport": "VirtualRide",
+      "type": "Seuil — sweet spot",
+      "duration_min": 60,
+      "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
+      "zones": "Z4 (sweet spot 88-94% FTP)",
+      "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
+      "tss_estimate": 77,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-05-29",
+      "weekday": "Friday",
+      "weekday_fr": "Vendredi",
+      "rel_day": -1,
+      "sport": "Strength",
+      "type": "Renforcement musculaire",
+      "duration_min": 45,
+      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+      "zones": "Force-endurance — pas de cardio",
+      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
+      "tss_estimate": 0,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-05-30",
+      "weekday": "Saturday",
+      "weekday_fr": "Samedi",
+      "rel_day": 0,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+      "zones": "",
+      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
+      "tss_estimate": 0,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-05-31",
+      "weekday": "Sunday",
+      "weekday_fr": "Dimanche",
+      "rel_day": 1,
+      "sport": "VirtualRide",
+      "type": "Sortie longue vélo",
+      "duration_min": 90,
+      "structure": "15' échauffement progressif Z1→Z2 → vélo 70' continu Z2 (140-188 W, cadence 85-90 rpm) → 5' retour au calme Z1 (<140 W).",
+      "zones": "Z2 — 140-188 W",
+      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
+      "tss_estimate": 78,
+      "status": "ideal",
+      "generated_by_ia": false
+    }
+  ],
+  "ideal_week_plan_totals": {
+    "total_minutes": 290,
+    "total_minutes_str": "~4h50",
+    "total_tss": 248
+  },
+  "ideal_week_coach_note": "",
+  "ideal_week_phase": "Préparation générale (base aérobie)",
+  "ideal_week_bloc_week": "",
+  "ideal_week_is_recovery": false,
+  "next_week_monday": "2026-06-01",
+  "next_week_sunday": "2026-06-07",
+  "next_week_plan": [
+    {
       "date": "2026-06-01",
       "weekday_fr": "Lundi",
       "sport": "Repos",
-      "type": "Repos complet",
-      "rationale": "Récupération active pour optimiser l'adaptation et prévenir le surentraînement (Issurin 2008).",
+      "type": "Repos",
+      "rationale": "Récupération active pour optimiser l'adaptation (Issurin 2008)",
       "blocks": [],
       "weekday": "Monday",
       "status": "ideal",
@@ -731,7 +849,7 @@
       "weekday_fr": "Mardi",
       "sport": "Run",
       "type": "Intervalles Z4 + Anaérobie",
-      "rationale": "Combinaison d'intervalles aérobies Z4 pour améliorer le VO2max (Helgerud 2007) et d'efforts anaérobies courts pour maintenir les adaptations neuromusculaires (Laursen & Jenkins 2002).",
+      "rationale": "Intervalles aérobies haute intensité pour améliorer le VO2max (Helgerud 2007) + efforts anaérobies lactiques courts pour stimulation neuromusculaire (Laursen & Jenkins 2002)",
       "blocks": [
         {
           "type": "interval",
@@ -740,16 +858,16 @@
           "recovery_min": 2,
           "intensity_pct": 95,
           "zone": "Z4",
-          "description": "5×5' Z4 (~95% seuil) récup 2' trot"
+          "description": "Intervalles aérobies haute intensité"
         },
         {
           "type": "recovery",
           "duration_min": 4,
           "reps": 1,
           "recovery_min": 0,
-          "intensity_pct": 65,
+          "intensity_pct": 60,
           "zone": "Z1",
-          "description": "4' trot léger"
+          "description": "Récupération active"
         },
         {
           "type": "interval",
@@ -757,76 +875,76 @@
           "reps": 4,
           "recovery_min": 3,
           "intensity_pct": 110,
-          "zone": "Z5",
-          "description": "4×30s sprint anaérobie (~110% seuil) récup 3' marche/trot"
+          "zone": "Z6",
+          "description": "Efforts anaérobies lactiques courts (30s à ~110% seuil)"
         }
       ],
       "weekday": "Tuesday",
       "status": "ideal",
       "duration_min": 73,
-      "structure": "73' : 20' écha Z1 → 5×5' @ 5:08/km (Z4, r=2') | 4' trot léger | 4×0' @ 4:26/km (Z5, r=3') → 5' souple",
-      "tss_estimate": 66,
-      "zones": "Z1 + Z4 + Z5",
+      "structure": "73' : 20' écha Z1 → 5×5' @ 5:08/km (Z4, r=2') | Récupération active | 4×0' @ 4:26/km (Z6, r=3') → 5' souple",
+      "tss_estimate": 65,
+      "zones": "Z1 + Z4 + Z6",
       "generated_by_ia": true
     },
     {
       "date": "2026-06-03",
       "weekday_fr": "Mercredi",
       "sport": "Swim",
-      "type": "Endurance technique + CSS",
-      "rationale": "Travail du point faible natation : endurance Z2 + intervalles CSS pour améliorer la vitesse critique (Hausswirth 2010).",
+      "type": "Endurance technique",
+      "rationale": "Volume aérobie Z2 pour renforcer le point faible avec focus technique (Seiler 2010)",
       "blocks": [
         {
           "type": "endurance",
-          "duration_min": 8,
+          "duration_min": 7,
           "reps": 1,
           "recovery_min": 0,
-          "intensity_pct": 70,
-          "zone": "Z2",
-          "description": "400m nage souple échauffement"
-        },
-        {
-          "type": "interval",
-          "duration_min": 10,
-          "reps": 4,
-          "recovery_min": 1,
-          "intensity_pct": 85,
-          "zone": "Z3",
-          "description": "4×250m éducatifs (rattrapé, opposition, respiration 3T) récup 30s"
+          "intensity_pct": 65,
+          "zone": "Z1",
+          "description": "Échauffement 400m nage souple"
         },
         {
           "type": "interval",
           "duration_min": 4,
           "reps": 6,
-          "recovery_min": 1,
-          "intensity_pct": 95,
-          "zone": "Z4",
-          "description": "6×100m allure CSS (~95% seuil natation) récup 30s"
+          "recovery_min": 0.5,
+          "intensity_pct": 75,
+          "zone": "Z2",
+          "description": "6×200m technique (focus amplitude et rotation)"
+        },
+        {
+          "type": "interval",
+          "duration_min": 2,
+          "reps": 4,
+          "recovery_min": 0.5,
+          "intensity_pct": 80,
+          "zone": "Z2",
+          "description": "4×100m éducatifs (rattrapé, fermeture)"
         },
         {
           "type": "endurance",
-          "duration_min": 4,
+          "duration_min": 3.5,
           "reps": 1,
           "recovery_min": 0,
           "intensity_pct": 65,
           "zone": "Z1",
-          "description": "200m nage souple retour au calme"
+          "description": "Retour au calme 200m nage souple"
         }
       ],
       "weekday": "Wednesday",
       "status": "ideal",
-      "duration_min": 84,
-      "structure": "84' : 400m nage souple échauffement | 4×10' @ 2:21/100m (Z3, r=1') | 6×4' @ 2:06/100m (Z4, r=1') | 200m nage souple retour au calme",
-      "tss_estimate": 98,
-      "zones": "Z1 + Z2 + Z3 + Z4",
+      "duration_min": 46,
+      "structure": "46' : Échauffement 400m nage souple | 6×4' @ 2:40/100m (Z2, r=0') | 4×2' @ 2:30/100m (Z2, r=0') | Retour au calme 200m nage souple",
+      "tss_estimate": 40,
+      "zones": "Z1 + Z2",
       "generated_by_ia": true
     },
     {
       "date": "2026-06-04",
       "weekday_fr": "Jeudi",
       "sport": "VirtualRide",
-      "type": "Sweet Spot progressif",
-      "rationale": "Intervalles sweet spot (88-93% FTP) pour maximiser l'efficacité temps/adaptation sans fatigue excessive (Coggan & Allen 2010), progression +2' par bloc vs S1.",
+      "type": "Sweet spot + Seuil",
+      "rationale": "Travail au seuil pour améliorer le FTP sur le point fort (Coggan & Allen 2010)",
       "blocks": [
         {
           "type": "interval",
@@ -835,15 +953,33 @@
           "recovery_min": 4,
           "intensity_pct": 90,
           "zone": "Z3",
-          "description": "3×12' sweet spot (90% FTP, 85-90 rpm) récup 4' Z1"
+          "description": "Sweet spot à 90% FTP, cadence 85-90 rpm"
+        },
+        {
+          "type": "recovery",
+          "duration_min": 5,
+          "reps": 1,
+          "recovery_min": 0,
+          "intensity_pct": 55,
+          "zone": "Z1",
+          "description": "Récupération active cadence souple"
+        },
+        {
+          "type": "interval",
+          "duration_min": 6,
+          "reps": 2,
+          "recovery_min": 3,
+          "intensity_pct": 100,
+          "zone": "Z4",
+          "description": "Intervalles au seuil FTP, cadence 90-95 rpm"
         }
       ],
       "weekday": "Thursday",
       "status": "ideal",
-      "duration_min": 64,
-      "structure": "64' : 15' Z1→Z2 → 3×12' @ 220–230W (88–92% FTP, r=4') → 5' souple",
-      "tss_estimate": 63,
-      "zones": "Z3",
+      "duration_min": 84,
+      "structure": "84' : 15' Z1→Z2 → 3×12' @ 220–230W (88–92% FTP, r=4') | Récupération active cadence souple | 2×6' @ 245–255W (98–102% FTP, r=3') → 5' souple",
+      "tss_estimate": 87,
+      "zones": "Z1 + Z3 + Z4",
       "generated_by_ia": true
     },
     {
@@ -851,7 +987,7 @@
       "weekday_fr": "Vendredi",
       "sport": "Strength",
       "type": "Renforcement général",
-      "rationale": "Le renforcement musculaire améliore l'économie de course et la puissance cycliste (Beattie et al. 2017).",
+      "rationale": "Le renforcement musculaire améliore l'économie de course et la puissance vélo (Beattie 2017)",
       "blocks": [
         {
           "type": "strength_exercise",
@@ -860,7 +996,7 @@
           "recovery_min": 0,
           "intensity_pct": 0,
           "zone": "",
-          "description": "Mobilité articulaire : rotations épaules, hanches, chevilles (2×20 reps)"
+          "description": "Échauffement articulaire (rotations, mobilité hanches/épaules)"
         },
         {
           "type": "strength_exercise",
@@ -869,7 +1005,7 @@
           "recovery_min": 0,
           "intensity_pct": 0,
           "zone": "",
-          "description": "Chaîne postérieure : 3×12 squats bulgares par jambe, 3×15 soulevés de terre unipodaux légers"
+          "description": "Circuit 1 (3 tours) : 12 squats bulgares/jambe, 15 fentes marchées, 10 soulevés de terre unipodaux/jambe"
         },
         {
           "type": "strength_exercise",
@@ -878,7 +1014,7 @@
           "recovery_min": 0,
           "intensity_pct": 0,
           "zone": "",
-          "description": "Gainage : 4×45s planche, 3×30s gainage latéral par côté, 3×20 mountain climbers"
+          "description": "Circuit 2 (3 tours) : 15 pompes, 12 tractions australiennes, 20 Russian twists"
         },
         {
           "type": "strength_exercise",
@@ -887,16 +1023,16 @@
           "recovery_min": 0,
           "intensity_pct": 0,
           "zone": "",
-          "description": "Proprioception : 3×45s équilibre unipodal yeux fermés, 2×20 sauts unipodaux latéraux"
+          "description": "Gainage (3 tours) : 45s planche, 30s/côté planche latérale, 30s superman"
         },
         {
           "type": "strength_exercise",
-          "duration_min": 5,
+          "duration_min": 7,
           "reps": 1,
           "recovery_min": 0,
           "intensity_pct": 0,
           "zone": "",
-          "description": "Étirements actifs chaîne postérieure et fléchisseurs hanches"
+          "description": "Étirements actifs et retour au calme"
         }
       ],
       "weekday": "Friday",
@@ -904,15 +1040,15 @@
       "duration_min": 0,
       "tss_estimate": 0,
       "zones": "—",
-      "structure": "Mobilité articulaire : rotations épaules, hanches, chevilles (2×20 reps) | Chaîne postérieure : 3×12 squats bulgares par jambe, 3×15 soulevés de terre unipodaux légers | Gainage : 4×45s planche, 3×30s gainage latéral par côté, 3×20 mountain climbers | Proprioception : 3×45s équilibre unipodal yeux fermés, 2×20 sauts unipodaux latéraux | Étirements actifs chaîne postérieure et fléchisseurs hanches",
+      "structure": "Échauffement articulaire (rotations, mobilité hanches/épaules) | Circuit 1 (3 tours) : 12 squats bulgares/jambe, 15 fentes marchées, 10 soulevés de terre unipodaux/jambe | Circuit 2 (3 tours) : 15 pompes, 12 tractions australiennes, 20 Russian twists | Gainage (3 tours) : 45s planche, 30s/côté planche latérale, 30s superman | Étirements actifs et retour au calme",
       "generated_by_ia": true
     },
     {
       "date": "2026-06-06",
       "weekday_fr": "Samedi",
       "sport": "Repos",
-      "type": "Repos complet",
-      "rationale": "Repos avant la sortie longue du dimanche pour optimiser les réserves glycogéniques et la fraîcheur neuromusculaire.",
+      "type": "Repos",
+      "rationale": "Récupération avant sortie longue dominicale",
       "blocks": [],
       "weekday": "Saturday",
       "status": "ideal",
@@ -925,450 +1061,202 @@
       "date": "2026-06-07",
       "weekday_fr": "Dimanche",
       "sport": "Run",
-      "type": "Sortie longue endurance fondamentale",
-      "rationale": "Sortie longue Z1-Z2 pour développer les capacités aérobies (80% du volume selon Seiler 2010), semaine impaire ISO23 = CAP, progression +10' vs S1.",
+      "type": "Sortie longue Z1-Z2",
+      "rationale": "Volume aérobie fondamental pour développer l'endurance de base selon modèle polarisé (Seiler 2010)",
       "blocks": [
         {
           "type": "endurance",
-          "duration_min": 85,
+          "duration_min": 75,
           "reps": 1,
           "recovery_min": 0,
-          "intensity_pct": 75,
+          "intensity_pct": 72,
           "zone": "Z2",
-          "description": "85' allure conversationnelle Z2 (70-80% seuil), terrain varié"
+          "description": "Sortie longue en endurance fondamentale, terrain vallonné si possible"
         }
       ],
       "weekday": "Sunday",
       "status": "ideal",
-      "duration_min": 110,
-      "structure": "110' : 20' écha Z1 → 85' allure conversationnelle Z2 (70-80% seuil), terrain varié → 5' souple",
-      "tss_estimate": 92,
-      "zones": "Z2",
-      "generated_by_ia": true
-    }
-  ],
-  "ideal_week_plan_totals": {
-    "total_minutes": 331,
-    "total_minutes_str": "5h31",
-    "total_tss": 319
-  },
-  "ideal_week_coach_note": "Semaine 2/5 du bloc : progression sur les intervalles (+1 répétition en CAP, +2' en vélo), introduction d'efforts anaérobies en CAP pour maintenir les adaptations neuromusculaires tout en consolidant la base aérobie.",
-  "ideal_week_phase": "Préparation générale — Base aérobie",
-  "ideal_week_bloc_week": 2,
-  "ideal_week_is_recovery": false,
-  "next_week_coach_note": "Semaine 3/5 du bloc (pic de volume) : allongement maximal des intervalles (+2' en vélo, +1 rép en CAP), sortie longue portée à 95', maintien de l'intensité anaérobie pour préserver la puissance neuromusculaire.",
-  "next_week_phase": "Préparation générale — Base aérobie",
-  "next_week_monday": "2026-06-01",
-  "next_week_sunday": "2026-06-07",
-  "next_week_plan": [
-    {
-      "date": "2026-06-08",
-      "weekday_fr": "Lundi",
-      "sport": "Repos",
-      "type": "Repos complet",
-      "rationale": "Récupération active pour optimiser l'adaptation et prévenir le surentraînement (Issurin 2008).",
-      "blocks": [],
-      "weekday": "Monday",
-      "status": "ideal",
-      "duration_min": 0,
-      "tss_estimate": 0,
-      "zones": "—",
-      "generated_by_ia": true
-    },
-    {
-      "date": "2026-06-09",
-      "weekday_fr": "Mardi",
-      "sport": "Run",
-      "type": "Intervalles Z4 + Anaérobie",
-      "rationale": "Progression volume Z4 (+1 répétition) pour consolider le VO2max (Helgerud 2007), maintien des efforts anaérobies pour la puissance neuromusculaire.",
-      "blocks": [
-        {
-          "type": "interval",
-          "duration_min": 5,
-          "reps": 6,
-          "recovery_min": 2,
-          "intensity_pct": 95,
-          "zone": "Z4",
-          "description": "6×5' Z4 (~95% seuil) récup 2' trot"
-        },
-        {
-          "type": "recovery",
-          "duration_min": 4,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 65,
-          "zone": "Z1",
-          "description": "4' trot léger"
-        },
-        {
-          "type": "interval",
-          "duration_min": 0.5,
-          "reps": 4,
-          "recovery_min": 3,
-          "intensity_pct": 110,
-          "zone": "Z5",
-          "description": "4×30s sprint anaérobie (~110% seuil) récup 3' marche/trot"
-        }
-      ],
-      "weekday": "Tuesday",
-      "status": "ideal",
-      "duration_min": 80,
-      "structure": "80' : 20' écha Z1 → 6×5' @ 5:08/km (Z4, r=2') | 4' trot léger | 4×0' @ 4:26/km (Z5, r=3') → 5' souple",
-      "tss_estimate": 74,
-      "zones": "Z1 + Z4 + Z5",
-      "generated_by_ia": true
-    },
-    {
-      "date": "2026-06-10",
-      "weekday_fr": "Mercredi",
-      "sport": "Swim",
-      "type": "Endurance technique + CSS longues",
-      "rationale": "Progression natation : allongement des répétitions CSS (200m) pour améliorer l'endurance de vitesse critique, priorité point faible.",
-      "blocks": [
-        {
-          "type": "endurance",
-          "duration_min": 8,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 70,
-          "zone": "Z2",
-          "description": "400m nage souple échauffement"
-        },
-        {
-          "type": "interval",
-          "duration_min": 10,
-          "reps": 4,
-          "recovery_min": 1,
-          "intensity_pct": 85,
-          "zone": "Z3",
-          "description": "4×250m éducatifs (rattrapé, opposition, respiration 3T) récup 30s"
-        },
-        {
-          "type": "interval",
-          "duration_min": 8,
-          "reps": 4,
-          "recovery_min": 1.5,
-          "intensity_pct": 95,
-          "zone": "Z4",
-          "description": "4×200m allure CSS (~95% seuil natation) récup 45s"
-        },
-        {
-          "type": "endurance",
-          "duration_min": 4,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 65,
-          "zone": "Z1",
-          "description": "200m nage souple retour au calme"
-        }
-      ],
-      "weekday": "Wednesday",
-      "status": "ideal",
-      "duration_min": 92,
-      "structure": "92' : 400m nage souple échauffement | 4×10' @ 2:21/100m (Z3, r=1') | 4×8' @ 2:06/100m (Z4, r=1') | 200m nage souple retour au calme",
-      "tss_estimate": 110,
-      "zones": "Z1 + Z2 + Z3 + Z4",
-      "generated_by_ia": true
-    },
-    {
-      "date": "2026-06-11",
-      "weekday_fr": "Jeudi",
-      "sport": "VirtualRide",
-      "type": "Sweet Spot long",
-      "rationale": "Pic du volume sweet spot (3×14') pour maximiser l'adaptation lactate/mitochondriale (Coggan & Allen 2010), +2' par bloc vs S2.",
-      "blocks": [
-        {
-          "type": "interval",
-          "duration_min": 14,
-          "reps": 3,
-          "recovery_min": 4,
-          "intensity_pct": 90,
-          "zone": "Z3",
-          "description": "3×14' sweet spot (90% FTP, 85-90 rpm) récup 4' Z1"
-        }
-      ],
-      "weekday": "Thursday",
-      "status": "ideal",
-      "duration_min": 70,
-      "structure": "70' : 15' Z1→Z2 → 3×14' @ 220–230W (88–92% FTP, r=4') → 5' souple",
-      "tss_estimate": 71,
-      "zones": "Z3",
-      "generated_by_ia": true
-    },
-    {
-      "date": "2026-06-12",
-      "weekday_fr": "Vendredi",
-      "sport": "Strength",
-      "type": "Renforcement général",
-      "rationale": "Le renforcement musculaire améliore l'économie de course et la puissance cycliste (Beattie et al. 2017).",
-      "blocks": [
-        {
-          "type": "strength_exercise",
-          "duration_min": 8,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 0,
-          "zone": "",
-          "description": "Mobilité articulaire : rotations épaules, hanches, chevilles (2×20 reps)"
-        },
-        {
-          "type": "strength_exercise",
-          "duration_min": 12,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 0,
-          "zone": "",
-          "description": "Chaîne postérieure : 3×15 squats bulgares par jambe, 3×18 soulevés de terre unipodaux"
-        },
-        {
-          "type": "strength_exercise",
-          "duration_min": 10,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 0,
-          "zone": "",
-          "description": "Gainage : 4×50s planche, 3×35s gainage latéral par côté, 3×25 mountain climbers"
-        },
-        {
-          "type": "strength_exercise",
-          "duration_min": 8,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 0,
-          "zone": "",
-          "description": "Proprioception : 3×50s équilibre unipodal yeux fermés, 2×25 sauts unipodaux latéraux"
-        },
-        {
-          "type": "strength_exercise",
-          "duration_min": 5,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 0,
-          "zone": "",
-          "description": "Étirements actifs chaîne postérieure et fléchisseurs hanches"
-        }
-      ],
-      "weekday": "Friday",
-      "status": "ideal",
-      "duration_min": 0,
-      "tss_estimate": 0,
-      "zones": "—",
-      "structure": "Mobilité articulaire : rotations épaules, hanches, chevilles (2×20 reps) | Chaîne postérieure : 3×15 squats bulgares par jambe, 3×18 soulevés de terre unipodaux | Gainage : 4×50s planche, 3×35s gainage latéral par côté, 3×25 mountain climbers | Proprioception : 3×50s équilibre unipodal yeux fermés, 2×25 sauts unipodaux latéraux | Étirements actifs chaîne postérieure et fléchisseurs hanches",
-      "generated_by_ia": true
-    },
-    {
-      "date": "2026-06-13",
-      "weekday_fr": "Samedi",
-      "sport": "Repos",
-      "type": "Repos complet",
-      "rationale": "Repos avant la sortie longue du dimanche pour optimiser les réserves glycogéniques et la fraîcheur neuromusculaire.",
-      "blocks": [],
-      "weekday": "Saturday",
-      "status": "ideal",
-      "duration_min": 0,
-      "tss_estimate": 0,
-      "zones": "—",
-      "generated_by_ia": true
-    },
-    {
-      "date": "2026-06-14",
-      "weekday_fr": "Dimanche",
-      "sport": "Run",
-      "type": "Sortie longue endurance fondamentale",
-      "rationale": "Pic du volume endurance (95') en Z1-Z2 pour maximiser les adaptations aérobies (Seiler 2010), semaine paire ISO24 = CAP, +10' vs S2.",
-      "blocks": [
-        {
-          "type": "endurance",
-          "duration_min": 95,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 75,
-          "zone": "Z2",
-          "description": "95' allure conversationnelle Z2 (70-80% seuil), terrain varié"
-        }
-      ],
-      "weekday": "Sunday",
-      "status": "ideal",
-      "duration_min": 120,
-      "structure": "120' : 20' écha Z1 → 95' allure conversationnelle Z2 (70-80% seuil), terrain varié → 5' souple",
-      "tss_estimate": 102,
+      "duration_min": 100,
+      "structure": "100' : 20' écha Z1 → Sortie longue en endurance fondamentale, terrain vallonné si possible → 5' souple",
+      "tss_estimate": 77,
       "zones": "Z2",
       "generated_by_ia": true
     }
   ],
   "next_week_plan_totals": {
-    "total_minutes": 362,
-    "total_minutes_str": "6h02",
-    "total_tss": 357
+    "total_minutes": 303,
+    "total_minutes_str": "5h03",
+    "total_tss": 269
   },
   "weekly_plan": [
     {
       "date": "2026-05-25",
       "weekday_fr": "Lundi",
       "sport": "VirtualRide",
-      "type": "Sweet Spot",
-      "rationale": "Séance réalisée : 3×12' à 90% FTP",
+      "type": "Seuil — sweet spot",
+      "rationale": "Ride réalisé 56' TSS 65, 3×12' @90%FTP — substitution validée du repos prévu, cohérent avec développement sweet spot S2",
       "adaptation": null,
       "status": "done",
+      "blocks": [],
+      "weekday": "Monday",
       "actual_activities": [
         {
           "name": "60m 3x12' 90%FTP",
-          "type": "VirtualRide",
+          "type": "Ride",
+          "sport": "Ride",
           "duration_min": 56,
-          "distance_km": 0,
+          "distance_km": 0.0,
           "tss": 65
         }
       ],
-      "blocks": [],
-      "weekday": "Monday",
       "generated_by_ia": true
     },
     {
       "date": "2026-05-26",
       "weekday_fr": "Mardi",
-      "sport": "Repos",
-      "type": "Récupération",
-      "rationale": "Jour de repos planifié",
+      "sport": "Run",
+      "type": "VO2max — intervalles courts",
+      "rationale": "Séance VO2max manquée, reportée et effectuée jeudi 28/05",
       "adaptation": null,
       "status": "past_missed",
-      "actual_activities": [],
       "blocks": [],
       "weekday": "Tuesday",
+      "actual_activities": [],
       "generated_by_ia": true
     },
     {
       "date": "2026-05-27",
       "weekday_fr": "Mercredi",
       "sport": "Swim",
-      "type": "Endurance technique",
-      "rationale": "Séance réalisée : 2.2km en 49'",
+      "type": "Endurance + technique",
+      "rationale": "Swim réalisé 49' 2.2km TSS 27 — volume légèrement réduit vs prévu (TSS 39) mais séance technique validée",
       "adaptation": null,
       "status": "done",
+      "blocks": [],
+      "weekday": "Wednesday",
       "actual_activities": [
         {
           "name": "Pool Swim",
           "type": "Swim",
+          "sport": "Swim",
           "duration_min": 49,
           "distance_km": 2.2,
           "tss": 27
         }
       ],
-      "blocks": [],
-      "weekday": "Wednesday",
       "generated_by_ia": true
     },
     {
       "date": "2026-05-28",
       "weekday_fr": "Jeudi",
       "sport": "Run",
-      "type": "Tempo Z3",
-      "rationale": "Séance réalisée : 3×8' à 95% LT1",
+      "type": "VO2max — intervalles courts",
+      "rationale": "Run réalisé 48' 8km TSS 54, 3×8' @95%LT — rattrapage séance mardi, intervalles seuil exécutés avec succès",
       "adaptation": null,
       "status": "done",
+      "blocks": [],
+      "weekday": "Thursday",
       "actual_activities": [
         {
           "name": "Nantes - 50m 3x8' 95%LT",
           "type": "Run",
+          "sport": "Run",
           "duration_min": 48,
           "distance_km": 8.0,
           "tss": 54
         }
       ],
-      "blocks": [],
-      "weekday": "Thursday",
       "generated_by_ia": true
     },
     {
       "date": "2026-05-29",
       "weekday_fr": "Vendredi",
       "sport": "Strength",
-      "type": "Renforcement général",
-      "rationale": "TSB neutre (+0.3) : séance renfo sans fatigue excessive avant séances clés du WE",
+      "type": "Renforcement musculaire",
+      "rationale": "Séance renforcement manquée — non rattrapée, priorisation récupération avant sortie longue dimanche",
       "adaptation": null,
-      "status": "today",
-      "actual_activities": [],
-      "blocks": [
-        {
-          "type": "strength_exercise",
-          "duration_min": 45,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 70,
-          "zone": "Renfo",
-          "description": "Échauffement mobilité 5' → Circuit×3 : Squats 3×12, Fentes 3×10/jambe, Pont fessiers 3×15, Gainage ventral 3×45s, Gainage latéral 3×30s/côté, Pompes 3×12 → Étirements 5'"
-        }
-      ],
+      "status": "past_missed",
+      "blocks": [],
       "weekday": "Friday",
-      "duration_min": 0,
-      "tss_estimate": 0,
-      "zones": "—",
-      "structure": "Échauffement mobilité 5' → Circuit×3 : Squats 3×12, Fentes 3×10/jambe, Pont fessiers 3×15, Gainage ventral 3×45s, Gainage latéral 3×30s/côté, Pompes 3×12 → Étirements 5'",
+      "actual_activities": [],
       "generated_by_ia": true
     },
     {
       "date": "2026-05-30",
       "weekday_fr": "Samedi",
-      "sport": "VirtualRide",
-      "type": "Sweet Spot long",
-      "rationale": "Séance clé vélo : TSB permet intensité soutenue. Sweet Spot long pour développer FTP en vue du pic du bloc",
-      "adaptation": "Allongement des intervalles vs plan théorique pour progresser dans le bloc",
-      "status": "todo",
-      "actual_activities": [],
-      "blocks": [
-        {
-          "type": "interval",
-          "duration_min": 15,
-          "reps": 3,
-          "recovery_min": 5,
-          "intensity_pct": 90,
-          "zone": "Z3/Z4",
-          "description": "Sweet Spot 88-92% FTP"
-        }
-      ],
+      "sport": "Repos",
+      "type": "Récupération active",
+      "rationale": "Repos maintenu pour fraîcheur avant sortie longue dimanche (TSB +4.4 permet absorption charge, récup stratégique)",
+      "adaptation": null,
+      "status": "today",
+      "blocks": [],
       "weekday": "Saturday",
-      "duration_min": 75,
-      "structure": "75' : 15' Z1→Z2 → 3×15' @ 220–230W (88–92% FTP, r=5') → 5' souple",
-      "tss_estimate": 76,
-      "zones": "Z3/Z4",
+      "actual_activities": [],
+      "duration_min": 0,
+      "tss_estimate": 0,
+      "zones": "—",
       "generated_by_ia": true
     },
     {
       "date": "2026-05-31",
       "weekday_fr": "Dimanche",
-      "sport": "Run",
-      "type": "Sortie longue Z1-Z2",
-      "rationale": "Volume fondamental : développe capacité aérobie et endurance musculaire (Seiler 80/20)",
-      "adaptation": null,
+      "sport": "VirtualRide",
+      "type": "Endurance longue + tempo",
+      "rationale": "Sortie longue portée à 120' pour atteindre TSS cible semaine (124 restant) — 90' Z2 base + 2×10' Z3 progression S2 +8%, CTL 37.4→38.2",
+      "adaptation": "Durée augmentée 90'→120' et ajout 2×10' Z3 pour combler déficit TSS semaine tout en respectant distribution polarisée 80/20",
       "status": "todo",
-      "actual_activities": [],
       "blocks": [
         {
           "type": "endurance",
-          "duration_min": 80,
+          "duration_min": 50,
           "reps": 1,
           "recovery_min": 0,
-          "intensity_pct": 75,
+          "intensity_pct": 68,
           "zone": "Z2",
-          "description": "Endurance fondamentale 70-78% FCmax, rythme conversationnel"
+          "description": "Base aérobie extensive — ancrage endurance fondamentale"
+        },
+        {
+          "type": "interval",
+          "duration_min": 10,
+          "reps": 2,
+          "recovery_min": 5,
+          "intensity_pct": 85,
+          "zone": "Z3",
+          "description": "Tempo sweet spot — adaptation progressive seuil S2"
+        },
+        {
+          "type": "endurance",
+          "duration_min": 40,
+          "reps": 1,
+          "recovery_min": 0,
+          "intensity_pct": 68,
+          "zone": "Z2",
+          "description": "Retour endurance base — consolidation charge"
         }
       ],
       "weekday": "Sunday",
-      "duration_min": 105,
-      "structure": "105' : 20' écha Z1 → Endurance fondamentale 70-78% FCmax, rythme conversationnel → 5' souple",
-      "tss_estimate": 88,
-      "zones": "Z2",
+      "actual_activities": [],
+      "duration_min": 135,
+      "structure": "135' : 15' Z1→Z2 → Base aérobie extensive — ancrage endurance fondamentale | 2×10' @ 210–220W (83–87% FTP, r=5') | Retour endurance base — consolidation charge → 5' souple",
+      "tss_estimate": 106,
+      "zones": "Z2 + Z3",
       "generated_by_ia": true
     }
   ],
   "weekly_plan_totals": {
-    "total_minutes": 180,
-    "total_minutes_str": "~3h00",
-    "total_tss": 164
+    "total_minutes": 135,
+    "total_minutes_str": "~2h15",
+    "total_tss": 106
   },
   "week_adaptations": [
-    "Forme neutre (TSB +0.3) : capacité optimale pour séances de qualité. TSS restant 124 réparti sur 5 jours (samedi→dimanche). Maintien du bloc endurance fondamentale avec séance clé vélo samedi et sortie longue CAP dimanche."
+    "Lundi 25/05 : Ride réalisé (TSS 65) au lieu de Repos → ajustement validé, sweet spot cohérent avec progression S2",
+    "Mardi 26/05 : Run VO2max manqué, séance reportée au jeudi 28/05 effectuée avec succès (TSS 54, 3×8' @95%LT)",
+    "Mercredi 27/05 : Swim réalisé mais TSS 27 vs 39 prévu → volume légèrement réduit, intensité technique maintenue",
+    "Vendredi 29/05 : Strength manqué → pas de rattrapage (2 séances renfo/semaine non critique en S2)",
+    "TSS semaine 146/270 → restant 124 sur Sam+Dim : samedi maintenu Repos (récupération pré-sortie longue), dimanche VirtualRide longue portée à 120' pour atteindre fourchette 114-133 TSS (90' @Z2 + 2×10' @Z3 pour engagement progressif)",
+    "TSB +4.4 forme neutre/productive → capacité à absorber charge dimanche sans risque surentraînement"
   ],
-  "ia_plans_source": "ia",
+  "ia_plans_source": "algo",
   "ia_adaptive_source": "ia",
   "tss_target_week": 270,
   "weeks_to_race": 13,
@@ -1381,346 +1269,5 @@
     "2026-05-18": 223,
     "2026-05-25": 146
   },
-  "athlete_profile": {
-    "_meta": {
-      "description": "Profil athlète David — source de vérité pour la génération des plans et séances. À mettre à jour au fil de la saison.",
-      "last_updated": "2026-05-24",
-      "version": "1.0"
-    },
-    "identity": {
-      "name": "David",
-      "email": "lec.david@gmail.com",
-      "age": null,
-      "weight_kg": 78.0,
-      "sex": "M"
-    },
-    "performance_level": {
-      "category": "Amateur confirmé",
-      "years_in_triathlon": null,
-      "primary_discipline_strength": "Vélo",
-      "primary_discipline_weakness": "Natation",
-      "notes": "Bonne régularité sur les 3 disciplines. Natation à densifier (1 séance/sem actuellement, objectif 2/sem en build)."
-    },
-    "thresholds": {
-      "updated": "2026-05-24",
-      "cycling": {
-        "ftp_watts": 250,
-        "lthr_bpm": 168,
-        "hr_max_bpm": 190,
-        "hr_zones_bpm": [
-          138,
-          153,
-          160,
-          171,
-          176,
-          181,
-          190
-        ],
-        "power_zones_pct_ftp": [
-          55,
-          75,
-          90,
-          105,
-          120,
-          150,
-          999
-        ]
-      },
-      "run": {
-        "threshold_pace_str": "4:53/km",
-        "threshold_pace_mps": 3.4129694,
-        "lthr_bpm": null,
-        "hr_max_bpm": 190,
-        "hr_zones_bpm": [
-          142,
-          149,
-          158,
-          167,
-          172,
-          177,
-          190
-        ],
-        "pace_zones_pct_threshold": [
-          77.5,
-          87.7,
-          94.3,
-          100.0,
-          103.4,
-          111.5,
-          999.0
-        ]
-      },
-      "swim": {
-        "css_str": "2:00/100m",
-        "css_mps": 0.8333333,
-        "notes": "CSS estimée — à recalibrer avec test 400/200m."
-      },
-      "resting_hr_bpm": 51,
-      "history": [
-        {
-          "date": "2026-05-24",
-          "ftp_watts": 250,
-          "threshold_pace_run": "4:53/km",
-          "css_swim": "2:00/100m",
-          "weight_kg": 78.0,
-          "note": "Valeurs initiales extraites de Intervals.icu"
-        }
-      ]
-    },
-    "fitness_baseline": {
-      "updated": "2026-05-24",
-      "ctl": 37.6,
-      "atl": 32.1,
-      "tsb": 5.5,
-      "target_ctl_peak": 50,
-      "target_ctl_race_day": 42,
-      "target_tsb_race_day": 14,
-      "avg_weekly_tss_28d": 259,
-      "season_pmc_history": {
-        "source": "Intervals.icu wellness 6 mois",
-        "ctl_nov2025": 20.4,
-        "ctl_jan2026": 26.0,
-        "ctl_pic_avril": 46.6,
-        "ctl_duathlon_3mai": 38.2,
-        "ctl_actuel_24mai": 37.6,
-        "duathlon_tsb": 12.3,
-        "note": "Programme structuré duathlon M (oct25→mai26) bien exécuté. Pic CTL 46.6 le 11/04, affûtage propre (TSB +12 le jour J). Décompression post-course normale depuis le 3 mai."
-      },
-      "cycle_structure": "4+1 (4 semaines de charge progressive + 1 semaine récup)",
-      "periodization_rules": {
-        "intra_bloc_progression_max_pct": 10,
-        "recovery_week_pct_of_bloc_peak": 65,
-        "reload_week_pct_of_prev_bloc_peak": 85,
-        "source": "Issurin (2008) Block Periodization; Seiler (2010) 80/20; Coggan & Allen (2010) PMC; consensus : progression ≤10%/sem, récup 60-65% du pic, reprise à 85% du pic du bloc précédent (pas de marche brutale)"
-      },
-      "weekly_tss_targets": {
-        "2026-05-25": 270,
-        "2026-06-01": 292,
-        "2026-06-08": 315,
-        "2026-06-15": 340,
-        "2026-06-22": 220,
-        "2026-06-29": 290,
-        "2026-07-06": 315,
-        "2026-07-13": 340,
-        "2026-07-20": 368,
-        "2026-07-27": 240,
-        "2026-08-03": 315,
-        "2026-08-10": 345,
-        "2026-08-17": 245,
-        "2026-08-24": 145
-      },
-      "notes": "Post-duathlon M Bain-de-Bretagne (03/05/2026). CTL redescendu à 37.6 après 3 semaines de décompression. Build progressif jusqu'au pic (S11, 03-09/08) puis affûtage 3 semaines. CTL attendu race day ~42, TSB ~+15."
-    },
-    "race_format": {
-      "drafting": true,
-      "bike_strategy": "Rester en peloton, limiter les relances inutiles, puissance cible ~65-70% FTP. L'objectif vélo est de préserver les jambes pour le run, pas de faire la différence.",
-      "swim_strategy": "Sortir de l'eau dans le bon groupe — critique en drafting car le groupe vélo dépend du groupe natation. Travailler la nage en peloton (aspiration, placement).",
-      "run_strategy": "Allure cible 5:12/km. Partir conservateur les 2 premiers km, accélérer si les sensations le permettent.",
-      "notes": "En format drafting, la natation devient encore plus stratégique : manquer le bon groupe peut coûter plusieurs minutes sur le vélo."
-    },
-    "season": {
-      "current_year": 2026,
-      "start_date": "2026-01-01",
-      "race": {
-        "name": "Triathlon M de Quimperlé",
-        "date": "2026-08-30",
-        "distance": "M",
-        "swim_km": 1.5,
-        "bike_km": 40,
-        "run_km": 10,
-        "goal": "Finisher avec bonne gestion des efforts — progression globale sur les 3 disciplines"
-      },
-      "phases": [
-        {
-          "name": "Préparation générale — Base aérobie",
-          "start": "2026-05-05",
-          "end": "2026-06-29",
-          "weeks": 8,
-          "focus": "Construire le moteur aérobie Z2, poser le volume, 80/20",
-          "tss_target_weekly": 260
-        },
-        {
-          "name": "Développement — Seuil et spécifique",
-          "start": "2026-06-30",
-          "end": "2026-07-26",
-          "weeks": 4,
-          "focus": "Intensités seuil, briques vélo/run, volume maintenu",
-          "tss_target_weekly": 300
-        },
-        {
-          "name": "Pic de charge",
-          "start": "2026-07-27",
-          "end": "2026-08-09",
-          "weeks": 2,
-          "focus": "Semaine de charge maximale, simulation course",
-          "tss_target_weekly": 340
-        },
-        {
-          "name": "Affûtage",
-          "start": "2026-08-10",
-          "end": "2026-08-23",
-          "weeks": 2,
-          "focus": "Réduction volume -40%, maintien intensité, récupération",
-          "tss_target_weekly": 180
-        },
-        {
-          "name": "Semaine de course",
-          "start": "2026-08-24",
-          "end": "2026-08-30",
-          "weeks": 1,
-          "focus": "Activation légère, repos, race day",
-          "tss_target_weekly": 80
-        }
-      ]
-    },
-    "weekly_structure": {
-      "methodology": "Polarisé 80/20 (Seiler) — 80% du volume en Z1-Z2, 20% en Z4-Z5",
-      "rest_days": [
-        "Monday",
-        "Saturday"
-      ],
-      "typical_week": {
-        "Monday": {
-          "sport": "Repos",
-          "type": "Récupération",
-          "tss": 0
-        },
-        "Tuesday": {
-          "sport": "Run",
-          "type": "VO2max / intervalles",
-          "duration_min": 45,
-          "tss_est": 55
-        },
-        "Wednesday": {
-          "sport": "Swim",
-          "type": "Endurance + technique (CSS)",
-          "duration_min": 50,
-          "tss_est": 40
-        },
-        "Thursday": {
-          "sport": "VirtualRide / Ride",
-          "type": "Seuil — sweet spot",
-          "duration_min": 60,
-          "tss_est": 75
-        },
-        "Friday": {
-          "sport": "Strength",
-          "type": "Renforcement musculaire",
-          "duration_min": 45,
-          "tss": 0
-        },
-        "Saturday": {
-          "sport": "Repos",
-          "type": "Récupération active",
-          "tss": 0
-        },
-        "Sunday": {
-          "sport": "Run ou Brick",
-          "type": "Sortie longue (semaines impaires Run, semaines paires Brick vélo+run)",
-          "duration_min": 70,
-          "tss_est": 65
-        }
-      },
-      "session_frequency": {
-        "swim_per_week": 1,
-        "swim_target_per_week": 1,
-        "swim_note": "2 séances/sem souhaitables mais pas faisable actuellement — David demandera explicitement quand il aura le temps.",
-        "bike_per_week": 1,
-        "run_per_week": 2,
-        "strength_per_week": 1
-      }
-    },
-    "training_preferences": {
-      "indoor_cycling": true,
-      "preferred_cycling_platform": "Zwift / home trainer",
-      "swim_pool_access": true,
-      "long_run_day": "Sunday",
-      "brick_day": "Sunday",
-      "strength_day": "Friday",
-      "tolerated_training_load": "Modéré-élevé — CTL max historique à déterminer",
-      "warmup_cooldown": {
-        "required": true,
-        "exceptions": [
-          "Strength",
-          "Renforcement musculaire"
-        ],
-        "warmup_run_min": 20,
-        "warmup_run_content": "10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives",
-        "warmup_bike_min": 15,
-        "warmup_swim_m": 400,
-        "cooldown_run_min": 5,
-        "cooldown_bike_min": 5,
-        "cooldown_swim_m": 200,
-        "note": "CAP : 20' échauffement avec gammes obligatoires, 5' retour au calme. Vélo : 15' échauffement, 5' retour au calme. Natation : 400m écha, 200m retour au calme. Renforcement musculaire : pas d'écha/cool cardio."
-      },
-      "notes": [
-        "Préfère les séances du matin ou en soirée selon contraintes pro.",
-        "Renforcement musculaire vendredi = charge cardio nulle, préserve le week-end.",
-        "Sorties longues alternées Run/Brick selon semaine paire/impaire.",
-        "Échauffement + retour au calme systématiques sauf renforcement musculaire."
-      ]
-    },
-    "injuries_and_health": {
-      "current_injuries": [],
-      "injury_history": [],
-      "alerts": [],
-      "notes": "Aucune blessure connue au 2026-05-24. À mettre à jour dès qu'un problème survient.",
-      "monitoring": {
-        "hrv_baseline_ms": 47,
-        "resting_hr_baseline_bpm": 51,
-        "sleep_target_hours": 7.5
-      }
-    },
-    "key_metrics_targets": {
-      "race_day_targets": {
-        "total_time": "2:35:00",
-        "swim_time": "0:28:00",
-        "t1_time": "0:03:00",
-        "bike_time": "1:10:00",
-        "t2_time": "0:02:00",
-        "run_time": "0:52:00",
-        "notes": "Objectif total 2h35 déclaré par David le 2026-05-24. Drafting autorisé sur le vélo. Découpage estimé : natation 28' (1:52/100m), T1 3', vélo 1h10 (34.3 km/h — drafting autorisé → ~160-180W normalisés vs ~230W en solo), T2 2', run 52' (5:12/km). La stratégie vélo vise à préserver les jambes pour le run : rester en groupe, puissance modérée, gérer les relances."
-      },
-      "pre_race_fitness": {
-        "ctl_target": 42,
-        "ctl_peak_target": 50,
-        "tsb_target_race_day": "+10 à +15",
-        "ftp_target_watts": 270,
-        "threshold_run_pace_target": "4:40/km",
-        "css_swim_target": "1:52/100m",
-        "notes": "Pour tenir 2h35 avec drafting autorisé sur le vélo : FTP actuel 250W suffisant (puissance course ~165W soit ~66% FTP en peloton), l'enjeu se déplace sur la natation et le run. Allure run cible 5:12/km (95% seuil actuel 4:53 → progression modérée nécessaire), CSS natation 1:52/100m (vs 2:00 actuel → +7%). Stratégie clé : sortir de l'eau dans un bon groupe, gérer l'effort vélo en peloton pour arriver frais sur le run."
-      }
-    },
-    "scientific_references": [
-      "Seiler, S. (2010). What is best practice for training intensity and duration distribution in endurance athletes? IJSPP.",
-      "Helgerud, J. et al. (2007). Aerobic high-intensity intervals improve VO2max more than moderate training. Medicine & Science in Sports & Exercise.",
-      "Beattie, K. et al. (2017). The effect of strength training on performance in endurance athletes. Sports Medicine.",
-      "Blagrove, R.C. et al. (2018). Effects of strength training on the physiological determinants of middle- and long-distance running performance. Sports Medicine.",
-      "Coggan, A. (2003). Performance Management Chart — CTL/ATL/TSB model.",
-      "Allen, H. & Coggan, A. (2010). Training and Racing with a Power Meter."
-    ],
-    "changelog": [
-      {
-        "date": "2026-05-24",
-        "author": "Claude / Cowork",
-        "note": "Création initiale du profil athlète — données extraites de Intervals.icu et des sessions d'entraînement précédentes."
-      },
-      {
-        "date": "2026-05-24",
-        "author": "David",
-        "note": "Objectif course déclaré : 2h35 au Triathlon M de Quimperlé (30/08/2026). Découpage cible ajouté + niveaux de seuils à atteindre calculés."
-      },
-      {
-        "date": "2026-05-24",
-        "author": "David",
-        "note": "Précision format course : drafting autorisé sur le vélo. Stratégie et objectifs de puissance révisés en conséquence (165W vs 230W). La natation devient l'enjeu stratégique principal pour intégrer le bon groupe."
-      },
-      {
-        "date": "2026-05-24",
-        "author": "Claude / Cowork",
-        "note": "Analyse PMC 6 mois (nov.2025 → mai 2026). Duathlon M Bain-de-Bretagne (03/05) bien préparé : CTL pic 46.6 (11/04), TSB +12 le jour J. Reprogrammation saison Quimperlé : cycle 3+1 strict (3 sem. charge + 1 sem. récup à ~65%), 2 semaines de récup (S04 et S08), pic S09-S11 (410-435 TSS), affûtage 3 semaines. CTL race day visé : 42, TSB : +15. CTL pic cible révisé à 50."
-      }
-    ]
-  },
-  "coach_message": "# 🎯 Message Coach — David, 29 mai 2026\n\n**Forme du jour : Tu es dans la fenêtre idéale pour taper du travail de qualité.**\nTon TSB positif et ta récupération solide (FC repos à 56) signalent une vraie disponibilité physique. C'est le moment d'en profiter.\n\n**Bilan semaine : Globalement bon, mais il manque une pièce**\nTu as enchaîné sweet spot au vélo, endurance technique en piscine et tempo corsé en course à pied — c'est une semaine équilibrée. En revanche, tu as zappé la séance récup de mardi. Ce n'est pas dramatique, mais ça compte dans la construction régulière.\n\n**Ce qui fonctionne vraiment :**\n— Ton rythme de charge (264 TSS/sem en moyenne) : c'est cohérent, tu bâtis sans te crasher.\n— La diversité : tu bosses les trois disciplines + la force + la technique. Ça, c'est pro.\n— Ton endurance de base monte (+0.4 CTL/sem) : tu construis les fondations solides pour les 13 semaines qui restent.\n\n**Priorités immédiates :**\n1. **Respecte les récups programmées.** Une séance manquée, ça peut arriver ; deux d'affilée, c'est un pattern dangereux. Même 30 min d'easy run ou de nage très cool = tu accélères ta récupération réelle.\n2. **Peaufine ta technique natation.** À 2:00/100m, tu as la base. Les 13 semaines permettent d'économiser 10-15 secondes par 100m en fluidité pure — ça change tout sur le M.\n3. **Ancre la séance force de ce jour.** 45 min bien structurées, c'est de l'or en VO2 et stabilité articulaire pour la course. Ne la bâcle pas.\n\n**Où tu es, où tu vas :**\nTu es en **phase de base aérobie de qualité** — on construit l'endurance sans basculer en fatigue chronique. Dans 4-5 semaines, on va monter progressivement les seuils. Objectif court terme : dépasser 280 TSS/sem sans dégradation de récup. Quimperlé, c'est très faisable avec ce rythme.\n\n**Allez, c'est parti pour la force d'aujourd'hui. 💪**"
+  "coach_message": "# Message Coach – David, samedi 30 mai 2026\n\n**Tu es en forme, c'est le moment d'en profiter.** Ton TSB à +4.4 te signale une fenêtre parfaite pour cogner du travail de qualité — ne la gaspille pas en traînaillant.\n\n**Bilan de la semaine : mitigé, mais pas catastrophique.**\nTu as validé 3 séances solides (sweet spot lundi, technique natation mercredi, VO2max jeudi), mais tu as laissé filer mardi et vendredi. C'est dommage : mardi aurait consolidé ton aérobie, vendredi aurait blindé tes jambes. Pas fatal, mais à ne pas reproduire.\n\n**Ce qui marche :**\n- Ta FC au repos à 55 bpm : tu es vraiment bien adapté à l'entraînement, c'est du travail de fond payant.\n- Ta charge moyenne reste stable (256 TSS/sem) — tu as trouvé ton rythme de croisière.\n- Tes trois disciplines tournent ensemble : c'est l'approche triathlon qu'on veut.\n\n**Sur quoi on doit appuyer :**\n1. **Récupérer intelligemment aujourd'hui.** Repos/actif, ça veut dire 30 min facile de jogging ou du spinning très souple — pas du canapé. Tu recharges les batteries pour dimanche.\n2. **Boucler les séances programmées**, point. Les manques s'accumulent. Tu as 13 semaines : chaque semaine compte.\n3. **Bosser la force musculaire vendredi prochain** — 30 min, c'est pas une montagne et ça protège tes articulations pour l'été.\n\n**Où on en est :** Base aérobie bien lancée, fenêtre d'adaptation ouverte. Continue comme ça 3-4 semaines et on monte les intensités. Quimperlé, on y va.\n\nÀ dimanche ! 💪"
 }
