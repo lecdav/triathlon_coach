@@ -37,7 +37,7 @@ race:
     swim_m: 1500
     bike_km: 40
     run_km: 10
-  goal_time: null             # objectif chrono total si tu en as un (ex: "2:30:00")
+  goal_time: 2h35             # objectif chrono total si tu en as un (ex: "2:30:00")
 
 # Préférences d'entraînement
 training:
