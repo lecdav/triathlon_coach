@@ -950,7 +950,7 @@ JSON : {{"adaptations":["..."],"days":[{{"date":"YYYY-MM-DD","weekday_fr":"...",
         from claude_client import SYSTEM_PROMPT, _log_exchange
         response = client.messages.create(
             model="claude-sonnet-4-5",
-            max_tokens=2048,
+            max_tokens=4096,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
