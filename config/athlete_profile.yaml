@@ -46,10 +46,3 @@ training:
   strength_sessions_per_week: 1     # 1 séance renforcement musculaire obligatoire/sem
   rest_day: "monday"
   long_session_day: "sunday"
-  session_duration_limits:
-    weekday_max_min: 60             # séances semaine ≤ 1h (hors échauffement si inclus)
-    weekend_long_max_min: 120       # sortie longue week-end ≤ 2h par défaut
-    weekend_long_extended_max_min: 180  # exception : fin phase Développement + phases Pic/Spécifique → 3h max
-    weekend_long_extended_phases:   # phases où la limite étendue s'applique
-      - "Développement — Seuil et spécifique"   # semaines 3-4 du bloc uniquement
-      - "Pic de charge"

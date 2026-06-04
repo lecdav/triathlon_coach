@@ -168,30 +168,17 @@
   "weekly_structure": {
     "methodology": "Polarisé 80/20 (Seiler) — 80% du volume en Z1-Z2, 20% en Z4-Z5",
     "rest_days": ["Monday", "Saturday"],
-    "session_duration_limits": {
-      "weekday_max_min": 60,
-      "weekday_note": "Toutes les séances de semaine (Mar-Ven) sont limitées à 1h max, échauffement et retour au calme inclus.",
-      "weekend_long_default_max_min": 120,
-      "weekend_long_extended_max_min": 150,
-      "weekend_long_note": "Sortie longue du dimanche ≤ 2h par défaut. Exception : fin de phase Développement (semaines 3-4 du bloc) et phases Pic de charge → jusqu'à 2h30 max.",
-      "weekend_long_extended_phases": [
-        "Développement — Seuil et spécifique (semaines 3-4 uniquement)",
-        "Pic de charge"
-      ]
-    },
     "typical_week": {
       "Monday": { "sport": "Repos", "type": "Récupération", "tss": 0 },
-      "Tuesday": { "sport": "Run", "type": "VO2max / intervalles", "duration_min": 45, "max_duration_min": 60, "tss_est": 55 },
-      "Wednesday": { "sport": "Swim", "type": "Endurance + technique (CSS)", "duration_min": 50, "max_duration_min": 60, "tss_est": 40 },
-      "Thursday": { "sport": "VirtualRide / Ride", "type": "Seuil — sweet spot", "duration_min": 60, "max_duration_min": 60, "tss_est": 75 },
-      "Friday": { "sport": "Strength", "type": "Renforcement musculaire", "duration_min": 45, "max_duration_min": 60, "tss": 0 },
+      "Tuesday": { "sport": "Run", "type": "VO2max / intervalles", "duration_min": 45, "tss_est": 55 },
+      "Wednesday": { "sport": "Swim", "type": "Endurance + technique (CSS)", "duration_min": 50, "tss_est": 40 },
+      "Thursday": { "sport": "VirtualRide / Ride", "type": "Seuil — sweet spot", "duration_min": 60, "tss_est": 75 },
+      "Friday": { "sport": "Strength", "type": "Renforcement musculaire", "duration_min": 45, "tss": 0 },
       "Saturday": { "sport": "Repos", "type": "Récupération active", "tss": 0 },
       "Sunday": {
         "sport": "Run ou Brick",
         "type": "Sortie longue (semaines impaires Run, semaines paires Brick vélo+run)",
         "duration_min": 70,
-        "max_duration_min": 120,
-        "max_duration_extended_min": 150,
         "tss_est": 65
       }
     },
@@ -276,11 +263,6 @@
   ],
 
   "changelog": [
-    {
-      "date": "2026-06-03",
-      "author": "David",
-      "note": "Ajout des limites de durée de séance : semaine ≤ 1h, sortie longue week-end ≤ 2h30 par défaut. Exception jusqu'à 3h en fin de phase Développement (semaines 3-4) et phase Pic de charge."
-    },
     {
       "date": "2026-05-24",
       "author": "Claude / Cowork",
