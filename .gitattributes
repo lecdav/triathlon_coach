@@ -1,0 +1,5 @@
+# Stratégie de fusion pour les fichiers de données générés automatiquement
+# En cas de conflit, git prend toujours la version distante (générée par GitHub Actions)
+data/today.json merge=ours
+data/weekly_plans.json merge=ours
+data/periodization.json merge=ours
