@@ -180,7 +180,9 @@ Réponds UNIQUEMENT avec ce JSON (sans markdown). Pas d'allures/watts — % inte
 
 {{"week1":{{"monday":"{week1_monday.isoformat()}","tss_target":{tss1},"bloc_week":{ctx1["bloc_week"]},"is_recovery":{"true" if ctx1["is_recovery"] else "false"},"phase":"{ctx1["phase"]}","coach_note":"...","days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}},"week2":{{"monday":"{week2_monday.isoformat()}","tss_target":{tss2},"bloc_week":{ctx2["bloc_week"]},"is_recovery":{"true" if ctx2["is_recovery"] else "false"},"phase":"{ctx2["phase"]}","coach_note":"...","days":[...]}}}}
 
-Règles : Repos→blocks=[] | Strength→type="strength_exercise"+description | Swim→inclure warmup/cooldown blocs | Run/Vélo→PAS de warmup/cooldown | Récup→Z1-Z2 uniquement, pas de Z4-Z5 | Progression S1→S2 visible (+1 rep OU +2' OU +10' sortie longue) | TSS hebdo dans ±5% cible | 1 séquence high anaerobic Z5-Z6 (3-6×20-30s, récup 2-3') sur Run mardi OU Vélo jeudi par semaine (pas récup)."""
+Règles : Repos→blocks=[] | Strength→type="strength_exercise"+description | Swim→inclure warmup/cooldown blocs | Run/Vélo→PAS de warmup/cooldown | Récup→Z1-Z2 uniquement, pas de Z4-Z5 | Progression S1→S2 visible (+1 rep OU +2' OU +10' sortie longue) | TSS hebdo dans ±5% cible | 1 séquence high anaerobic Z5-Z6 (3-6×20-30s, récup 2-3') sur Run mardi OU Vélo jeudi par semaine (pas récup).
+
+NATATION — règle impérative : les blocs natation sont TOUJOURS exprimés en distance (mètres), jamais en durée. Utilise "distance_m" à la place de "duration_min" pour les blocs Swim. Exemples corrects : warmup 400m, intervalles 8×100m ou 6×200m, cooldown 200m. Jamais "5 minutes à telle allure" — en piscine on programme par longueurs."""
 
     return prompt
 

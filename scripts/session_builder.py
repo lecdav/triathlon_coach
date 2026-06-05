@@ -120,6 +120,12 @@ def parse_blocks(blocks: list[dict], sport: str, thresholds: dict) -> dict:
         if zone:
             zones_seen.add(zone)
 
+        # Natation : convertir distance_m en durée pour les calculs TSS/total
+        if sport == "Swim":
+            dist_m = int(b.get("distance_m", 0))
+            if dist_m > 0 and css_mps * pct > 0:
+                dur = (dist_m / (css_mps * pct)) / 60
+
         # Durée réelle du bloc (répétitions + récupérations)
         block_active_min = dur * reps
         block_rec_min = rec * max(0, reps - 1)
@@ -154,9 +160,16 @@ def parse_blocks(blocks: list[dict], sport: str, thresholds: dict) -> dict:
             if_val = pct
         elif sport == "Swim":
             p = swim_pace_factor_to_str(css_mps, pct)
-            if reps > 1:
-                rec_txt = f", r={int(rec)}'" if rec > 0 else ""
-                parts.append(f"{reps}×{int(dur)}' @ {p} ({zone}{rec_txt})")
+            dist_m = int(b.get("distance_m", 0))
+            # Si distance_m absent, estimer depuis duration_min et allure
+            if dist_m <= 0 and dur > 0:
+                dist_m = int(round(css_mps * pct * dur * 60))
+            rec_txt = f", r={int(rec)}'" if rec > 0 else ""
+            if dist_m > 0:
+                if reps > 1:
+                    parts.append(f"{reps}×{dist_m}m @ {p} ({zone}{rec_txt})")
+                else:
+                    parts.append(f"{dist_m}m {zone} @ {p}")
             elif desc:
                 parts.append(desc)
             else:
