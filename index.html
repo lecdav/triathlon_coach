@@ -196,11 +196,81 @@ function formatSeance(p) {
   return `${emoji} ${sportFr} ${typeStr}`.trim();
 }
 
-function formatContenu(p) {
-  const struct = p.structure || "—";
-  const dur = p.duration_min || 0;
-  if (dur > 0) return `(${dur}') ${struct}`;
-  return struct;
+function fmtPace(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; }
+
+function isWarmCoolBlock(b, idx, blocks) {
+  const btype = (b.type || "").toLowerCase();
+  if (btype === "recovery" || btype === "warmup" || btype === "cooldown") return true;
+  // Premier ou dernier bloc endurance → échauffement/retour au calme
+  if (btype === "endurance" && (idx === 0 || idx === blocks.length - 1)) return true;
+  const desc = (b.description || "").toLowerCase();
+  if (desc.includes("échauff") || desc.includes("retour") || desc.includes("calme") || desc.includes("cool")) return true;
+  return false;
+}
+
+function blockTarget(b, sport, thresholds, idx, blocks) {
+  const pct = b.intensity_pct;
+
+  // Échauffement / retour au calme → zone uniquement
+  if (isWarmCoolBlock(b, idx, blocks)) return b.zone || "";
+  if (!pct) return b.zone || "";
+
+  if (sport === "VirtualRide" || sport === "Ride") {
+    const ftp = thresholds.ftp_watts || 0;
+    if (!ftp) return b.zone || "";
+    const lo = Math.round(ftp * (pct - 3) / 100);
+    const hi = Math.round(ftp * (pct + 3) / 100);
+    const pctLo = pct - 3, pctHi = pct + 3;
+    return `${lo}–${hi} W (${pctLo}–${pctHi}% FTP)`;
+  }
+  if (sport === "Run") {
+    const mps = thresholds.threshold_pace_run_mps;
+    if (!mps) return b.zone || "";
+    const fast = Math.round(1000 / (mps * (pct + 3) / 100));
+    const slow = Math.round(1000 / (mps * (pct - 3) / 100));
+    return `${fmtPace(fast)}–${fmtPace(slow)}/km`;
+  }
+  if (sport === "Swim") {
+    const mps = thresholds.threshold_pace_swim_mps;
+    if (!mps) return b.zone || "";
+    const fast = Math.round(100 / (mps * (pct + 3) / 100));
+    const slow = Math.round(100 / (mps * (pct - 3) / 100));
+    return `${fmtPace(fast)}–${fmtPace(slow)}/100m`;
+  }
+  return b.zone || "";
+}
+
+function formatContenu(p, thresholds) {
+  const blocks = p.blocks;
+  if (!blocks || blocks.length === 0) return p.structure || "—";
+
+  const totalMin = p.duration_min || 0;
+  const th = thresholds || {};
+  const parts = [];
+
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    const warmCool = isWarmCoolBlock(b, i, blocks);
+    const dur = b.duration_min ? `${b.duration_min}'` : (b.distance_m ? `${b.distance_m}m` : "");
+    const target = blockTarget(b, p.sport, th, i, blocks);
+    const recov = b.recovery_min > 0 ? `, r=${b.recovery_min}'` : "";
+    const reps = b.reps > 1 ? `${b.reps}×` : "";
+
+    if (warmCool) {
+      parts.push(`${dur} ${target}`.trim());
+    } else {
+      const atSign = target ? ` @ ${target}` : "";
+      const zone = b.zone ? ` (${b.zone}${recov})` : (recov ? `(r=${b.recovery_min}')` : "");
+      parts.push(`<b>${reps}${dur}${atSign}${zone}</b>`.trim());
+    }
+  }
+
+  const durStr = totalMin >= 60
+    ? `${Math.floor(totalMin/60)}h${totalMin%60 > 0 ? String(totalMin%60).padStart(2,"0") : ""}`
+    : totalMin > 0 ? `${totalMin}'` : "";
+
+  const seance = parts.join(" → ");
+  return durStr ? `${durStr} : ${seance}` : seance;
 }
 
 function formatTotalDuration(totalMin) {
@@ -364,7 +434,7 @@ function buildSeasonTimeline(data) {
 
 // ── Plan théorique idéal (onglets sem. courante / suivante) ──────────────────
 
-function renderIdealWeekTable(plan, totals) {
+function renderIdealWeekTable(plan, totals, thresholds) {
   // Plan théorique pur : pas de statuts réalisé/manqué, simple référence
   const tssTarget = totals.total_tss || plan.reduce((s, p) => s + (p.tss_estimate || 0), 0);
 
@@ -373,7 +443,7 @@ function renderIdealWeekTable(plan, totals) {
     const isRest = sport === "Repos";
     const jour = p.weekday_fr || p.weekday;
     const seanceHtml = formatSeance(p);
-    const contenuHtml = isRest ? `<span style="color:#5a6a7e">—</span>` : formatContenu(p);
+    const contenuHtml = isRest ? `<span style="color:#5a6a7e">—</span>` : formatContenu(p, thresholds);
     const tss = p.tss_estimate || 0;
     const iaBadge = p.generated_by_ia === false
       ? `<span title="Généré algorithmiquement (IA indisponible)" style="font-size:10px;background:#2e1a00;color:#e65100;border:1px solid #e6510055;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle">⚙️ algo</span>`
@@ -417,9 +487,10 @@ function buildIdealPlan(data) {
   const curLabel = fmtRange(data.week_monday, data.week_sunday);
   const nxtLabel = fmtRange(data.next_week_monday, data.next_week_sunday);
 
-  const curHtml = renderIdealWeekTable(curPlan, data.ideal_week_plan_totals || {});
+  const thresholds = data.thresholds || {};
+  const curHtml = renderIdealWeekTable(curPlan, data.ideal_week_plan_totals || {}, thresholds);
   const nxtHtml = nxtPlan.length > 0
-    ? renderIdealWeekTable(nxtPlan, data.next_week_plan_totals || {})
+    ? renderIdealWeekTable(nxtPlan, data.next_week_plan_totals || {}, thresholds)
     : `<p style="color:#6b7a90;font-size:13px;padding:12px 0">Plan de la semaine prochaine non disponible.</p>`;
 
   const algoAlert = data.ia_plans_source === "algo"
@@ -554,7 +625,7 @@ function buildAdaptedPlan(data) {
       contenuHtml = `<span style="color:#6b7a90;font-size:12px">Non réalisée</span>`;
     } else {
       seanceHtml = formatSeance(p) + adaptIaBadge;
-      contenuHtml = formatContenu(p);
+      contenuHtml = formatContenu(p, data.thresholds);
       if (p.adaptation) {
         contenuHtml += `<div style="font-size:11px;color:#e65100;margin-top:2px">${p.adaptation}</div>`;
       }
