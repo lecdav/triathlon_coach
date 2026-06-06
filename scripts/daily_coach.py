@@ -443,6 +443,28 @@ SPORT_MATCH = {
 }
 
 
+def recalc_duration_from_blocks(plan: list[dict]) -> list[dict]:
+    """Recalcule duration_min depuis la somme réelle des blocs.
+
+    Formule : sum(bloc.duration_min * reps + recovery_min * (reps-1))
+    Corrige les divergences entre le champ IA et les blocs effectifs.
+    Ne modifie que les items avec des blocs non vides.
+    """
+    result = []
+    for item in plan:
+        blocks = item.get("blocks") or []
+        if blocks and item.get("sport") not in ("Repos", "Strength", None):
+            total = sum(
+                b.get("duration_min", 0) * b.get("reps", 1)
+                + b.get("recovery_min", 0) * max(b.get("reps", 1) - 1, 0)
+                for b in blocks
+            )
+            if total > 0:
+                item = {**item, "duration_min": total}
+        result.append(item)
+    return result
+
+
 def match_activities_to_plan(plan: list[dict], activities: list[dict]) -> list[dict]:
     """Croise les activités téléchargées avec le plan de la semaine.
 
@@ -1401,8 +1423,8 @@ def run() -> dict:
         _, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
                                                      thresholds, race_date)
         # Marque chaque séance comme générée par IA
-        ideal_week_plan = [{**p, "generated_by_ia": True} for p in ideal_week_plan]
-        next_week_plan  = [{**p, "generated_by_ia": True} for p in next_week_plan]
+        ideal_week_plan = recalc_duration_from_blocks([{**p, "generated_by_ia": True} for p in ideal_week_plan])
+        next_week_plan  = recalc_duration_from_blocks([{**p, "generated_by_ia": True} for p in next_week_plan])
         ia_plans_source = "ia"
 
     # ── Plan adaptatif (semaine en cours) — généré par IA chaque jour ────────
@@ -1414,7 +1436,7 @@ def run() -> dict:
     )
 
     if ia_adaptive_days:
-        plan = [{**p, "generated_by_ia": True} for p in ia_adaptive_days]
+        plan = recalc_duration_from_blocks([{**p, "generated_by_ia": True} for p in ia_adaptive_days])
         ia_adaptive_source = "ia"
     else:
         # Fallback algorithmique
