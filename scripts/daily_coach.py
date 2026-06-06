@@ -932,21 +932,14 @@ def generate_adaptive_plan_ia(
         for i in range(today.weekday(), 7)
     )
 
-    prompt = f"""Semaine {week_monday.isoformat()}→{week_sunday.isoformat()} | Aujourd'hui : {today.isoformat()}
-TSB {tsb:+.1f} (CTL {ctl:.1f}/ATL {atl:.1f}) | {form.get("label","?")}
-TSS cible : {tss_target} | réalisé : {tss_done_week:.0f} | restant futurs : {tss_remaining:.0f} [{int(tss_remaining*0.92)}–{int(tss_remaining*1.08)}]
-
-Plan théorique :
-{chr(10).join(plan_summary)}
-
-Activités réalisées :
-{chr(10).join(acts_summary) if acts_summary else "  Aucune."}
-
-Jours passés ({past_dates_str}) → status done/past_missed, blocks=[].
-Jours futurs+aujourd'hui ({future_dates_str}) → blocs % intensité uniquement (pas d'allures/watts, pas de warmup/cooldown).
-DURÉE STRICTE : Mardi, Mercredi, Jeudi → somme duration_min de tous les blocs ≤ 60 min. Dimanche libre. Aucune exception.
-
-JSON : {{"adaptations":["..."],"days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","adaptation":null,"status":"done|past_missed|today|todo","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}}"""
+    t = profile.get("training", {})
+    prompt = f"""Sem {week_monday.isoformat()}→{week_sunday.isoformat()} aujourd'hui={today.isoformat()}
+TSB{tsb:+.0f} CTL{ctl:.0f} ATL{atl:.0f} | TSScible={tss_target} fait={tss_done_week:.0f} restant={tss_remaining:.0f}
+Plan: {" | ".join(plan_summary)}
+Réalisé: {" | ".join(acts_summary) if acts_summary else "aucun"}
+Passés({past_dates_str})→done/past_missed blocks=[] | Futurs({future_dates_str})→%intensité uniquement
+Contraintes: mar/mer/jeu≤{t.get("max_weekday_duration_min",60)}min dim≤{t.get("max_weekend_duration_min",180)}min {t.get("weekly_sessions_target",5)}séances/sem max. Swim→distance_m. Run/Vélo→warmup {t.get("warmup_min",10)}' Z1 premier bloc + cooldown {t.get("cooldown_min",5)}' Z1 dernier bloc (inclus dans durée totale). Aucune exception.
+JSON: {{"adaptations":["..."],"days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","adaptation":null,"status":"done|past_missed|today|todo","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}}"""
 
     try:
         import anthropic

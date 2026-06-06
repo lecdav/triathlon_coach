@@ -46,3 +46,7 @@ training:
   strength_sessions_per_week: 1     # 1 séance renforcement musculaire obligatoire/sem
   rest_day: "monday"
   long_session_day: "sunday"
+  max_weekday_duration_min: 60      # durée max séances de semaine (mar/mer/jeu) en minutes
+  max_weekend_duration_min: 180     # durée max sortie longue (dimanche) en minutes
+  warmup_min: 10                    # durée échauffement obligatoire (Run/Vélo)
+  cooldown_min: 5                   # durée retour au calme obligatoire (Run/Vélo)

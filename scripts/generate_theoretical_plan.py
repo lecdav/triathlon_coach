@@ -1,12 +1,12 @@
-"""generate_plans.py — Génère les plans théoriques des 2 semaines à venir via Claude IA.
+"""generate_theoretical_plan.py — Génère les plans théoriques des 2 semaines à venir via Claude IA.
 
 À exécuter le dimanche soir (ou manuellement à tout moment).
 Stocke le résultat dans data/weekly_plans.json, lu ensuite par daily_coach.py.
 
 Usage :
-    python scripts/generate_plans.py              # génère à partir d'aujourd'hui
-    python scripts/generate_plans.py --dry-run    # affiche le prompt sans appeler l'API
-    python scripts/generate_plans.py --force      # force la régénération même si déjà fait cette semaine
+    python scripts/generate_theoretical_plan.py              # génère à partir d'aujourd'hui
+    python scripts/generate_theoretical_plan.py --dry-run    # affiche le prompt sans appeler l'API
+    python scripts/generate_theoretical_plan.py --force      # force la régénération même si déjà fait cette semaine
 """
 
 from __future__ import annotations
@@ -111,6 +111,13 @@ def build_prompt(
     race_name = profile.get("season", {}).get("race", {}).get("name", "Course objectif")
     weeks_to_race = (date.fromisoformat(race_date_str) - week1_monday).days // 7 if race_date_str != "inconnue" else "?"
 
+    # Contraintes d'entraînement depuis le profil
+    training_prefs = profile.get("training", {})
+    max_weekday_min = training_prefs.get("max_weekday_duration_min", 60)
+    max_weekend_min = training_prefs.get("max_weekend_duration_min", 180)
+    weekly_sessions = training_prefs.get("weekly_sessions_target", 5)
+    strength_per_week = training_prefs.get("strength_sessions_per_week", 1)
+
     ctx1 = bloc_context(week1_monday, profile)
     ctx2 = bloc_context(week2_monday, profile)
     # TSS cibles IA (depuis periodization.json) ou fallback profil
@@ -133,56 +140,22 @@ def build_prompt(
     w1_days = week_dates(week1_monday)
     w2_days = week_dates(week2_monday)
 
-    prompt = f"""# Contexte athlète
+    w1_days_str = " ".join(d["date"] for d in w1_days)
+    w2_days_str = " ".join(d["date"] for d in w2_days)
 
-**Athlète** : {profile.get("identity", {}).get("name", "David")}, amateur confirmé
-**Objectif** : {race_name} le {race_date_str} ({weeks_to_race} semaines)
-**Point fort** : {profile.get("performance_level", {}).get("primary_discipline_strength", "Vélo")}
-**Point faible** : {profile.get("performance_level", {}).get("primary_discipline_weakness", "Natation")}
+    prompt = f"""Triathlon M {race_date_str} ({weeks_to_race}sem) | FTP:{ftp}W seuil:{thr_run} CSS:{css}
+CTL:{wellness.get("ctl",0):.0f} ATL:{wellness.get("atl",0):.0f} TSB:{wellness.get("tsb",0):+.0f}
+Activités récentes: {" | ".join(recent_summary) if recent_summary else "aucune"}
+Structure: Lun=Repos Mar=Run Mer=Swim Jeu=VirtualRide Ven=Strength Sam=Repos Dim=SortieLongue({"VirtualRide" if week1_monday.isocalendar()[1] % 2 == 0 else "Run"} sem paire/impaire)
 
-# Références physiologiques (pour contexte seulement — NE PAS calculer les allures)
+S1 {w1_days_str} phase={ctx1["phase"]} bloc={ctx1["bloc_week"]}/5 {"RECUP" if ctx1["is_recovery"] else "CHARGE"} TSS={tss1}±5%
+S2 {w2_days_str} phase={ctx2["phase"]} bloc={ctx2["bloc_week"]}/5 {"RECUP" if ctx2["is_recovery"] else "CHARGE"} TSS={tss2}±5%
 
-- FTP vélo : {ftp} W
-- Seuil CAP : {thr_run}
-- CSS natation : {css}
+Contraintes: mar/mer/jeu≤{max_weekday_min}min | dim≤{max_weekend_min}min | {weekly_sessions}séances/sem max dont {strength_per_week} muscu
+Règles: Repos→blocks=[] | Strength→strength_exercise | Swim→warmup+cooldown en distance_m (jamais durée) | Run/Vélo→warmup {training_prefs.get('warmup_min',10)}' Z1 en premier bloc + cooldown {training_prefs.get('cooldown_min',5)}' Z1 en dernier bloc (inclus dans durée totale) | Récup→Z1-Z2 uniquement | Progression S1→S2 visible | TSS±5% | 1×anaerobic Z5-Z6 (3-6×20-30s r=2-3') mar ou jeu (hors récup)
 
-# Forme du moment (PMC Coggan)
-
-- CTL : {wellness.get("ctl", 0):.1f} | ATL : {wellness.get("atl", 0):.1f} | TSB : {wellness.get("tsb", 0):.1f}
-
-# Activités récentes (2 dernières semaines)
-
-{chr(10).join(recent_summary) if recent_summary else "  Aucune activité récente."}
-
-# Structure hebdomadaire fixe
-
-- Lundi : Repos
-- Mardi : Run (séance qualité avec intervalles)
-- Mercredi : Swim (endurance + technique)
-- Jeudi : VirtualRide (home trainer, séance seuil/sweet spot)
-- Vendredi : Strength (renforcement musculaire, sans écha cardio)
-- Samedi : Repos
-- Dimanche : Sortie longue — semaine ISO {week1_monday.isocalendar()[1]} ({"paire → VirtualRide longue" if week1_monday.isocalendar()[1] % 2 == 0 else "impaire → Run longue"})
-
-# Séances à planifier
-
-## SEMAINE 1 — {week1_monday.isoformat()} au {(week1_monday + timedelta(days=6)).isoformat()}
-- Phase : {ctx1["phase"]} | Semaine {ctx1["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION" if ctx1["is_recovery"] else "CHARGE"})
-- **TSS CIBLE : {tss1}** — la somme des tss_estimate de tous les jours doit être entre {int(tss1*0.95)} et {int(tss1*1.05)}
-- Jours : {[d["date"] + " " + d["weekday_fr"] for d in w1_days]}
-
-## SEMAINE 2 — {week2_monday.isoformat()} au {(week2_monday + timedelta(days=6)).isoformat()}
-- Phase : {ctx2["phase"]} | Semaine {ctx2["bloc_week"]}/5 du bloc ({"RÉCUPÉRATION" if ctx2["is_recovery"] else "CHARGE"})
-- **TSS CIBLE : {tss2}** — la somme des tss_estimate de tous les jours doit être entre {int(tss2*0.95)} et {int(tss2*1.05)}
-- Jours : {[d["date"] + " " + d["weekday_fr"] for d in w2_days]}
-
-Réponds UNIQUEMENT avec ce JSON (sans markdown). Pas d'allures/watts — % intensité uniquement, duration_min/tss_estimate calculés par l'app.
-
-{{"week1":{{"monday":"{week1_monday.isoformat()}","tss_target":{tss1},"bloc_week":{ctx1["bloc_week"]},"is_recovery":{"true" if ctx1["is_recovery"] else "false"},"phase":"{ctx1["phase"]}","coach_note":"...","days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}},"week2":{{"monday":"{week2_monday.isoformat()}","tss_target":{tss2},"bloc_week":{ctx2["bloc_week"]},"is_recovery":{"true" if ctx2["is_recovery"] else "false"},"phase":"{ctx2["phase"]}","coach_note":"...","days":[...]}}}}
-
-Règles : Repos→blocks=[] | Strength→type="strength_exercise"+description | Swim→inclure warmup/cooldown blocs | Run/Vélo→PAS de warmup/cooldown | Récup→Z1-Z2 uniquement, pas de Z4-Z5 | Progression S1→S2 visible (+1 rep OU +2' OU +10' sortie longue) | TSS hebdo dans ±5% cible | 1 séquence high anaerobic Z5-Z6 (3-6×20-30s, récup 2-3') sur Run mardi OU Vélo jeudi par semaine (pas récup).
-
-NATATION — règle impérative : les blocs natation sont TOUJOURS exprimés en distance (mètres), jamais en durée. Utilise "distance_m" à la place de "duration_min" pour les blocs Swim. Exemples corrects : warmup 400m, intervalles 8×100m ou 6×200m, cooldown 200m. Jamais "5 minutes à telle allure" — en piscine on programme par longueurs."""
+JSON uniquement, sans markdown:
+{{"week1":{{"monday":"{week1_monday.isoformat()}","tss_target":{tss1},"bloc_week":{ctx1["bloc_week"]},"is_recovery":{"true" if ctx1["is_recovery"] else "false"},"phase":"{ctx1["phase"]}","coach_note":"...","days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}},"week2":{{"monday":"{week2_monday.isoformat()}","tss_target":{tss2},"bloc_week":{ctx2["bloc_week"]},"is_recovery":{"true" if ctx2["is_recovery"] else "false"},"phase":"{ctx2["phase"]}","coach_note":"...","days":[...]}}}}"""
 
     return prompt
 
