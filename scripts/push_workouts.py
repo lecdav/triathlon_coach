@@ -189,30 +189,42 @@ def _swim_pace(thresholds: dict, pct_low: float, pct_high: float) -> str:
     return f"{mf}:{sf:02d}-{ms}:{ss:02d}/100m pace"
 
 
-def _pct_to_target(sport: str, pct: int, thresholds: dict) -> str:
-    """Convertit intensity_pct d'un block IA → cible Intervals.icu.
+# Correspondance zones textuelles → intensity_pct approximatif
+_ZONE_TO_PCT: dict[str, int] = {
+    "Z1": 55, "Z2": 68, "Z3": 80, "Z4": 90, "Z5": 105, "Z6": 118,
+}
 
-    Vélo  : % FTP direct (ex: "88-94%")
-    CAP   : allure absolue depuis % seuil (ex: "5:04-5:20 pace")
-    Swim  : allure absolue /100m (ex: "1:55-2:05/100m pace")
-    Autres: zone HR générique
+def _zone_str_to_pct(zone: str) -> int | None:
+    """Extrait un % approximatif depuis une zone textuelle ('Z2', 'Z3-Z4', etc.)."""
+    import re
+    zones = re.findall(r"Z\d", zone.upper())
+    if not zones:
+        return None
+    pcts = [_ZONE_TO_PCT.get(z) for z in zones if z in _ZONE_TO_PCT]
+    return round(sum(p for p in pcts if p) / len(pcts)) if pcts else None
+
+
+def _pct_to_target(sport: str, pct: int, thresholds: dict) -> str:
+    """Convertit intensity_pct d'un block IA → cible Intervals.icu valide.
+
+    Vélo  : plage % FTP  (ex: "85-91%")
+    CAP   : plage allure absolue (ex: "5:04-5:20 pace")
+    Swim  : plage allure /100m  (ex: "1:55-2:05/100m pace")
     """
-    if sport in ("VirtualRide", "Ride"):
-        lo = max(pct - 3, pct - 3)
-        hi = pct + 3
+    if sport in ("VirtualRide", "Ride", "Brick (Bike+Run)"):
+        lo, hi = pct - 3, pct + 3
         return f"{lo}-{hi}%"
     elif sport == "Run":
-        # pct est la % du seuil — convertir en plage d'allure ±3%
         p = pct / 100.0
         return _run_pace(thresholds, p * 0.97, p * 1.03)
     elif sport == "Swim":
         p = pct / 100.0
         return _swim_pace(thresholds, p * 0.97, p * 1.03)
-    elif sport == "Brick (Bike+Run)":
-        lo = pct - 3
-        hi = pct + 3
-        return f"{lo}-{hi}%"
-    return f"Z2 HR"
+    # Fallback : FC max comme proxy si aucun sport reconnu
+    hr_max = thresholds.get("hr_max", 190)
+    lo_hr = round(hr_max * (pct - 3) / 100)
+    hi_hr = round(hr_max * (pct + 3) / 100)
+    return f"{lo_hr}-{hi_hr} bpm"
 
 
 def _blocks_to_steps(item: dict, thresholds: dict) -> list[str]:
@@ -225,7 +237,10 @@ def _blocks_to_steps(item: dict, thresholds: dict) -> list[str]:
         dur   = b.get("duration_min", 0)
         reps  = b.get("reps", 1)
         recov = b.get("recovery_min", 0)
-        pct   = b.get("intensity_pct", 65)
+        pct = b.get("intensity_pct") or 0
+        if not pct:
+            # intensity_pct absent → convertir zone textuelle en pct approx
+            pct = _zone_str_to_pct(b.get("zone", "")) or 65
         target = _pct_to_target(sport, pct, thresholds)
 
         if reps > 1:
