@@ -766,7 +766,7 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
     Si le fichier n'existe pas ou est obsolète, retourne des listes vides.
 
     Logique de correspondance :
-    - generate_plans.py est exécuté le dimanche soir et génère les plans des
+    - generate_theoretical_plan.py est exécuté le dimanche soir et génère les plans des
       2 semaines SUIVANTES (week1 = lundi prochain, week2 = lundi dans 14j).
     - daily_coach.py tourne toute la semaine : il doit accepter week1 comme
       plan de la semaine en cours dès que week1.monday == lundi de cette semaine.
@@ -944,6 +944,7 @@ Activités réalisées :
 
 Jours passés ({past_dates_str}) → status done/past_missed, blocks=[].
 Jours futurs+aujourd'hui ({future_dates_str}) → blocs % intensité uniquement (pas d'allures/watts, pas de warmup/cooldown).
+DURÉE STRICTE : Mardi, Mercredi, Jeudi → somme duration_min de tous les blocs ≤ 60 min. Dimanche libre. Aucune exception.
 
 JSON : {{"adaptations":["..."],"days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","sport":"Repos|Run|Swim|VirtualRide|Strength","type":"...","rationale":"...","adaptation":null,"status":"done|past_missed|today|todo","blocks":[{{"type":"endurance|interval|recovery|strength_exercise","duration_min":20,"reps":1,"recovery_min":0,"intensity_pct":75,"zone":"Z2","description":""}}]}}]}}"""
 

@@ -1,7 +1,7 @@
 """claude_client.py — Wrapper pour l'API Anthropic (Claude Sonnet).
 
 Utilisé par :
-  - generate_plans.py  : génération des plans théoriques (dimanche)
+  - generate_theoretical_plan.py  : génération des plans théoriques (dimanche)
   - daily_coach.py     : plan adaptatif mis à jour chaque jour
 
 Priorité clé API :
