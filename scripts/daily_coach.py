@@ -316,9 +316,11 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                         rationale="Jour de repos défini dans ton profil — supercompensation.")
         elif weekday == "tuesday":
             # Séance de qualité CAP (intervalles VO2max si frais, sinon Z2)
+            # Plafond 60 min en semaine (hors week-end)
+            _run_weekday = min(avg_run["avg_minutes"], 60)
             if deload:
                 item.update(sport="Run", type="Endurance souple",
-                            duration_min=avg_run["avg_minutes"],
+                            duration_min=_run_weekday,
                             structure=f"20' échauffement : 10' trot Z1 + 5' gammes légères + 5' Z2 → "
                                       f"footing continu en Z2 ({p_run_easy}) → "
                                       f"5' retour au calme marche/trot Z1.",
@@ -326,7 +328,7 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                             rationale="Volume sans intensité, ATL trop élevé.")
             else:
                 item.update(sport="Run", type="VO2max — intervalles courts",
-                            duration_min=max(avg_run["avg_minutes"], 45),
+                            duration_min=max(min(avg_run["avg_minutes"], 60), 45),
                             structure=f"20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → "
                                       f"6 à 8 × 3' à allure 5km ({p_run_z4}) r=2' trot → "
                                       f"5' retour au calme trot léger.",
@@ -344,18 +346,19 @@ def build_weekly_plan(today: date, form: dict, profile: dict, thresholds: dict,
                         rationale="Séance natation hebdomadaire unique (~50 min). "
                                   "CSS bloc principal pour maintenir la technique et l'endurance spécifique.")
         elif weekday == "thursday":
-            # Vélo seuil sur HT
+            # Vélo seuil sur HT — plafond 60 min en semaine
+            _bike_weekday = min(avg_bike["avg_minutes"], 60)
             if deload:
                 item.update(sport="VirtualRide", type="Endurance",
-                            duration_min=avg_bike["avg_minutes"],
+                            duration_min=_bike_weekday,
                             structure=f"15' échauffement progressif Z1→Z2 (cadence libre) → "
-                                      f"Z2 continu {z2_low}-{z2_high} W (~{max(int(avg_bike['avg_minutes']) - 20, 20)}') → "
+                                      f"Z2 continu {z2_low}-{z2_high} W (~{max(int(_bike_weekday) - 20, 20)}') → "
                                       f"5' retour au calme Z1 (<{z2_low} W).",
                             zones=f"Z2 — {z2_low}-{z2_high} W",
                             rationale="Volume aérobie pur, pas de stress neuromusculaire.")
             else:
                 item.update(sport="VirtualRide", type="Seuil — sweet spot",
-                            duration_min=max(avg_bike["avg_minutes"], 60),
+                            duration_min=max(min(avg_bike["avg_minutes"], 60), 45),
                             structure=f"15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → "
                                       f"3×12' à {z4_low}-{ftp} W r=4' Z1 → "
                                       f"5' retour au calme Z1 (<{z2_low} W, cadence souple).",
