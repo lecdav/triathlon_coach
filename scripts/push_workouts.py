@@ -356,21 +356,14 @@ def plan_item_to_event(item: dict, thresholds: dict) -> dict | None:
     intervals_type = SPORT_TYPE_MAP.get(sport)
     if intervals_type is None:
         return None  # Repos → pas d'event
+    if not item.get("duration_min"):
+        return None  # durée inconnue → on ne pushe pas
 
     workout_text = build_workout_text(item, thresholds)
     workout_name = build_workout_name(item, workout_text, thresholds)
 
-    # Description = steps structurés en markdown + notes contextuelles
-    description_parts = []
-    if workout_text:
-        description_parts.append(workout_text)
-    if item.get("structure"):
-        description_parts.append(f"\n---\n{item['structure']}")
-    if item.get("zones"):
-        description_parts.append(f"Zones cibles : {item['zones']}")
-    if item.get("rationale"):
-        description_parts.append(f"💡 {item['rationale']}")
-    description = "\n\n".join(description_parts)
+    # Description = uniquement les steps structurés (parsés par Intervals.icu → Garmin)
+    description = workout_text or ""
 
     event: dict = {
         "start_date_local": f"{item['date']}T09:00:00",
