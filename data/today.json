@@ -1,21 +1,21 @@
 {
-  "today": "2026-08-29",
-  "generated_at": "2026-08-29T04:05:21",
+  "today": "2026-08-30",
+  "generated_at": "2026-08-30T01:10:54",
   "week_monday": "2026-08-24",
   "week_sunday": "2026-08-30",
   "form": {
-    "label": "Frais",
-    "code": "FRAIS",
-    "color": "green",
-    "emoji": "🟩",
-    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
+    "label": "Trop frais / détraîné",
+    "code": "DETRAINE",
+    "color": "orange",
+    "emoji": "🟦",
+    "guidance": "Vous décrochez la charge — augmentez progressivement."
   },
   "metrics": {
-    "ctl": 33.85313,
-    "atl": 23.037498,
-    "tsb": 10.815632,
-    "ramp_rate": -2.7081947,
-    "resting_hr": 57,
+    "ctl": 32.068714,
+    "atl": 15.0084715,
+    "tsb": 17.0602425,
+    "ramp_rate": -3.6323853,
+    "resting_hr": null,
     "sleep_hours": null,
     "hrv_status": null
   },
@@ -67,12 +67,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-05-31",
-      "ctl": 38.28,
-      "atl": 39.89,
-      "tsb": -1.6
-    },
     {
       "date": "2026-06-01",
       "ctl": 37.38,
@@ -609,14 +603,20 @@
     },
     {
       "date": "2026-08-29",
-      "ctl": 33.85,
-      "atl": 23.04,
-      "tsb": 10.82
+      "ctl": 32.84,
+      "atl": 17.31,
+      "tsb": 15.53
+    },
+    {
+      "date": "2026-08-30",
+      "ctl": 32.07,
+      "atl": 15.01,
+      "tsb": 17.06
     }
   ],
   "load_7d": {
     "total_load": 84,
-    "total_minutes": 182.98333333333335,
+    "total_minutes": 102.81666666666666,
     "by_sport": {
       "Run": {
         "count": 1,
@@ -635,18 +635,12 @@
         "minutes": 28.3,
         "load": 9,
         "distance_km": 1.2
-      },
-      "Walk": {
-        "count": 1,
-        "minutes": 80.16666666666667,
-        "load": 0,
-        "distance_km": 36.28471
       }
     }
   },
   "load_28d": {
-    "total_load": 862,
-    "total_minutes": 1040.5,
+    "total_load": 853,
+    "total_minutes": 1015.6833333333334,
     "by_sport": {
       "Run": {
         "count": 4,
@@ -661,10 +655,10 @@
         "distance_km": 0.0
       },
       "Swim": {
-        "count": 3,
-        "minutes": 97.6,
-        "load": 38,
-        "distance_km": 3.9749999999999996
+        "count": 2,
+        "minutes": 72.78333333333333,
+        "load": 29,
+        "distance_km": 2.9749999999999996
       },
       "Walk": {
         "count": 2,
@@ -714,11 +708,11 @@
       "avg_load": 46
     },
     "Swim": {
-      "count_4w": 3,
-      "per_week": 0.8,
-      "avg_minutes": 33,
-      "avg_distance_km": 1.3,
-      "avg_load": 13
+      "count_4w": 2,
+      "per_week": 0.5,
+      "avg_minutes": 36,
+      "avg_distance_km": 1.5,
+      "avg_load": 14
     },
     "Walk": {
       "count_4w": 2,
@@ -761,7 +755,7 @@
       "date": "2026-08-24",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -5,
+      "rel_day": -6,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -776,7 +770,7 @@
       "date": "2026-08-25",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -4,
+      "rel_day": -5,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -791,7 +785,7 @@
       "date": "2026-08-26",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": -3,
+      "rel_day": -4,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -806,7 +800,7 @@
       "date": "2026-08-27",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 48,
@@ -821,7 +815,7 @@
       "date": "2026-08-28",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -836,7 +830,7 @@
       "date": "2026-08-29",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -851,7 +845,7 @@
       "date": "2026-08-30",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 1,
+      "rel_day": 0,
       "sport": "Brick (Bike+Run)",
       "type": "Spécifique triathlon",
       "duration_min": 95,
@@ -992,7 +986,7 @@
       "weekday_fr": "Lundi",
       "sport": "Repos",
       "type": "Récupération",
-      "rationale": "Repos planifié et respecté",
+      "rationale": "Repos planifié",
       "adaptation": null,
       "status": "done",
       "blocks": [],
@@ -1005,8 +999,8 @@
       "weekday_fr": "Mardi",
       "sport": "Swim",
       "type": "Endurance + technique",
-      "rationale": "Swim réalisée 28' 1.2km TSS=9 — anticipation du mercredi, volume réduit vs plan initial",
-      "adaptation": "Séance réalisée mardi au lieu de mercredi avec volume/intensité réduits",
+      "rationale": "Swim 28' réalisée au lieu de Run VO2max prévue",
+      "adaptation": null,
       "status": "done",
       "blocks": [],
       "weekday": "Tuesday",
@@ -1027,7 +1021,7 @@
       "weekday_fr": "Mercredi",
       "sport": "Repos",
       "type": "Récupération",
-      "rationale": "Swim planifiée non effectuée (réalisée mardi) — jour manqué",
+      "rationale": "Aucune séance enregistrée",
       "adaptation": null,
       "status": "past_missed",
       "blocks": [],
@@ -1040,8 +1034,8 @@
       "weekday_fr": "Jeudi",
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
-      "rationale": "VirtualRide réalisée 44' TSS=42 — durée/intensité réduites vs 48' TSS=62 planifiés",
-      "adaptation": "Durée -8%, TSS -32% vs plan initial",
+      "rationale": "VirtualRide 44' TSS 42 réalisée (volume et intensité réduits vs prévu)",
+      "adaptation": null,
       "status": "done",
       "blocks": [],
       "weekday": "Thursday",
@@ -1061,9 +1055,9 @@
       "date": "2026-08-28",
       "weekday_fr": "Vendredi",
       "sport": "Run",
-      "type": "Endurance aérobie",
-      "rationale": "Run réalisée 30' 4.9km TSS=33 au lieu de Strength planifié — substitution cardio légère",
-      "adaptation": "Substitution Strength→Run, intensité modérée",
+      "type": "Endurance",
+      "rationale": "Run 30' TSS 33 réalisée au lieu de Strength prévue",
+      "adaptation": null,
       "status": "done",
       "blocks": [],
       "weekday": "Friday",
@@ -1084,25 +1078,22 @@
       "weekday_fr": "Samedi",
       "sport": "Repos",
       "type": "Récupération",
-      "rationale": "Repos confirmé — TSB +11 excellent, préservation fraîcheur avant brick dimanche (séance clé 95' TSS=96)",
+      "rationale": "Repos planifié",
       "adaptation": null,
-      "status": "today",
+      "status": "done",
       "blocks": [],
       "weekday": "Saturday",
       "actual_activities": [],
-      "duration_min": 0,
-      "tss_estimate": 0,
-      "zones": "—",
       "generated_by_ia": true
     },
     {
       "date": "2026-08-30",
       "weekday_fr": "Dimanche",
       "sport": "Brick",
-      "type": "Spécifique triathlon",
-      "rationale": "Brick vélo+CAP 95' TSS=96 — séance clé adaptation neuromusculaire triathlon, Z2-Z3 dominante avec transition spécifique",
-      "adaptation": null,
-      "status": "todo",
+      "type": "Spécifique triathlon — Bike Z3 + Run Z2-Z3",
+      "rationale": "Séance brick maintenue pour développer adaptation neuromusculaire vélo→course (Vleck 2006). TSB +17 permet charge élevée. Compense manques qualitatifs semaine (Run VO2max non faite, Bike sous-dosé, Strength absente). Structure: Bike Z3 tempo 60' + transition + Run progression Z2→Z3 20'. TSS cible ~96.",
+      "adaptation": "Maintenue intégralement malgré sous-réalisation hebdomadaire car TSB élevé indique capacité, et séance brick essentielle pour spécificité triathlon",
+      "status": "today",
       "blocks": [
         {
           "type": "endurance",
@@ -1111,76 +1102,75 @@
           "recovery_min": 0,
           "intensity_pct": 65,
           "zone": "Z1",
-          "description": "Warmup vélo Z1"
+          "description": "Warmup vélo — échauffement progressif"
         },
         {
           "type": "endurance",
-          "duration_min": 45,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 78,
-          "zone": "Z2",
-          "description": "Vélo Z2 tempo — endurance aérobie"
-        },
-        {
-          "type": "interval",
-          "duration_min": 8,
-          "reps": 2,
-          "recovery_min": 2,
-          "intensity_pct": 88,
-          "zone": "Z3",
-          "description": "Vélo Z3 seuil — 2x8' récup 2' Z1"
-        },
-        {
-          "type": "recovery",
-          "duration_min": 3,
-          "reps": 1,
-          "recovery_min": 0,
-          "intensity_pct": 60,
-          "zone": "Z1",
-          "description": "Transition vélo→CAP Z1 facile"
-        },
-        {
-          "type": "endurance",
-          "duration_min": 18,
+          "duration_min": 50,
           "reps": 1,
           "recovery_min": 0,
           "intensity_pct": 82,
           "zone": "Z3",
-          "description": "CAP Z3 tempo post-vélo — adaptation neuromusculaire brick"
+          "description": "Tempo vélo — rythme soutenu continu, cadence 85-90 rpm"
         },
         {
           "type": "recovery",
           "duration_min": 5,
           "reps": 1,
           "recovery_min": 0,
-          "intensity_pct": 65,
+          "intensity_pct": 60,
           "zone": "Z1",
-          "description": "Cooldown CAP Z1"
+          "description": "Cooldown vélo + transition T2"
+        },
+        {
+          "type": "endurance",
+          "duration_min": 10,
+          "reps": 1,
+          "recovery_min": 0,
+          "intensity_pct": 72,
+          "zone": "Z2",
+          "description": "Course à pied — adaptation jambes post-vélo, rythme confortable"
+        },
+        {
+          "type": "endurance",
+          "duration_min": 10,
+          "reps": 1,
+          "recovery_min": 0,
+          "intensity_pct": 80,
+          "zone": "Z3",
+          "description": "Course à pied — progression tempo, sensation spécifique triathlon"
+        },
+        {
+          "type": "recovery",
+          "duration_min": 5,
+          "reps": 1,
+          "recovery_min": 0,
+          "intensity_pct": 60,
+          "zone": "Z1",
+          "description": "Cooldown course — retour au calme progressif"
         }
       ],
       "weekday": "Sunday",
       "actual_activities": [],
-      "duration_min": 99,
-      "structure": "119' : 15' progressif Z1→Z2 + 3×30s à 100rpm → Warmup vélo Z1 | Vélo Z2 tempo — endurance aérobie | Vélo Z3 seuil — 2x8' récup 2' Z1 | Transition vélo→CAP Z1 facile | CAP Z3 tempo post-vélo — adaptation neuromusculaire brick | Cooldown CAP Z1 → 5' trot léger Z1",
+      "duration_min": 90,
+      "structure": "110' : 15' progressif Z1→Z2 + 3×30s à 100rpm → Warmup vélo — échauffement progressif | Tempo vélo — rythme soutenu continu, cadence 85-90 rpm | Cooldown vélo + transition T2 | Course à pied — adaptation jambes post-vélo, rythme confortable | Course à pied — progression tempo, sensation spécifique triathlon | Cooldown course — retour au calme progressif → 5' trot léger Z1",
       "tss_estimate": 0,
       "zones": "Z1 + Z2 + Z3",
       "generated_by_ia": true
     }
   ],
   "weekly_plan_totals": {
-    "total_minutes": 99,
-    "total_minutes_str": "~1h40",
+    "total_minutes": 90,
+    "total_minutes_str": "~1h30",
     "total_tss": 0
   },
   "week_adaptations": [
-    "Vendredi 2026-08-28 : Run réalisée (30' TSS=33) au lieu de Strength planifié — séance cardio moins intensive que prévue",
-    "Jeudi 2026-08-27 : VirtualRide réalisée (44' TSS=42) au lieu de 48' TSS=62 — durée et intensité réduites (-32% TSS)",
-    "Mardi 2026-08-25 : Swim réalisée (28' 1.2km TSS=9) au lieu de Mercredi planifié — anticipation et volume réduit",
-    "Semaine sous-réalisée : 84 TSS accomplis vs 80 cible mais distribution sous-optimale (manques : VO2max Mardi, Endurance Mercredi, intensité Jeudi)",
-    "TSB +11 indique récupération excellente, CTL 34 stable — capacité à intensifier samedi/dimanche",
-    "Samedi 2026-08-29 (aujourd'hui) : maintien repos pour préserver fraîcheur avant brick dimanche",
-    "Dimanche 2026-08-30 : brick planifiée confirmée (95' TSS=96) — séance clé spécifique triathlon à intensité Z2-Z3 dominante avec transition vélo→CAP"
+    "Vendredi 28/08: Run 30' (TSS 33) au lieu de Strength prévu → charge inférieure (−12 TSS)",
+    "Jeudi 27/08: VirtualRide 44' (TSS 42) au lieu de 48' (TSS 62) prévu → volume et intensité réduits (−6 min, −20 TSS)",
+    "Mardi 25/08: Swim 28' (TSS 9) au lieu de Run VO2max prévu → discipline et charge très différentes (−45 TSS)",
+    "Semaine sous-réalisée: 84 TSS vs 80 TSS cible, mais distribution déséquilibrée (déficit qualité Run/Bike, manque renforcement)",
+    "TSB élevé (+17) et ATL faible (15) → capacité importante pour séance qualitative aujourd'hui",
+    "Dimanche 30/08: Brick Bike+Run spécifique triathlon maintenue à TSS 96 pour compenser manques qualitatifs et exploiter fraîcheur"
   ],
   "ia_plans_source": "algo",
   "ia_adaptive_source": "ia",
@@ -1208,5 +1198,5 @@
     "2026-08-17": 104,
     "2026-08-24": 84
   },
-  "coach_message": "# 🎯 Message Coach — David, samedi 29 août\n\n**La machine est prête, c'est maintenant !**\nTu es en excellente fenêtre de forme avec un TSB à +10.8 — frais et dynamique. Demain, c'est le jour J à Quimperlé, et tu arrives exactement où il faut : reposé mais pas déchargé.\n\n**Semaine solide, petit bémol**\nTrois séances de qualité en boîte (natation technique, seuil vélo, endurance CAP), mais tu as skippé la récupération de mercredi. Pas grave — c'est du passé. Aujourd'hui, c'est repos total : ton corps a besoin de sommeil, pas de culpabilité.\n\n**Tes vrais atouts demain :**\n- **FC repos à 57 bpm** : système nerveux parasympathique au top, tu auras de la réserve en fin de course\n- **CSS natation stable** (2:00/100m) : tu vas sortir de l'eau avec les jambes, c'est rare et précieux\n- **Dernier seuil vélo bien validé** : le sweet spot de jeudi va porter ses fruits sur le segment cycliste\n\n**Les trois règles pour demain :**\n1. **Start conservateur à la natation** — pas de bagarre inutile. Ton CSS te sortira du lot sur 750m\n2. **Reste aérobic au vélo** — tu as 250W de FTP mais la course ne le demande pas. Gère, économise, prépare la course à pied\n3. **La CAP décidera tout** — c'est ton point fort (4:53/km de seuil). Tu arrives frais, tes jambes seront là\n\n**Ici et maintenant :**\nDemain tu mets en application 4 mois de travail. Pas de doute, pas de rougeur mentale. Tu es prêt. Hydrate bien ce soir, dors 8h, et sois simplement *toi-même* sur le parcours.\n\nÀ demain. 💪"
+  "coach_message": "# Message Coach — David, 30 août\n\n**C'est le jour J !** Tu arrives frais comme un gardon (TSB +17), parfaitement décroché de la fatigue : c'est exactement ce qu'il faut pour exploser à Quimperlé ce matin.\n\n**Bilan de semaine** : Tu as tenu le programme malgré une séance manquée mercredi. Trois bonnes séances (natation technique, vélo seuil, CAP endurance) pour 84 TSS — c'est léger volontairement, et c'est la bonne stratégie avant une épreuve.\n\n**Ce qui marche chez toi** : Tes trois semaines d'affûtage t'ont vidé la fatigue accumulée (CTL en baisse nette). Tu sors d'une semaine à 213 TSS/sem sur quatre semaines — du travail sérieux mais pas écrasant. Et surtout, ta charge court terme (15 TSS) vs charge chronique (32 TSS) = le profil idéal d'un gars prêt à performer.\n\n**Sur ta course aujourd'hui** : Le Brick de ce matin (vélo Z3 + CAP Z2-Z3) n'est *pas* un test — c'est un dernier apprentissage jambes. Focus sur la fluidité T2, adapte-toi progressivement à la sensation post-vélo. Savoure, ne force pas.\n\n**Reste vigilant** : Hydrate et ravitaille pendant l'effort selon tes habitudes (pas d'expérience le jour J). Respire dans l'eau si la panique monte.\n\n**Tu es prêt.** À toi de jouer ! 💪"
 }
