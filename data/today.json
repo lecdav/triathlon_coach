@@ -1,20 +1,20 @@
 {
-  "today": "2026-09-30",
-  "generated_at": "2026-09-30T01:54:52",
+  "today": "2026-10-01",
+  "generated_at": "2026-10-01T01:55:13",
   "week_monday": "2026-09-28",
   "week_sunday": "2026-10-04",
   "form": {
-    "label": "Frais",
-    "code": "FRAIS",
+    "label": "Neutre / productif",
+    "code": "NEUTRE",
     "color": "green",
     "emoji": "🟩",
-    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
+    "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
   },
   "metrics": {
-    "ctl": 28.56787,
-    "atl": 18.617506,
-    "tsb": 9.950364,
-    "ramp_rate": -1.4300632,
+    "ctl": 30.67012,
+    "atl": 31.165445,
+    "tsb": -0.4953249999999976,
+    "ramp_rate": 1.3779888,
     "resting_hr": null,
     "sleep_hours": null,
     "hrv_status": null
@@ -67,12 +67,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-07-02",
-      "ctl": 38.53,
-      "atl": 39.99,
-      "tsb": -1.46
-    },
     {
       "date": "2026-07-03",
       "ctl": 38.1,
@@ -609,15 +603,27 @@
     },
     {
       "date": "2026-09-30",
-      "ctl": 28.57,
-      "atl": 18.62,
-      "tsb": 9.95
+      "ctl": 29.65,
+      "atl": 24.74,
+      "tsb": 4.91
+    },
+    {
+      "date": "2026-10-01",
+      "ctl": 30.67,
+      "atl": 31.17,
+      "tsb": -0.5
     }
   ],
   "load_7d": {
-    "total_load": 149,
-    "total_minutes": 135.28333333333333,
+    "total_load": 195,
+    "total_minutes": 190.68333333333334,
     "by_sport": {
+      "VirtualRide": {
+        "count": 1,
+        "minutes": 55.4,
+        "load": 46,
+        "distance_km": 0.0
+      },
       "Ride": {
         "count": 1,
         "minutes": 103.51666666666667,
@@ -633,9 +639,15 @@
     }
   },
   "load_28d": {
-    "total_load": 619,
-    "total_minutes": 692.9333333333333,
+    "total_load": 665,
+    "total_minutes": 748.3333333333334,
     "by_sport": {
+      "VirtualRide": {
+        "count": 5,
+        "minutes": 288.3333333333333,
+        "load": 225,
+        "distance_km": 0.0
+      },
       "Ride": {
         "count": 3,
         "minutes": 237.31666666666666,
@@ -648,12 +660,6 @@
         "load": 119,
         "distance_km": 20.61291
       },
-      "VirtualRide": {
-        "count": 4,
-        "minutes": 232.93333333333334,
-        "load": 179,
-        "distance_km": 0.0
-      },
       "Swim": {
         "count": 2,
         "minutes": 72.7,
@@ -663,6 +669,13 @@
     }
   },
   "session_profile": {
+    "VirtualRide": {
+      "count_4w": 5,
+      "per_week": 1.2,
+      "avg_minutes": 58,
+      "avg_distance_km": 0.0,
+      "avg_load": 45
+    },
     "Ride": {
       "count_4w": 3,
       "per_week": 0.8,
@@ -677,13 +690,6 @@
       "avg_distance_km": 5.2,
       "avg_load": 30
     },
-    "VirtualRide": {
-      "count_4w": 4,
-      "per_week": 1.0,
-      "avg_minutes": 58,
-      "avg_distance_km": 0.0,
-      "avg_load": 45
-    },
     "Swim": {
       "count_4w": 2,
       "per_week": 0.5,
@@ -697,7 +703,7 @@
       "date": "2026-09-28",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -712,7 +718,7 @@
       "date": "2026-09-29",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -727,7 +733,7 @@
       "date": "2026-09-30",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -742,7 +748,7 @@
       "date": "2026-10-01",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": 1,
+      "rel_day": 0,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 58,
@@ -757,7 +763,7 @@
       "date": "2026-10-02",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": 2,
+      "rel_day": 1,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -772,7 +778,7 @@
       "date": "2026-10-03",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 3,
+      "rel_day": 2,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -787,7 +793,7 @@
       "date": "2026-10-04",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 4,
+      "rel_day": 3,
       "sport": "Brick (Bike+Run)",
       "type": "Spécifique triathlon",
       "duration_min": 95,
@@ -927,7 +933,7 @@
       "date": "2026-09-28",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -2,
+      "rel_day": -3,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -943,7 +949,7 @@
       "date": "2026-09-29",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -1,
+      "rel_day": -2,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -959,7 +965,7 @@
       "date": "2026-09-30",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": 0,
+      "rel_day": -1,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -967,7 +973,7 @@
       "zones": "Z3-Z4 (CSS = 2:00/100m)",
       "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
       "tss_estimate": 39,
-      "status": "today",
+      "status": "past_missed",
       "actual_activities": [],
       "generated_by_ia": false
     },
@@ -975,7 +981,7 @@
       "date": "2026-10-01",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": 1,
+      "rel_day": 0,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
       "duration_min": 58,
@@ -983,15 +989,25 @@
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
       "tss_estimate": 75,
-      "status": "todo",
-      "actual_activities": [],
+      "status": "done",
+      "actual_activities": [
+        {
+          "name": "Indoor Cycling",
+          "type": "VirtualRide",
+          "duration_min": 55,
+          "distance_km": 0.0,
+          "tss": 46
+        }
+      ],
+      "sport_match": "displaced",
+      "displacement_note": "Séance réalisée le 2026-09-30 (déplacée)",
       "generated_by_ia": false
     },
     {
       "date": "2026-10-02",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": 2,
+      "rel_day": 1,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -1007,7 +1023,7 @@
       "date": "2026-10-03",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": 3,
+      "rel_day": 2,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -1024,7 +1040,7 @@
       "date": "2026-10-04",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 4,
+      "rel_day": 3,
       "sport": "Brick (Bike+Run)",
       "type": "Spécifique triathlon",
       "duration_min": 95,
@@ -1074,7 +1090,7 @@
     "2026-09-07": 159,
     "2026-09-14": 177,
     "2026-09-21": 183,
-    "2026-09-28": 0
+    "2026-09-28": 46
   },
-  "coach_message": "David, tu arrives à cette séance avec un TSB de +10.0 — tu es frais, bien récupéré. C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !\n\nUne séance a été manquée (Mardi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta progression maîtrisée (ramp rate -1.4 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~0.5 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Solidifier le running** — La CAP est ta discipline qui supporte le plus de blessures si on monte trop vite. On va augmenter progressivement la fréquence des sorties courtes en Z1-Z2 avant d'ajouter du volume. Allure cible endurance : autour de 4:53/km −20%.\n\n**Construire la base CTL** — Avec une CTL à 28.6, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** C'est la semaine de Triathlon M de Quimperlé. Repos, activation légère, confiance. L'entraînement est fait. Tu es prêt."
+  "coach_message": "TSB à -0.5 — tu es dans une zone neutre, ni surchargé ni sous-entraîné. C'est le quotidien du triathlete qui construit sérieusement. On continue.\n\nCette semaine, tu as déjà coché 1 séance (VirtualRide) pour environ 46 TSS réalisés. 2 séances ont été manquées (Mardi, Mercredi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta progression maîtrisée (ramp rate +1.4 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~0.5 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Solidifier le running** — La CAP est ta discipline qui supporte le plus de blessures si on monte trop vite. On va augmenter progressivement la fréquence des sorties courtes en Z1-Z2 avant d'ajouter du volume. Allure cible endurance : autour de 4:53/km −20%.\n\n**Construire la base CTL** — Avec une CTL à 30.7, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** C'est la semaine de Triathlon M de Quimperlé. Repos, activation légère, confiance. L'entraînement est fait. Tu es prêt."
 }
