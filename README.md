@@ -3,7 +3,7 @@
 Application de coaching triathlon personnalisée s'appuyant sur les données
 Intervals.icu (qui agrège elle-même Garmin / Strava / etc.).
 
-**Objectif : Triathlon M de Quimperlé — 30 août 2026**
+**Objectif : Triathlon M TriAtBain (Bain-de-Bretagne) — dimanche 2 mai 2027**
 
 ---
 
@@ -127,7 +127,7 @@ Cette tâche garantit que tu trouves chaque matin les données fraîches du jour
 - **Local** : ouvrir `index.html` dans un navigateur, ou via `python3 -m http.server 8080` puis `http://localhost:8080`
 
 Le dashboard affiche (dans l'ordre) :
-1. **Frise du plan de saison** — positionnement semaine par semaine jusqu'à Quimperlé, avec les phases et le volume cible
+1. **Frise du plan de saison** — positionnement semaine par semaine jusqu'à la course objectif, avec les phases et le volume cible
 2. **Plan adaptatif de la semaine** — séances réalisées (en vert) + reste à faire ajusté selon la fatigue
 3. **Plan idéal de la semaine** — plan théorique polarisé 80/20
 4. **État de forme** — bannière TSB + graphique PMC sur 3 mois
