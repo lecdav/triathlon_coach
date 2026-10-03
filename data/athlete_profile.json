@@ -119,7 +119,7 @@
 
   "race_format": {
     "drafting": false,
-    "bike_strategy": "Contre-la-montre solo (drafting interdit) : effort régulier piloté à la puissance, cible ~80-85% FTP (~215-230W NP avec FTP 270W visé). Position aéro tenue, pas de surrégime dans les relances ni les bosses, s'alimenter. Garder de la marge pour le run.",
+    "bike_strategy": "Contre-la-montre solo (drafting interdit) : effort régulier piloté à la puissance, cible ~80-85% FTP (~215-220W NP avec FTP 265W visée). Position aéro tenue, pas de surrégime dans les relances ni les bosses, s'alimenter. Garder de la marge pour le run.",
     "swim_strategy": "Nager à allure régulière proche CSS, départ contrôlé, se placer dans les pieds quand c'est possible (aspiration autorisée en natation). Sans drafting vélo, la natation pèse moins sur la suite de course : viser l'efficacité plutôt que le sprint pour accrocher un groupe.",
     "run_strategy": "Allure cible 5:12/km. Partir conservateur les 2 premiers km, accélérer si les sensations le permettent.",
     "notes": "TriAtBain (Bain-de-Bretagne) : drafting interdit sur le vélo. Le vélo redevient un effort individuel au seuil bas — la puissance soutenable (FTP) et la capacité à bien courir après un vélo solo (briques) sont les leviers principaux."
@@ -258,22 +258,22 @@
 
   "key_metrics_targets": {
     "race_day_targets": {
-      "total_time": "2:35:00",
-      "swim_time": "0:28:00",
+      "total_time": "2:40:00",
+      "swim_time": "0:29:00",
       "t1_time": "0:03:00",
-      "bike_time": "1:10:00",
+      "bike_time": "1:13:00",
       "t2_time": "0:02:00",
-      "run_time": "0:52:00",
-      "notes": "Objectif total 2h35 déclaré par David le 2026-05-24. Repris pour TriAtBain 2027, drafting interdit. Découpage estimé : natation 28' (1:52/100m), T1 3', vélo 1h10 (34.3 km/h en solo → ~215-230W normalisés, soit ~85% d'une FTP de 270W), T2 2', run 52' (5:12/km). Sans drafting, le vélo 1h10 suppose d'atteindre la FTP cible de 270W."
+      "run_time": "0:52:30",
+      "notes": "Objectif ajusté le 2026-10-03 pour TriAtBain 2027 (drafting interdit) : 2h40 au lieu de 2h35. Découpage : natation 29' (~1:55/100m), T1 3', vélo 1h13 (~32.9 km/h en solo, ~215-220W NP soit ~83% d'une FTP de 265W), T2 2', run 52'30 (5:15/km). Objectif ambitieux mais réaliste en 7 mois ; 2h35 reste l'objectif « jour parfait » si la FTP atteint 270W+."
     },
     "pre_race_fitness": {
       "ctl_target": 42,
       "ctl_peak_target": 50,
       "tsb_target_race_day": "+10 à +15",
-      "ftp_target_watts": 270,
-      "threshold_run_pace_target": "4:40/km",
-      "css_swim_target": "1:52/100m",
-      "notes": "Pour tenir 2h35 sans drafting (TriAtBain) : le vélo solo en 1h10 demande ~215-230W NP, soit ~85% d'une FTP de 270W (FTP actuelle 250W → +8% nécessaire, sinon prévoir plutôt ~1h13-1h14 au vélo). Allure run cible 5:12/km après un vélo solo exigeant → briques régulières indispensables. CSS natation 1:52/100m (vs 2:00 actuel → +7%)."
+      "ftp_target_watts": 265,
+      "threshold_run_pace_target": "4:45/km",
+      "css_swim_target": "1:55/100m",
+      "notes": "Pour tenir 2h40 sans drafting : FTP 265W (+6% vs 250W actuels) pour un vélo solo à ~215-220W NP. Seuil run 4:45/km (vs 4:53) pour courir à 5:15/km après le vélo → briques régulières indispensables. CSS natation 1:55/100m (vs 2:00 actuel, +4%)."
     }
   },
 
@@ -315,7 +315,12 @@
     {
       "date": "2026-10-03",
       "author": "David",
-      "note": "Format TriAtBain : drafting interdit sur le vélo. Stratégies course et cibles de puissance révisées (vélo solo ~215-230W NP, ~85% FTP 270W visée)."
+      "note": "Format TriAtBain : drafting interdit sur le vélo. Stratégies course et cibles de puissance révisées."
+    },
+    {
+      "date": "2026-10-03",
+      "author": "David",
+      "note": "Objectif chrono ajusté à 2h40 (natation 29', vélo 1h13, run 52'30) pour tenir compte du vélo solo. Cibles : FTP 265W, seuil run 4:45/km, CSS 1:55/100m."
     }
   ]
 }
