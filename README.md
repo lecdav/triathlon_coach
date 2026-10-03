@@ -3,7 +3,7 @@
 Application de coaching triathlon personnalisée s'appuyant sur les données
 Intervals.icu (qui agrège elle-même Garmin / Strava / etc.).
 
-**Objectif : Triathlon M — dimanche 2 mai 2027**
+**Objectif : Triathlon M TriAtBain (Bain-de-Bretagne) — dimanche 2 mai 2027**
 
 ---
 

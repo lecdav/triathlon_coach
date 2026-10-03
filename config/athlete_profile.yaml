@@ -31,7 +31,7 @@ zones:
 
 # Objectif principal
 race:
-  name: "Triathlon M — 2 mai 2027"
+  name: "Triathlon M TriAtBain — Bain-de-Bretagne"
   date: "2027-05-02"
   distances:
     swim_m: 1500

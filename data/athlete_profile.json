@@ -114,7 +114,7 @@
       "2027-04-19": 160,
       "2027-04-26": 90
     },
-    "notes": "Saison 2026-2027 : objectif Triathlon M du 02/05/2027 (30 semaines à partir du 05/10/2026). Cycles 4+1 (récup à ~65% du pic, reprise à ~88% du pic précédent, +7%/sem max). Pic S26 (05-11/04/2027, 335 TSS) puis affûtage 2 semaines + semaine de course. Saison précédente : Triathlon M de Quimperlé (30/08/2026)."
+    "notes": "Saison 2026-2027 : objectif Triathlon M TriAtBain (Bain-de-Bretagne) du 02/05/2027 (30 semaines à partir du 05/10/2026). Cycles 4+1 (récup à ~65% du pic, reprise à ~88% du pic précédent, +7%/sem max). Pic S26 (05-11/04/2027, 335 TSS) puis affûtage 2 semaines + semaine de course. Saison précédente : Triathlon M de Quimperlé (30/08/2026)."
   },
 
   "race_format": {
@@ -129,7 +129,7 @@
     "current_year": 2027,
     "start_date": "2026-10-05",
     "race": {
-      "name": "Triathlon M — 2 mai 2027",
+      "name": "Triathlon M TriAtBain — Bain-de-Bretagne",
       "date": "2027-05-02",
       "distance": "M",
       "swim_km": 1.5,
@@ -310,7 +310,7 @@
     {
       "date": "2026-10-03",
       "author": "David",
-      "note": "Nouvel objectif : Triathlon M le dimanche 2 mai 2027 (remplace Quimperlé du 30/08/2026). Phases de saison et TSS cibles hebdomadaires recalés sur 30 semaines (05/10/2026 → 02/05/2027). Format de course (drafting) et objectif chrono 2h35 repris de Quimperlé — à confirmer."
+      "note": "Nouvel objectif : Triathlon M TriAtBain à Bain-de-Bretagne, le dimanche 2 mai 2027 (remplace Quimperlé du 30/08/2026). Phases de saison et TSS cibles hebdomadaires recalés sur 30 semaines (05/10/2026 → 02/05/2027). Format de course (drafting) et objectif chrono 2h35 repris de Quimperlé — à confirmer."
     }
   ]
 }
