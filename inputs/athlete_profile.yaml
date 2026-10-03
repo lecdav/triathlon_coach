@@ -1,0 +1,428 @@
+# ════════════════════════════════════════════════════════════════════════
+# PROFIL ATHLÈTE — source unique de vérité
+#
+# C'est LE fichier à modifier pour changer l'objectif, les phases de la
+# saison, les seuils ou les préférences. Le moteur le lit
+# (engine/coach.py, engine/plans.py).
+#
+# Attention : garder les dates entre guillemets ('2027-05-02').
+# ════════════════════════════════════════════════════════════════════════
+
+_meta:
+  description: Profil athlète David — SOURCE UNIQUE pour la génération des plans, séances et rapports. À mettre
+    à jour au fil de la saison.
+  last_updated: '2026-10-03'
+  version: '2.0'
+
+# ──────────────────────────────────────────────────────────────────────
+# Saison & course objectif  ← À MODIFIER quand l'objectif change
+# Les phases pilotent la périodisation (plan du dimanche et rapport quotidien).
+# ──────────────────────────────────────────────────────────────────────
+season:
+  current_year: 2027
+  start_date: '2026-10-05'
+  race:
+    name: Triathlon M TriAtBain — Bain-de-Bretagne
+    date: '2027-05-02'
+    distance: M
+    swim_km: 1.5
+    bike_km: 40
+    run_km: 10
+    goal: Objectif chrono 2h43 — voir key_metrics_targets
+  phases:
+  - name: Préparation générale — Reprise et base aérobie
+    start: '2026-10-05'
+    end: '2026-12-13'
+    weeks: 10
+    focus: Reprise progressive, moteur aérobie Z2, technique natation, renforcement musculaire
+    tss_target_weekly: 210
+  - name: Base aérobie — Volume
+    start: '2026-12-14'
+    end: '2027-01-17'
+    weeks: 5
+    focus: Poser le volume en 80/20, densifier la natation, sorties longues vélo (home trainer)
+    tss_target_weekly: 235
+  - name: Développement — Seuil et spécifique
+    start: '2027-01-18'
+    end: '2027-03-28'
+    weeks: 10
+    focus: Intensités seuil, briques vélo/run, volume maintenu
+    tss_target_weekly: 260
+  - name: Pic de charge
+    start: '2027-03-29'
+    end: '2027-04-11'
+    weeks: 2
+    focus: Semaines de charge maximale, simulation course
+    tss_target_weekly: 320
+  - name: Affûtage
+    start: '2027-04-12'
+    end: '2027-04-25'
+    weeks: 2
+    focus: Réduction volume -40%, maintien intensité, récupération
+    tss_target_weekly: 185
+  - name: Semaine de course
+    start: '2027-04-26'
+    end: '2027-05-02'
+    weeks: 1
+    focus: Activation légère, repos, race day
+    tss_target_weekly: 90
+
+# ──────────────────────────────────────────────────────────────────────
+# Objectifs chrono jour J et seuils cibles
+# ──────────────────────────────────────────────────────────────────────
+key_metrics_targets:
+  race_day_targets:
+    total_time: '2:43:00'
+    swim_time: 0:30:30
+    t1_time: 0:03:00
+    bike_time: '1:14:00'
+    t2_time: 0:02:00
+    run_time: 0:53:30
+    notes: 'Objectif recalé le 2026-10-03 sur les seuils cibles fixés par David (FTP 250W, seuil run 5:00/km, CSS
+      2:00/100m) : 2h43. Natation 30''30 (~2:02/100m en eau libre, CSS + visée/départ), T1 3'', vélo 1h14 (~32.5
+      km/h en solo, ~205-210W NP soit ~83% FTP — ~1h10 sur le plat théorique, marge pour le relief, le vent et les
+      virages), T2 2'', run 53''30 (~5:21/km, ~107% du seuil après un vélo solo).'
+  pre_race_fitness:
+    ctl_target: 42
+    ctl_peak_target: 50
+    tsb_target_race_day: +10 à +15
+    ftp_target_watts: 250
+    threshold_run_pace_target: 5:00/km
+    css_swim_target: 2:00/100m
+    notes: 'Cibles fixées par David le 2026-10-03 : FTP 250W, seuil run 5:00/km, CSS 2:00/100m — niveau actuel à
+      consolider plutôt qu''à faire progresser. Priorité : enchaîner course à pied après un vélo solo à ~83% FTP
+      (briques régulières) et tenir l''allure natation sur 1500m.'
+
+# ──────────────────────────────────────────────────────────────────────
+# Format de course et stratégie
+# ──────────────────────────────────────────────────────────────────────
+race_format:
+  drafting: false
+  bike_strategy: 'Contre-la-montre solo (drafting interdit) : effort régulier piloté à la puissance, cible ~83%
+    FTP (~205-210W NP avec FTP 250W). Position aéro tenue, pas de surrégime dans les relances ni les bosses, s''alimenter.
+    Garder de la marge pour le run.'
+  swim_strategy: 'Nager à allure régulière proche CSS, départ contrôlé, se placer dans les pieds quand c''est possible
+    (aspiration autorisée en natation). Sans drafting vélo, la natation pèse moins sur la suite de course : viser
+    l''efficacité plutôt que le sprint pour accrocher un groupe.'
+  run_strategy: Allure cible 5:12/km. Partir conservateur les 2 premiers km, accélérer si les sensations le permettent.
+  notes: 'TriAtBain (Bain-de-Bretagne) : drafting interdit sur le vélo. Le vélo redevient un effort individuel au
+    seuil bas — la puissance soutenable (FTP) et la capacité à bien courir après un vélo solo (briques) sont les
+    leviers principaux.'
+
+# ──────────────────────────────────────────────────────────────────────
+# Seuils actuels (FTP, allure seuil, CSS, FC)
+# Les seuils utilisés pour calculer les séances viennent d'Intervals.icu ; ceux-ci servent de référence au coach IA.
+# ──────────────────────────────────────────────────────────────────────
+thresholds:
+  updated: '2026-05-24'
+  cycling:
+    ftp_watts: 250
+    lthr_bpm: 168
+    hr_max_bpm: 190
+    hr_zones_bpm:
+    - 138
+    - 153
+    - 160
+    - 171
+    - 176
+    - 181
+    - 190
+    power_zones_pct_ftp:
+    - 55
+    - 75
+    - 90
+    - 105
+    - 120
+    - 150
+    - 999
+  run:
+    threshold_pace_str: 4:53/km
+    threshold_pace_mps: 3.4129694
+    lthr_bpm: null
+    hr_max_bpm: 190
+    hr_zones_bpm:
+    - 142
+    - 149
+    - 158
+    - 167
+    - 172
+    - 177
+    - 190
+    pace_zones_pct_threshold:
+    - 77.5
+    - 87.7
+    - 94.3
+    - 100.0
+    - 103.4
+    - 111.5
+    - 999.0
+  swim:
+    css_str: 2:00/100m
+    css_mps: 0.8333333
+    notes: CSS estimée — à recalibrer avec test 400/200m.
+  resting_hr_bpm: 51
+  history:
+  - date: '2026-05-24'
+    ftp_watts: 250
+    threshold_pace_run: 4:53/km
+    css_swim: 2:00/100m
+    weight_kg: 78.0
+    note: Valeurs initiales extraites de Intervals.icu
+
+# ──────────────────────────────────────────────────────────────────────
+# Contraintes d'entraînement (nb de séances, durées max)
+# ──────────────────────────────────────────────────────────────────────
+training:
+  methodology: polarized_80_20
+  weekly_sessions_target: 5
+  strength_sessions_per_week: 1
+  rest_day: monday
+  long_session_day: sunday
+  max_weekday_duration_min: 60
+  max_weekend_duration_min: 180
+  warmup_min: 10
+  cooldown_min: 5
+
+# ──────────────────────────────────────────────────────────────────────
+# Préférences (jours, home trainer, échauffement / retour au calme)
+# ──────────────────────────────────────────────────────────────────────
+training_preferences:
+  indoor_cycling: true
+  preferred_cycling_platform: Zwift / home trainer
+  swim_pool_access: true
+  long_run_day: Sunday
+  brick_day: Sunday
+  strength_day: Friday
+  tolerated_training_load: Modéré-élevé — CTL max historique à déterminer
+  warmup_cooldown:
+    required: true
+    exceptions:
+    - Strength
+    - Renforcement musculaire
+    warmup_run_min: 20
+    warmup_run_content: 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes)
+      + 5' accélérations progressives
+    warmup_bike_min: 15
+    warmup_swim_m: 400
+    cooldown_run_min: 5
+    cooldown_bike_min: 5
+    cooldown_swim_m: 200
+    note: 'CAP : 20'' échauffement avec gammes obligatoires, 5'' retour au calme. Vélo : 15'' échauffement, 5''
+      retour au calme. Natation : 400m écha, 200m retour au calme. Renforcement musculaire : pas d''écha/cool cardio.'
+  notes:
+  - Préfère les séances du matin ou en soirée selon contraintes pro.
+  - Renforcement musculaire vendredi = charge cardio nulle, préserve le week-end.
+  - Sorties longues alternées Run/Brick selon semaine paire/impaire.
+  - Échauffement + retour au calme systématiques sauf renforcement musculaire.
+
+# ──────────────────────────────────────────────────────────────────────
+# Semaine type
+# ──────────────────────────────────────────────────────────────────────
+weekly_structure:
+  methodology: Polarisé 80/20 (Seiler) — 80% du volume en Z1-Z2, 20% en Z4-Z5
+  rest_days:
+  - Monday
+  - Saturday
+  typical_week:
+    Monday:
+      sport: Repos
+      type: Récupération
+      tss: 0
+    Tuesday:
+      sport: Run
+      type: VO2max / intervalles
+      duration_min: 45
+      tss_est: 55
+    Wednesday:
+      sport: Swim
+      type: Endurance + technique (CSS)
+      duration_min: 50
+      tss_est: 40
+    Thursday:
+      sport: VirtualRide / Ride
+      type: Seuil — sweet spot
+      duration_min: 60
+      tss_est: 75
+    Friday:
+      sport: Strength
+      type: Renforcement musculaire
+      duration_min: 45
+      tss: 0
+    Saturday:
+      sport: Repos
+      type: Récupération active
+      tss: 0
+    Sunday:
+      sport: Run ou Brick
+      type: Sortie longue (semaines impaires Run, semaines paires Brick vélo+run)
+      duration_min: 70
+      tss_est: 65
+  session_frequency:
+    swim_per_week: 1
+    swim_target_per_week: 1
+    swim_note: 2 séances/sem souhaitables mais pas faisable actuellement — David demandera explicitement quand il
+      aura le temps.
+    bike_per_week: 1
+    run_per_week: 2
+    strength_per_week: 1
+
+# ──────────────────────────────────────────────────────────────────────
+# Athlète
+# ──────────────────────────────────────────────────────────────────────
+identity:
+  name: David
+  email: lec.david@gmail.com
+  age: null
+  weight_kg: 78.0
+  sex: M
+  birth_year: 1987
+performance_level:
+  category: Amateur confirmé
+  years_in_triathlon: null
+  primary_discipline_strength: Vélo
+  primary_discipline_weakness: Natation
+  notes: Bonne régularité sur les 3 disciplines. Natation à densifier (1 séance/sem actuellement, objectif 2/sem
+    en build).
+
+# ──────────────────────────────────────────────────────────────────────
+# Capteurs disponibles
+# ──────────────────────────────────────────────────────────────────────
+sensors:
+  bike:
+    power: true
+    heart_rate: true
+  run:
+    pace: true
+    heart_rate: true
+  swim:
+    pace: true
+
+# ──────────────────────────────────────────────────────────────────────
+# Santé & blessures  ← à tenir à jour
+# ──────────────────────────────────────────────────────────────────────
+injuries_and_health:
+  current_injuries: []
+  injury_history: []
+  alerts: []
+  notes: Aucune blessure connue au 2026-05-24. À mettre à jour dès qu'un problème survient.
+  monitoring:
+    hrv_baseline_ms: 47
+    resting_hr_baseline_bpm: 51
+    sleep_target_hours: 7.5
+
+# ──────────────────────────────────────────────────────────────────────
+# Forme de référence & TSS cibles hebdomadaires (base de la périodisation)
+# ──────────────────────────────────────────────────────────────────────
+fitness_baseline:
+  updated: '2026-05-24'
+  ctl: 37.6
+  atl: 32.1
+  tsb: 5.5
+  target_ctl_peak: 50
+  target_ctl_race_day: 42
+  target_tsb_race_day: 14
+  avg_weekly_tss_28d: 259
+  season_pmc_history:
+    source: Intervals.icu wellness 6 mois
+    ctl_nov2025: 20.4
+    ctl_jan2026: 26.0
+    ctl_pic_avril: 46.6
+    ctl_duathlon_3mai: 38.2
+    ctl_actuel_24mai: 37.6
+    duathlon_tsb: 12.3
+    note: Programme structuré duathlon M (oct25→mai26) bien exécuté. Pic CTL 46.6 le 11/04, affûtage propre (TSB
+      +12 le jour J). Décompression post-course normale depuis le 3 mai.
+  cycle_structure: 4+1 (4 semaines de charge progressive + 1 semaine récup)
+  periodization_rules:
+    intra_bloc_progression_max_pct: 10
+    recovery_week_pct_of_bloc_peak: 65
+    reload_week_pct_of_prev_bloc_peak: 85
+    source: 'Issurin (2008) Block Periodization; Seiler (2010) 80/20; Coggan & Allen (2010) PMC; consensus : progression
+      ≤10%/sem, récup 60-65% du pic, reprise à 85% du pic du bloc précédent (pas de marche brutale)'
+  weekly_tss_targets:
+    '2026-10-05': 190
+    '2026-10-12': 205
+    '2026-10-19': 220
+    '2026-10-26': 235
+    '2026-11-02': 155
+    '2026-11-09': 205
+    '2026-11-16': 220
+    '2026-11-23': 235
+    '2026-11-30': 255
+    '2026-12-07': 165
+    '2026-12-14': 225
+    '2026-12-21': 240
+    '2026-12-28': 255
+    '2027-01-04': 275
+    '2027-01-11': 180
+    '2027-01-18': 240
+    '2027-01-25': 260
+    '2027-02-01': 275
+    '2027-02-08': 295
+    '2027-02-15': 190
+    '2027-02-22': 260
+    '2027-03-01': 280
+    '2027-03-08': 295
+    '2027-03-15': 320
+    '2027-03-22': 210
+    '2027-03-29': 310
+    '2027-04-05': 335
+    '2027-04-12': 210
+    '2027-04-19': 160
+    '2027-04-26': 90
+  notes: 'Saison 2026-2027 : objectif Triathlon M TriAtBain (Bain-de-Bretagne) du 02/05/2027 (30 semaines à partir
+    du 05/10/2026). Cycles 4+1 (récup à ~65% du pic, reprise à ~88% du pic précédent, +7%/sem max). Pic S26 (05-11/04/2027,
+    335 TSS) puis affûtage 2 semaines + semaine de course. Saison précédente : Triathlon M de Quimperlé (30/08/2026).'
+
+# ──────────────────────────────────────────────────────────────────────
+# Références scientifiques
+# ──────────────────────────────────────────────────────────────────────
+scientific_references:
+- Seiler, S. (2010). What is best practice for training intensity and duration distribution in endurance athletes?
+  IJSPP.
+- Helgerud, J. et al. (2007). Aerobic high-intensity intervals improve VO2max more than moderate training. Medicine
+  & Science in Sports & Exercise.
+- Beattie, K. et al. (2017). The effect of strength training on performance in endurance athletes. Sports Medicine.
+- Blagrove, R.C. et al. (2018). Effects of strength training on the physiological determinants of middle- and long-distance
+  running performance. Sports Medicine.
+- Coggan, A. (2003). Performance Management Chart — CTL/ATL/TSB model.
+- Allen, H. & Coggan, A. (2010). Training and Racing with a Power Meter.
+
+# ──────────────────────────────────────────────────────────────────────
+# Historique des modifications
+# ──────────────────────────────────────────────────────────────────────
+changelog:
+- date: '2026-05-24'
+  author: Claude / Cowork
+  note: Création initiale du profil athlète — données extraites de Intervals.icu et des sessions d'entraînement
+    précédentes.
+- date: '2026-05-24'
+  author: David
+  note: 'Objectif course déclaré : 2h35 au Triathlon M de Quimperlé (30/08/2026). Découpage cible ajouté + niveaux
+    de seuils à atteindre calculés.'
+- date: '2026-05-24'
+  author: David
+  note: 'Précision format course : drafting autorisé sur le vélo. Stratégie et objectifs de puissance révisés en
+    conséquence (165W vs 230W). La natation devient l''enjeu stratégique principal pour intégrer le bon groupe.'
+- date: '2026-05-24'
+  author: Claude / Cowork
+  note: 'Analyse PMC 6 mois (nov.2025 → mai 2026). Duathlon M Bain-de-Bretagne (03/05) bien préparé : CTL pic 46.6
+    (11/04), TSB +12 le jour J. Reprogrammation saison Quimperlé : cycle 3+1 strict (3 sem. charge + 1 sem. récup
+    à ~65%), 2 semaines de récup (S04 et S08), pic S09-S11 (410-435 TSS), affûtage 3 semaines. CTL race day visé
+    : 42, TSB : +15. CTL pic cible révisé à 50.'
+- date: '2026-10-03'
+  author: David
+  note: 'Nouvel objectif : Triathlon M TriAtBain à Bain-de-Bretagne, le dimanche 2 mai 2027 (remplace Quimperlé
+    du 30/08/2026). Phases de saison et TSS cibles hebdomadaires recalés sur 30 semaines (05/10/2026 → 02/05/2027).
+    Objectif chrono 2h35 repris de Quimperlé.'
+- date: '2026-10-03'
+  author: David
+  note: 'Format TriAtBain : drafting interdit sur le vélo. Stratégies course et cibles de puissance révisées.'
+- date: '2026-10-03'
+  author: David
+  note: 'Objectif chrono ajusté à 2h40 (natation 29'', vélo 1h13, run 52''30) pour tenir compte du vélo solo. Cibles
+    : FTP 265W, seuil run 4:45/km, CSS 1:55/100m.'
+- date: '2026-10-03'
+  author: David
+  note: Cibles de seuils fixées à FTP 250W, seuil run 5:00/km, CSS 2:00/100m. Objectif chrono recalé en conséquence
+    à 2h43 (natation 30'30, vélo 1h14, run 53'30).

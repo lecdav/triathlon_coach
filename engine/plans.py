@@ -1,33 +1,25 @@
-"""generate_theoretical_plan.py — Génère les plans théoriques des 2 semaines à venir via Claude IA.
+"""Plans théoriques IA des 2 semaines à venir + ajustement de la périodisation saison.
 
-À exécuter le dimanche soir (ou manuellement à tout moment).
-Stocke le résultat dans data/weekly_plans.json, lu ensuite par daily_coach.py.
-
-Usage :
-    python scripts/generate_theoretical_plan.py              # génère à partir d'aujourd'hui
-    python scripts/generate_theoretical_plan.py --dry-run    # affiche le prompt sans appeler l'API
-    python scripts/generate_theoretical_plan.py --force      # force la régénération même si déjà fait cette semaine
+Entrées : inputs/athlete_profile.yaml + imports Intervals.icu (inputs/intervals/).
+Sorties : docs/data/weekly_plans.json et docs/data/periodization.json,
+lus ensuite par engine/coach.py. Lancé le dimanche par jobs/weekly_plans.py.
 """
 
 from __future__ import annotations
 
-import argparse
 import json
-import sys
 from datetime import date, timedelta
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-from intervals_client import IntervalsClient
-from claude_client import call_claude_json, SYSTEM_PROMPT
-from session_builder import compute_session
-
-ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT / "data"
-PLANS_FILE = DATA_DIR / "weekly_plans.json"
-PERIODIZATION_FILE = DATA_DIR / "periodization.json"
-ATHLETE_PROFILE_PATH = DATA_DIR / "athlete_profile.json"
+from connectors.claude_client import call_claude_json, SYSTEM_PROMPT
+from engine.athlete_profile import load_profile
+from engine.intervals_inputs import IntervalsInputs
+from engine.paths import (
+    OUTPUT_DATA_DIR as DATA_DIR,
+    PERIODIZATION_PATH as PERIODIZATION_FILE,
+    PROFILE_PATH,
+    WEEKLY_PLANS_PATH as PLANS_FILE,
+)
+from engine.session_builder import compute_session
 
 FR_WEEKDAYS = {
     "Monday": "Lundi", "Tuesday": "Mardi", "Wednesday": "Mercredi",
@@ -257,7 +249,7 @@ def generate_periodization(profile: dict, wellness: dict, week1_monday: date,
 def get_tss_target(week_monday: date) -> int | None:
     """Lit le TSS cible pour une semaine depuis periodization.json.
 
-    Fallback sur athlete_profile.json si le fichier n'existe pas.
+    Fallback sur inputs/athlete_profile.yaml si le fichier n'existe pas.
     Retourne None si introuvable.
     """
     monday_str = week_monday.isoformat()
@@ -272,22 +264,21 @@ def get_tss_target(week_monday: date) -> int | None:
         except Exception:
             pass
 
-    # 2. Fallback athlete_profile.json
-    if ATHLETE_PROFILE_PATH.exists():
-        try:
-            profile = json.loads(ATHLETE_PROFILE_PATH.read_text())
-            tss = profile.get("fitness_baseline", {}).get(
-                "weekly_tss_targets", {}
-            ).get(monday_str)
-            if tss:
-                return int(tss)
-        except Exception:
-            pass
+    # 2. Fallback inputs/athlete_profile.yaml
+    try:
+        tss = load_profile().get("fitness_baseline", {}).get(
+            "weekly_tss_targets", {}
+        ).get(monday_str)
+        if tss:
+            return int(tss)
+    except Exception:
+        pass
 
     return None
 
 
-def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
+def generate_plans(dry_run: bool = False, force: bool = False,
+                   data: IntervalsInputs | None = None) -> dict:
     """Génère les plans théoriques des 2 semaines à venir et les stocke."""
     today = date.today()
     # Semaine 1 = semaine prochaine (lundi prochain)
@@ -307,17 +298,17 @@ def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
             return existing
 
     # Charger le profil athlète
-    if not ATHLETE_PROFILE_PATH.exists():
-        raise FileNotFoundError(f"Profil athlète introuvable : {ATHLETE_PROFILE_PATH}")
-    profile = json.loads(ATHLETE_PROFILE_PATH.read_text())
+    if not PROFILE_PATH.exists():
+        raise FileNotFoundError(f"Profil athlète introuvable : {PROFILE_PATH}")
+    profile = load_profile()
 
     # Données Intervals.icu
-    client = IntervalsClient()
-    print(f"🔗 Connexion Intervals.icu OK — athlète {client.athlete_id}")
+    data = data or IntervalsInputs()
+    print(f"📂 Données Intervals.icu importées le {data.meta.get('imported_at')} — athlète {data.athlete_id}")
 
-    thresholds = client.get_thresholds()
-    activities = client.activities(today - timedelta(days=21))
-    wellness_data = client.wellness(today - timedelta(days=7))
+    thresholds = data.get_thresholds()
+    activities = data.activities(today - timedelta(days=21))
+    wellness_data = data.wellness(today - timedelta(days=7))
 
     # Wellness d'aujourd'hui
     today_w = next(
@@ -354,7 +345,7 @@ def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
     result = call_claude_json(prompt)
 
     # Enrichir avec les métadonnées de dates + calcul algorithmique des séances
-    from daily_coach import FR_WEEKDAYS as FR_WD
+    from engine.coach import FR_WEEKDAYS as FR_WD
     wu_profile = profile.get("training_preferences", {}).get("warmup_cooldown", {})
 
     for week_key, week_monday in [("week1", week1_monday), ("week2", week2_monday)]:
@@ -401,11 +392,3 @@ def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
 
     return result
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Génère les plans théoriques IA des 2 prochaines semaines")
-    parser.add_argument("--dry-run", action="store_true", help="Affiche le prompt sans appeler l'API")
-    parser.add_argument("--force", action="store_true", help="Force la régénération même si déjà fait")
-    args = parser.parse_args()
-
-    generate_plans(dry_run=args.dry_run, force=args.force)

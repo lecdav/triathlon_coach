@@ -1,242 +1,133 @@
-# Triathlon Coach App — David
+# Triathlon Coach — David
 
-Application de coaching triathlon personnalisée s'appuyant sur les données
-Intervals.icu (qui agrège elle-même Garmin / Strava / etc.).
+Coach triathlon automatique : il lit tes données **Intervals.icu** (Garmin, Strava…),
+calcule ta forme, prépare tes séances avec l'aide de Claude et les envoie sur ta montre.
 
-**Objectif : Triathlon M TriAtBain (Bain-de-Bretagne) — dimanche 2 mai 2027**
+**Objectif : Triathlon M TriAtBain (Bain-de-Bretagne) — dimanche 2 mai 2027 — 2h43**
+
+Dashboard : <https://lecdav.github.io/triathlon_coach/>
 
 ---
 
-## Vue d'ensemble du workflow
+## Comment c'est organisé
+
+Le projet suit un flux en 4 étapes : **entrées → jobs → moteur → sorties**.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        CHAQUE MATIN À 6h30                      │
-│                                                                  │
-│   GitHub Actions (serveur distant, tourne même Mac éteint)      │
-│   ┌──────────────────────────────────────────────────────┐      │
-│   │ 1. Récupère les données Intervals.icu du jour         │      │
-│   │ 2. Calcule CTL/ATL/TSB, génère le plan de la semaine │      │
-│   │ 3. Génère le rapport Markdown + index.html            │      │
-│   │ 4. Commite et pousse sur la branche main              │      │
-│   └──────────────────────────────────────────────────────┘      │
-└─────────────────────────────────────────────────────────────────┘
+inputs/                          ① ENTRÉES
+  athlete_profile.yaml             ton profil : objectif, phases, seuils, préférences (édité à la main)
+  intervals/                       imports bruts Intervals.icu (non versionnés, recréés à chaque run)
+  credentials.env                  tes clés API en local (non versionné)
 
-┌─────────────────────────────────────────────────────────────────┐
-│                       CHAQUE MATIN À 7h02                       │
-│                                                                  │
-│   Tâche planifiée Cowork (tourne sur le Mac)                    │
-│   ┌──────────────────────────────────────────────────────┐      │
-│   │ 1. Commite automatiquement tout travail local (WIP)   │      │
-│   │ 2. Merge main → dev pour récupérer le rapport du jour │      │
-│   │ 3. Rapport de ce qui a été mis à jour                 │      │
-│   └──────────────────────────────────────────────────────┘      │
-└─────────────────────────────────────────────────────────────────┘
+jobs/                            ② JOBS — import / export, lancés par GitHub Actions
+  import_intervals.py              Intervals.icu → inputs/intervals/
+  daily.py                         import → moteur (coach) → export des séances vers Intervals.icu
+  weekly_plans.py                  import → moteur (plans IA du dimanche)
+  push_workouts.py                 docs/data/today.json → Intervals.icu → Garmin
 
-┌─────────────────────────────────────────────────────────────────┐
-│                     CHAQUE LUNDI À 7h07                         │
-│                                                                  │
-│   Tâche planifiée Cowork (tourne sur le Mac)                    │
-│   ┌──────────────────────────────────────────────────────┐      │
-│   │ Envoie les 5 séances de la semaine sur Intervals.icu  │      │
-│   │ → synchronisées automatiquement sur la montre Garmin  │      │
-│   └──────────────────────────────────────────────────────┘      │
-└─────────────────────────────────────────────────────────────────┘
+engine/                          ③ MOTEUR — calculs et IA, aucun appel à Intervals.icu
+  coach.py                         forme du jour, plan adaptatif, message du coach
+  plans.py                         plans IA des 2 semaines à venir + périodisation
+  session_builder.py               allures, watts, durées et TSS d'une séance
+  athlete_profile.py               lecture du profil
+  intervals_inputs.py              lecture des imports Intervals.icu
+  paths.py                         emplacement de tous les fichiers
 
-┌─────────────────────────────────────────────────────────────────┐
-│                    QUAND TU VEUX FAIRE ÉVOLUER L'APP            │
-│                                                                  │
-│   Travail local sur la branche dev (avec Claude dans Cowork)    │
-│   ┌──────────────────────────────────────────────────────┐      │
-│   │ 1. Modifier template, script, profil athlète          │      │
-│   │ 2. Tester en local                                    │      │
-│   │ 3. Commiter sur dev                                   │      │
-│   │ 4. Ouvrir une PR dev → main sur GitHub                │      │
-│   │ 5. Merger → GitHub Actions utilise le nouveau code    │      │
-│   └──────────────────────────────────────────────────────┘      │
-└─────────────────────────────────────────────────────────────────┘
+connectors/                      clients des API externes
+  intervals_client.py              Intervals.icu
+  claude_client.py                 Claude
+
+docs/                            ④ SORTIES — publiées par GitHub Pages
+  index.html                       le dashboard
+  data/today.json                  état du jour
+  data/weekly_plans.json           plans IA des 2 semaines à venir
+  data/periodization.json          TSS cibles par semaine ajustés par l'IA
+
+.github/workflows/               les 3 automatismes ci-dessous
 ```
 
 ---
 
-## Les deux branches
+## Ce qui tourne tout seul
 
-| Branche | Rôle | Qui écrit dessus |
-|---------|------|-----------------|
-| `main` | Production — dashboard en ligne sur GitHub Pages | GitHub Actions uniquement (commits automatiques) |
-| `dev` | Développement — ton espace de travail local | Toi + Claude dans Cowork |
+Trois workflows GitHub Actions, sur la branche `main` (heures de Paris, heure d'été) :
 
-**Règle d'or : ne jamais pousser manuellement sur `main`.** Toutes les évolutions passent par une PR `dev → main`.
+| Quand | Workflow | Job lancé | Sorties mises à jour |
+|---|---|---|---|
+| Chaque nuit, ~1h | `daily_coach.yml` | `jobs/daily.py` | `docs/data/today.json` + séances à venir sur Intervals.icu |
+| Dimanche, ~23h | `generate_plans.yml` | `jobs/weekly_plans.py` | `docs/data/weekly_plans.json`, `docs/data/periodization.json` |
+| Lundi, ~5h | `push_workouts.yml` | `jobs/push_workouts.py` | séances de la semaine sur Intervals.icu → Garmin |
 
----
-
-## GitHub Actions — le moteur de production
-
-**Fichier :** `.github/workflows/daily_coach.yml`
-**Quand :** tous les jours à 6h30 heure de Paris (même si le Mac est éteint)
-**Ce qu'il fait :**
-
-1. Checkout de la branche `main`
-2. Appelle l'API Intervals.icu → récupère wellness, activités, seuils du jour
-3. Calcule CTL/ATL/TSB, classifie la forme, génère le plan de la semaine
-4. Produit `reports/daily/YYYY-MM-DD.md` (rapport Markdown détaillé)
-5. Régénère `index.html` (dashboard GitHub Pages) depuis `dashboard_template.html`
-6. Génère le message coach via l'API Claude Haiku (si `ANTHROPIC_API_KEY` configurée)
-7. Commite et pousse sur `main` — disponible sur GitHub Pages dans la minute
-
-**Secrets à configurer** dans GitHub → Settings → Secrets and variables → Actions :
-
-| Secret | Valeur |
-|--------|--------|
-| `INTERVALS_ATHLETE_ID` | identifiant Intervals.icu (ex: `i406969`) |
-| `INTERVALS_API_KEY` | clé API Intervals.icu |
-| `ANTHROPIC_API_KEY` | clé API Anthropic (optionnel — pour le message coach IA) |
-
-**Lancer manuellement :** GitHub → onglet Actions → "Coach Triathlon — Rapport quotidien" → Run workflow.
+Chacun peut être lancé à la main : GitHub → onglet **Actions** → choisir le workflow → **Run workflow**.
 
 ---
 
-## Tâche planifiée Cowork — la sync matinale
+## Où modifier quoi
 
-**Quand :** tous les jours à 7h02 (32 min après le run GitHub Actions)
-**Ce qu'elle fait :**
+| Je veux… | Fichier |
+|---|---|
+| Changer l'objectif, les phases de la saison, les seuils, mes préférences | **`inputs/athlete_profile.yaml`** |
+| Changer la logique de coaching (plan, adaptation, message) | `engine/coach.py` |
+| Changer la génération IA des plans du dimanche | `engine/plans.py` |
+| Changer l'affichage du dashboard | `docs/index.html` |
 
-1. **Protège le travail local** : si des fichiers ont été modifiés sur `dev`, crée un commit `wip: snapshot local` automatiquement avant de toucher quoi que ce soit
-2. **Merge `main` → `dev`** : récupère le nouveau rapport et le dashboard généré par GitHub Actions
-3. En cas de conflit : s'arrête et affiche les fichiers en conflit sans rien écraser
-
-Cette tâche garantit que tu trouves chaque matin les données fraîches du jour dans ton environnement local, sans jamais perdre ton travail en cours.
-
----
-
-## Tâche planifiée Cowork — push des séances Garmin
-
-**Quand :** chaque lundi à 7h07
-**Ce qu'elle fait :**
-
-1. Lit le plan de la semaine généré par `daily_coach.py`
-2. Convertit chaque séance en format structuré (étapes : échauffement, intervalles, retour au calme)
-3. Envoie les séances sur Intervals.icu via l'API
-4. Intervals.icu les synchronise automatiquement sur Garmin Connect → ta montre
+**Ne pas modifier à la main** `docs/data/` ni `inputs/intervals/` : ils sont réécrits automatiquement.
 
 ---
 
-## Dashboard
+## Faire évoluer le projet
 
-- **GitHub Pages** : `https://lecdav.github.io/triathlon_coach/` — mis à jour chaque matin par GitHub Actions
-- **Local** : ouvrir `index.html` dans un navigateur, ou via `python3 -m http.server 8080` puis `http://localhost:8080`
+1. Créer une branche à partir de `main`.
+2. Modifier les fichiers (voir « Où modifier quoi »).
+3. Ouvrir une pull request vers `main`, puis la fusionner.
+   Les workflows utilisent le nouveau code dès leur prochain passage.
 
-Le dashboard affiche (dans l'ordre) :
-1. **Frise du plan de saison** — positionnement semaine par semaine jusqu'à la course objectif, avec les phases et le volume cible
-2. **Plan adaptatif de la semaine** — séances réalisées (en vert) + reste à faire ajusté selon la fatigue
-3. **Plan idéal de la semaine** — plan théorique polarisé 80/20
-4. **État de forme** — bannière TSB + graphique PMC sur 3 mois
-5. **KPIs, charge, message coach, zones de référence**
+Ne pas pousser directement sur `main` : les workflows y commitent chaque jour.
 
 ---
 
-## Workflow de développement (faire évoluer l'app)
+## Lancer en local
+
+Toutes les commandes se lancent depuis la racine du dépôt.
 
 ```bash
-# 1. S'assurer d'être sur dev
-git checkout dev
-
-# 2. Modifier les fichiers voulus
-#    - scripts/dashboard_template.html  → mise en forme du dashboard
-#    - scripts/daily_coach.py           → logique de coaching, plan, calculs
-#    - config/athlete_profile.yaml      → profil athlète, zones, objectif
-
-# 3. Tester en local
-python3 scripts/daily_coach.py
-# → régénère index.html, reports/dashboard.html, data/cache/today.json
-
-# 4. Commiter
-git add .
-git commit -m "feat: description de la modification"
-git push origin dev
-
-# 5. Créer une PR sur GitHub : dev → main
-# GitHub.com → ton repo → "Compare & pull request"
-# → Merger la PR → GitHub Actions utilise le nouveau code dès le prochain run à 6h30
+pip install -r requirements.txt
 ```
 
----
-
-## Setup local (Mac) — première installation
-
-### Prérequis
-
-```bash
-pip3 install -r requirements.txt
-```
-
-### Credentials Intervals.icu
-
-Créer `config/credentials.env` (jamais commité — dans `.gitignore`) :
+Créer `inputs/credentials.env` (ignoré par git ; l'ancien `config/credentials.env` marche encore) :
 
 ```
 INTERVALS_ATHLETE_ID=i406969
 INTERVALS_API_KEY=ta_clé_api
 ```
 
-### Vérifier la connexion API
+Pour les fonctions IA (optionnel — sans clé, plan et message restent algorithmiques) :
 
 ```bash
-python3 scripts/intervals_client.py
+export ANTHROPIC_API_KEY=ta_clé_anthropic
 ```
-
-### Lancer le script manuellement
 
 ```bash
-python3 scripts/daily_coach.py
+python -m connectors.intervals_client           # tester la connexion Intervals.icu
+python jobs/import_intervals.py                 # importer les données → inputs/intervals/
+python -m engine.coach                          # moteur seul, sur le dernier import (sans réseau)
+python jobs/daily.py                            # job complet : import → moteur → export Intervals.icu
+python jobs/weekly_plans.py --dry-run --force   # voir les prompts IA sans appeler Claude
+python jobs/push_workouts.py --dry-run          # voir les séances sans les envoyer
+python -m http.server 8080 --directory docs     # dashboard sur http://localhost:8080
 ```
+
+Secrets GitHub nécessaires (Settings → Secrets and variables → Actions) :
+`INTERVALS_ATHLETE_ID`, `INTERVALS_API_KEY`, `ANTHROPIC_API_KEY`.
+
+GitHub Pages doit publier le dossier `/docs` : Settings → Pages → Branch `main`, dossier `/docs`.
 
 ---
 
-## Architecture des fichiers
+## Méthodologie
 
-```
-.
-├── .github/
-│   └── workflows/
-│       └── daily_coach.yml         # GitHub Actions — 6h30 chaque matin
-├── config/
-│   ├── credentials.env             # clé API Intervals.icu (gitignored)
-│   └── athlete_profile.yaml        # profil : zones, objectif, préférences
-├── scripts/
-│   ├── intervals_client.py         # client API Intervals.icu
-│   ├── daily_coach.py              # script principal : rapport + plan + dashboard
-│   ├── push_workouts.py            # envoi des séances sur Garmin via Intervals.icu
-│   └── dashboard_template.html     # source unique du dashboard (→ index.html et dashboard.html)
-├── reports/
-│   └── daily/                      # rapports Markdown quotidiens (commités par CI)
-├── data/
-│   └── cache/                      # cache JSON local (gitignored)
-├── index.html                      # dashboard GitHub Pages (régénéré par CI)
-└── requirements.txt                # dépendances Python
-```
-
----
-
-## Méthodologie d'entraînement
-
-- **Polarisation 80/20** (Seiler 2010) : ~80 % Z1-Z2 endurance sous LT1, ~20 % Z4-Z5 haute intensité
-- **Charge** : suivi CTL/ATL/TSB (modèle Banister/Coggan) ; ramp rate cible ≤ +5 CTL/sem
-- **Volume** : 5 séances/sem dont 1 renforcement musculaire (vendredi), 1 natation (mercredi), sortie longue le dimanche
-- **Périodisation** : Base → Développement → Pic → Affûtage (pic TSB +10/+20 pour la course)
-
----
-
-## Instructions pour Claude (Cowork)
-
-À chaque session de travail, Claude peut :
-
-- **Lire** `data/cache/today.json` → état du jour (forme, plan, métriques)
-- **Lire** `config/athlete_profile.yaml` → préférences et contraintes d'entraînement
-- **Lire** `reports/daily/` → historique des rapports
-- **Modifier** `scripts/dashboard_template.html` → faire évoluer le rendu du dashboard
-- **Modifier** `scripts/daily_coach.py` → faire évoluer la logique de coaching
-- **Modifier** `config/athlete_profile.yaml` → ajuster les paramètres (zones, objectif…)
-- **Exécuter** `python3 scripts/daily_coach.py` → régénérer le dashboard en local
-
-Toujours travailler sur la branche `dev`. Les modifications passent en production via une PR `dev → main`.
+- **Polarisé 80/20** (Seiler 2010) : ~80 % en Z1-Z2, ~20 % en Z4-Z5.
+- **Charge** : modèle CTL/ATL/TSB (Banister/Coggan), progression ≤ +10 TSS/semaine.
+- **Périodisation** : cycles 4+1 (4 semaines de charge, 1 de récupération à ~65 %),
+  base → seuil/spécifique → pic → affûtage → course (TSB visé +10 à +15).
+- **Semaine type** : 5 séances dont 1 renforcement musculaire (vendredi), sortie longue le dimanche.

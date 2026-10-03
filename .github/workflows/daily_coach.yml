@@ -34,19 +34,19 @@ jobs:
         run: pip install -r requirements.txt
 
       # 4. Lance le script coach
-      - name: Run daily_coach.py
+      - name: Run jobs/daily.py (import → moteur → export)
         env:
           INTERVALS_ATHLETE_ID: ${{ secrets.INTERVALS_ATHLETE_ID }}
           INTERVALS_API_KEY: ${{ secrets.INTERVALS_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python scripts/daily_coach.py
+        run: python jobs/daily.py
 
-      # 5. Commit et pousse data/today.json uniquement
+      # 5. Commit et pousse docs/data/today.json uniquement
       - name: Commit & push data
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/today.json --force
+          git add docs/data/today.json --force
           # Ne commite que s'il y a des changements
           git diff --cached --quiet || git commit -m "chore: snapshot quotidien $(date -u '+%Y-%m-%d')"
           git push

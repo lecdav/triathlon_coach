@@ -8,13 +8,12 @@ from __future__ import annotations
 
 import os
 from datetime import date, timedelta
-from pathlib import Path
 from typing import Any
 
 import requests
 
-CONFIG_DIR = Path(__file__).resolve().parent.parent / "config"
-CREDENTIALS_FILE = CONFIG_DIR / "credentials.env"
+from engine.paths import credentials_file
+
 API_BASE = "https://intervals.icu/api/v1"
 
 
@@ -24,7 +23,7 @@ def load_credentials() -> tuple[str, str]:
     Priorité :
       1. Variables d'environnement INTERVALS_ATHLETE_ID / INTERVALS_API_KEY
          (utilisées par GitHub Actions via les Secrets du repo)
-      2. Fichier config/credentials.env (usage local, jamais commité)
+      2. Fichier inputs/credentials.env (usage local, jamais commité)
     """
     # 1. Variables d'environnement (GitHub Actions Secrets)
     env_id = os.environ.get("INTERVALS_ATHLETE_ID")
@@ -33,6 +32,7 @@ def load_credentials() -> tuple[str, str]:
         return env_id, env_key
 
     # 2. Fichier local credentials.env
+    CREDENTIALS_FILE = credentials_file()
     if not CREDENTIALS_FILE.exists():
         raise FileNotFoundError(
             f"Credentials introuvables : ni variables d'environnement "

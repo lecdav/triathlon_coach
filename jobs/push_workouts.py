@@ -1,11 +1,11 @@
-"""push_workouts.py — Envoie le plan hebdomadaire sur Intervals.icu (→ Garmin Connect).
+"""Job du lundi : export du plan hebdomadaire vers Intervals.icu (→ Garmin Connect).
 
 Usage :
-    python scripts/push_workouts.py              # semaine en cours
-    python scripts/push_workouts.py --dry-run    # affiche les séances sans les envoyer
-    python scripts/push_workouts.py --replace    # supprime d'abord les séances existantes
+    python jobs/push_workouts.py              # semaine en cours
+    python jobs/push_workouts.py --dry-run    # affiche les séances sans les envoyer
+    python jobs/push_workouts.py --replace    # supprime d'abord les séances existantes
 
-Source du plan : data/today.json (généré par daily_coach.py).
+Source du plan : docs/data/today.json (généré par jobs/daily.py).
   - weekly_plan     → plan adaptatif de la semaine en cours (tient compte du réalisé)
   - next_week_plan  → plan idéal de la semaine suivante
 Intervals.icu synchronise automatiquement avec Garmin Connect si la connexion est activée.
@@ -19,18 +19,10 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from intervals_client import IntervalsClient, pace_mps_to_minkm, pace_mps_to_per100m
-
-# Import minimal depuis daily_coach (plus de recalcul du plan ici)
-from daily_coach import (
-    classify_form,
-    weekly_load,
-    average_session_profile,
-)
-
-ROOT = Path(__file__).resolve().parent.parent
+from connectors.intervals_client import IntervalsClient
+from engine.paths import TODAY_PATH
 
 
 # ---------------------------------------------------------------------------
@@ -467,11 +459,11 @@ def main() -> None:
     print(f"🔗 Connexion Intervals.icu OK — athlète {client.athlete_id}")
 
     # -----------------------------------------------------------------------
-    # Lecture du plan depuis data/today.json (généré par daily_coach.py)
+    # Lecture du plan depuis docs/data/today.json (généré par jobs/daily.py)
     # -----------------------------------------------------------------------
-    today_json_path = ROOT / "data" / "today.json"
+    today_json_path = TODAY_PATH
     if not today_json_path.exists():
-        print("❌ data/today.json introuvable — lance d'abord daily_coach.py")
+        print("❌ docs/data/today.json introuvable — lance d'abord jobs/daily.py")
         sys.exit(1)
 
     coach_data = json.loads(today_json_path.read_text())
@@ -481,7 +473,7 @@ def main() -> None:
     if stored_monday and stored_monday != week_monday.isoformat():
         print(f"⚠️  today.json est daté de la semaine du {stored_monday}, "
               f"pas de la semaine demandée ({week_monday.isoformat()}).")
-        print("   Lance daily_coach.py pour regénérer, ou utilise --week pour cibler une semaine précise.")
+        print("   Lance jobs/daily.py pour regénérer, ou utilise --week pour cibler une semaine précise.")
 
     plan_cur = coach_data.get("weekly_plan", [])
     plan_next = coach_data.get("next_week_plan", [])
@@ -495,7 +487,7 @@ def main() -> None:
         print(f"⏱️  Semaines avant course : {weeks_to_race}")
 
     if not plan_cur:
-        print("❌ weekly_plan vide dans today.json — relance daily_coach.py")
+        print("❌ weekly_plan vide dans today.json — relance jobs/daily.py")
         sys.exit(1)
 
     if args.dry_run:
