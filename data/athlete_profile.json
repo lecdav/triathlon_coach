@@ -118,11 +118,11 @@
   },
 
   "race_format": {
-    "drafting": true,
-    "bike_strategy": "Rester en peloton, limiter les relances inutiles, puissance cible ~65-70% FTP. L'objectif vélo est de préserver les jambes pour le run, pas de faire la différence.",
-    "swim_strategy": "Sortir de l'eau dans le bon groupe — critique en drafting car le groupe vélo dépend du groupe natation. Travailler la nage en peloton (aspiration, placement).",
+    "drafting": false,
+    "bike_strategy": "Contre-la-montre solo (drafting interdit) : effort régulier piloté à la puissance, cible ~80-85% FTP (~215-230W NP avec FTP 270W visé). Position aéro tenue, pas de surrégime dans les relances ni les bosses, s'alimenter. Garder de la marge pour le run.",
+    "swim_strategy": "Nager à allure régulière proche CSS, départ contrôlé, se placer dans les pieds quand c'est possible (aspiration autorisée en natation). Sans drafting vélo, la natation pèse moins sur la suite de course : viser l'efficacité plutôt que le sprint pour accrocher un groupe.",
     "run_strategy": "Allure cible 5:12/km. Partir conservateur les 2 premiers km, accélérer si les sensations le permettent.",
-    "notes": "En format drafting, la natation devient encore plus stratégique : manquer le bon groupe peut coûter plusieurs minutes sur le vélo."
+    "notes": "TriAtBain (Bain-de-Bretagne) : drafting interdit sur le vélo. Le vélo redevient un effort individuel au seuil bas — la puissance soutenable (FTP) et la capacité à bien courir après un vélo solo (briques) sont les leviers principaux."
   },
 
   "season": {
@@ -264,7 +264,7 @@
       "bike_time": "1:10:00",
       "t2_time": "0:02:00",
       "run_time": "0:52:00",
-      "notes": "Objectif total 2h35 déclaré par David le 2026-05-24. Drafting autorisé sur le vélo. Découpage estimé : natation 28' (1:52/100m), T1 3', vélo 1h10 (34.3 km/h — drafting autorisé → ~160-180W normalisés vs ~230W en solo), T2 2', run 52' (5:12/km). La stratégie vélo vise à préserver les jambes pour le run : rester en groupe, puissance modérée, gérer les relances."
+      "notes": "Objectif total 2h35 déclaré par David le 2026-05-24. Repris pour TriAtBain 2027, drafting interdit. Découpage estimé : natation 28' (1:52/100m), T1 3', vélo 1h10 (34.3 km/h en solo → ~215-230W normalisés, soit ~85% d'une FTP de 270W), T2 2', run 52' (5:12/km). Sans drafting, le vélo 1h10 suppose d'atteindre la FTP cible de 270W."
     },
     "pre_race_fitness": {
       "ctl_target": 42,
@@ -273,7 +273,7 @@
       "ftp_target_watts": 270,
       "threshold_run_pace_target": "4:40/km",
       "css_swim_target": "1:52/100m",
-      "notes": "Pour tenir 2h35 avec drafting autorisé sur le vélo : FTP actuel 250W suffisant (puissance course ~165W soit ~66% FTP en peloton), l'enjeu se déplace sur la natation et le run. Allure run cible 5:12/km (95% seuil actuel 4:53 → progression modérée nécessaire), CSS natation 1:52/100m (vs 2:00 actuel → +7%). Stratégie clé : sortir de l'eau dans un bon groupe, gérer l'effort vélo en peloton pour arriver frais sur le run."
+      "notes": "Pour tenir 2h35 sans drafting (TriAtBain) : le vélo solo en 1h10 demande ~215-230W NP, soit ~85% d'une FTP de 270W (FTP actuelle 250W → +8% nécessaire, sinon prévoir plutôt ~1h13-1h14 au vélo). Allure run cible 5:12/km après un vélo solo exigeant → briques régulières indispensables. CSS natation 1:52/100m (vs 2:00 actuel → +7%)."
     }
   },
 
@@ -310,7 +310,12 @@
     {
       "date": "2026-10-03",
       "author": "David",
-      "note": "Nouvel objectif : Triathlon M TriAtBain à Bain-de-Bretagne, le dimanche 2 mai 2027 (remplace Quimperlé du 30/08/2026). Phases de saison et TSS cibles hebdomadaires recalés sur 30 semaines (05/10/2026 → 02/05/2027). Format de course (drafting) et objectif chrono 2h35 repris de Quimperlé — à confirmer."
+      "note": "Nouvel objectif : Triathlon M TriAtBain à Bain-de-Bretagne, le dimanche 2 mai 2027 (remplace Quimperlé du 30/08/2026). Phases de saison et TSS cibles hebdomadaires recalés sur 30 semaines (05/10/2026 → 02/05/2027). Objectif chrono 2h35 repris de Quimperlé."
+    },
+    {
+      "date": "2026-10-03",
+      "author": "David",
+      "note": "Format TriAtBain : drafting interdit sur le vélo. Stratégies course et cibles de puissance révisées (vélo solo ~215-230W NP, ~85% FTP 270W visée)."
     }
   ]
 }
