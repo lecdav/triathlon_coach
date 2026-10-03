@@ -31,8 +31,8 @@ zones:
 
 # Objectif principal
 race:
-  name: "Triathlon M de Quimperlé"
-  date: "2026-08-30"
+  name: "Triathlon M — 2 mai 2027"
+  date: "2027-05-02"
   distances:
     swim_m: 1500
     bike_km: 40

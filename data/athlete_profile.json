@@ -1,7 +1,7 @@
 {
   "_meta": {
     "description": "Profil athlète David — source de vérité pour la génération des plans et séances. À mettre à jour au fil de la saison.",
-    "last_updated": "2026-05-24",
+    "last_updated": "2026-10-03",
     "version": "1.0"
   },
 
@@ -83,22 +83,38 @@
       "source": "Issurin (2008) Block Periodization; Seiler (2010) 80/20; Coggan & Allen (2010) PMC; consensus : progression ≤10%/sem, récup 60-65% du pic, reprise à 85% du pic du bloc précédent (pas de marche brutale)"
     },
     "weekly_tss_targets": {
-      "2026-05-25": 270,
-      "2026-06-01": 292,
-      "2026-06-08": 315,
-      "2026-06-15": 340,
-      "2026-06-22": 220,
-      "2026-06-29": 290,
-      "2026-07-06": 315,
-      "2026-07-13": 340,
-      "2026-07-20": 368,
-      "2026-07-27": 240,
-      "2026-08-03": 315,
-      "2026-08-10": 345,
-      "2026-08-17": 245,
-      "2026-08-24": 145
+      "2026-10-05": 190,
+      "2026-10-12": 205,
+      "2026-10-19": 220,
+      "2026-10-26": 235,
+      "2026-11-02": 155,
+      "2026-11-09": 205,
+      "2026-11-16": 220,
+      "2026-11-23": 235,
+      "2026-11-30": 255,
+      "2026-12-07": 165,
+      "2026-12-14": 225,
+      "2026-12-21": 240,
+      "2026-12-28": 255,
+      "2027-01-04": 275,
+      "2027-01-11": 180,
+      "2027-01-18": 240,
+      "2027-01-25": 260,
+      "2027-02-01": 275,
+      "2027-02-08": 295,
+      "2027-02-15": 190,
+      "2027-02-22": 260,
+      "2027-03-01": 280,
+      "2027-03-08": 295,
+      "2027-03-15": 320,
+      "2027-03-22": 210,
+      "2027-03-29": 310,
+      "2027-04-05": 335,
+      "2027-04-12": 210,
+      "2027-04-19": 160,
+      "2027-04-26": 90
     },
-    "notes": "Post-duathlon M Bain-de-Bretagne (03/05/2026). CTL redescendu à 37.6 après 3 semaines de décompression. Build progressif jusqu'au pic (S11, 03-09/08) puis affûtage 3 semaines. CTL attendu race day ~42, TSB ~+15."
+    "notes": "Saison 2026-2027 : objectif Triathlon M du 02/05/2027 (30 semaines à partir du 05/10/2026). Cycles 4+1 (récup à ~65% du pic, reprise à ~88% du pic précédent, +7%/sem max). Pic S26 (05-11/04/2027, 335 TSS) puis affûtage 2 semaines + semaine de course. Saison précédente : Triathlon M de Quimperlé (30/08/2026)."
   },
 
   "race_format": {
@@ -110,11 +126,11 @@
   },
 
   "season": {
-    "current_year": 2026,
-    "start_date": "2026-01-01",
+    "current_year": 2027,
+    "start_date": "2026-10-05",
     "race": {
-      "name": "Triathlon M de Quimperlé",
-      "date": "2026-08-30",
+      "name": "Triathlon M — 2 mai 2027",
+      "date": "2027-05-02",
       "distance": "M",
       "swim_km": 1.5,
       "bike_km": 40,
@@ -123,44 +139,52 @@
     },
     "phases": [
       {
-        "name": "Préparation générale — Base aérobie",
-        "start": "2026-05-05",
-        "end": "2026-06-29",
-        "weeks": 8,
-        "focus": "Construire le moteur aérobie Z2, poser le volume, 80/20",
-        "tss_target_weekly": 260
+        "name": "Préparation générale — Reprise et base aérobie",
+        "start": "2026-10-05",
+        "end": "2026-12-13",
+        "weeks": 10,
+        "focus": "Reprise progressive, moteur aérobie Z2, technique natation, renforcement musculaire",
+        "tss_target_weekly": 210
+      },
+      {
+        "name": "Base aérobie — Volume",
+        "start": "2026-12-14",
+        "end": "2027-01-17",
+        "weeks": 5,
+        "focus": "Poser le volume en 80/20, densifier la natation, sorties longues vélo (home trainer)",
+        "tss_target_weekly": 235
       },
       {
         "name": "Développement — Seuil et spécifique",
-        "start": "2026-06-30",
-        "end": "2026-07-26",
-        "weeks": 4,
+        "start": "2027-01-18",
+        "end": "2027-03-28",
+        "weeks": 10,
         "focus": "Intensités seuil, briques vélo/run, volume maintenu",
-        "tss_target_weekly": 300
+        "tss_target_weekly": 260
       },
       {
         "name": "Pic de charge",
-        "start": "2026-07-27",
-        "end": "2026-08-09",
+        "start": "2027-03-29",
+        "end": "2027-04-11",
         "weeks": 2,
-        "focus": "Semaine de charge maximale, simulation course",
-        "tss_target_weekly": 340
+        "focus": "Semaines de charge maximale, simulation course",
+        "tss_target_weekly": 320
       },
       {
         "name": "Affûtage",
-        "start": "2026-08-10",
-        "end": "2026-08-23",
+        "start": "2027-04-12",
+        "end": "2027-04-25",
         "weeks": 2,
         "focus": "Réduction volume -40%, maintien intensité, récupération",
-        "tss_target_weekly": 180
+        "tss_target_weekly": 185
       },
       {
         "name": "Semaine de course",
-        "start": "2026-08-24",
-        "end": "2026-08-30",
+        "start": "2027-04-26",
+        "end": "2027-05-02",
         "weeks": 1,
         "focus": "Activation légère, repos, race day",
-        "tss_target_weekly": 80
+        "tss_target_weekly": 90
       }
     ]
   },
@@ -282,6 +306,11 @@
       "date": "2026-05-24",
       "author": "Claude / Cowork",
       "note": "Analyse PMC 6 mois (nov.2025 → mai 2026). Duathlon M Bain-de-Bretagne (03/05) bien préparé : CTL pic 46.6 (11/04), TSB +12 le jour J. Reprogrammation saison Quimperlé : cycle 3+1 strict (3 sem. charge + 1 sem. récup à ~65%), 2 semaines de récup (S04 et S08), pic S09-S11 (410-435 TSS), affûtage 3 semaines. CTL race day visé : 42, TSB : +15. CTL pic cible révisé à 50."
+    },
+    {
+      "date": "2026-10-03",
+      "author": "David",
+      "note": "Nouvel objectif : Triathlon M le dimanche 2 mai 2027 (remplace Quimperlé du 30/08/2026). Phases de saison et TSS cibles hebdomadaires recalés sur 30 semaines (05/10/2026 → 02/05/2027). Format de course (drafting) et objectif chrono 2h35 repris de Quimperlé — à confirmer."
     }
   ]
 }
