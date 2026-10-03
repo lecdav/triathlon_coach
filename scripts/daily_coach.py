@@ -3,8 +3,11 @@
 Lit les données Intervals.icu (wellness, activités, profil, calendrier),
 calcule la forme du jour (CTL/ATL/TSB, ramp rate, HRV, sommeil),
 puis produit :
-  1) un rapport Markdown détaillé dans reports/daily/YYYY-MM-DD.md
-  2) un snapshot JSON dans data/cache/today.json (alimente l'artifact)
+  1) data/today.json — snapshot du jour, lu par index.html (seule sortie versionnée)
+  2) une copie locale dans data/cache/today.json (non versionnée)
+et synchronise les séances à venir sur Intervals.icu.
+
+Profil athlète : config/athlete_profile.yaml (via athlete_profile.load_profile).
 
 Méthodologie :
   - Polarisée 80/20 (Seiler) : ~80% Z1-Z2 endurance, ~20% Z4-Z5 haute intensité,
@@ -27,13 +30,12 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from intervals_client import IntervalsClient, pace_mps_to_minkm, pace_mps_to_per100m
 from session_builder import compute_session
+from athlete_profile import load_profile
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPORT_DIR = ROOT / "reports" / "daily"
 CACHE_DIR = ROOT / "data" / "cache"
-PROFILE_PATH = ROOT / "config" / "athlete_profile.yaml"
-ATHLETE_PROFILE_PATH = ROOT / "data" / "athlete_profile.json"
 WEEKLY_PLANS_PATH = ROOT / "data" / "weekly_plans.json"
 PERIODIZATION_PATH = ROOT / "data" / "periodization.json"
 # data/today.json est la seule sortie versionnée — chargée par index.html via fetch()
@@ -740,7 +742,7 @@ def get_tss_target_for_week(week_monday: date) -> int:
     Priorité :
     1. data/periodization.json (généré par IA le dimanche)
     2. weekly_plans.json (tss_target dans le plan)
-    3. athlete_profile.json (valeurs de base)
+    3. config/athlete_profile.yaml (valeurs de base)
     """
     monday_str = week_monday.isoformat()
 
@@ -766,17 +768,15 @@ def get_tss_target_for_week(week_monday: date) -> int:
         except Exception:
             pass
 
-    # 3. athlete_profile.json
-    if ATHLETE_PROFILE_PATH.exists():
-        try:
-            profile = json.loads(ATHLETE_PROFILE_PATH.read_text())
-            tss = profile.get("fitness_baseline", {}).get(
-                "weekly_tss_targets", {}
-            ).get(monday_str)
-            if tss:
-                return int(tss)
-        except Exception:
-            pass
+    # 3. config/athlete_profile.yaml
+    try:
+        tss = load_profile().get("fitness_baseline", {}).get(
+            "weekly_tss_targets", {}
+        ).get(monday_str)
+        if tss:
+            return int(tss)
+    except Exception:
+        pass
 
     return 270  # valeur par défaut raisonnable
 
@@ -1311,26 +1311,13 @@ def run() -> dict:
     client = IntervalsClient()
     today = date.today()
 
-    # Profil athlète YAML (legacy)
-    try:
-        import yaml  # type: ignore
-        prof_yaml = yaml.safe_load(PROFILE_PATH.read_text()) if PROFILE_PATH.exists() else {}
-    except Exception:
-        prof_yaml = {}
+    # Profil athlète (config/athlete_profile.yaml — source unique)
+    athlete_profile = load_profile()
 
-    # Profil athlète JSON (source de vérité principale)
-    athlete_profile: dict = {}
-    try:
-        if ATHLETE_PROFILE_PATH.exists():
-            athlete_profile = json.loads(ATHLETE_PROFILE_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        athlete_profile = {}
-
-    # Date de course : priorité au profil JSON, fallback YAML
+    # Date de course
     race_date = None
-    _race_json = (athlete_profile.get("season") or {}).get("race", {})
-    _race_yaml = (prof_yaml or {}).get("race", {})
-    _race_date_str = _race_json.get("date") or _race_yaml.get("date")
+    _race = (athlete_profile.get("season") or {}).get("race", {})
+    _race_date_str = _race.get("date")
     if _race_date_str:
         try:
             race_date = date.fromisoformat(_race_date_str)
@@ -1521,7 +1508,7 @@ def run() -> dict:
         "tss_target_week": tss_target_week,
         "weeks_to_race": weeks_to_race,
         "phase": phase,
-        "race_name": _race_json.get("name") or _race_yaml.get("name"),
+        "race_name": _race.get("name"),
         "race_date": _race_date_str,
         "season_weekly_tss": season_weekly_tss,
     }

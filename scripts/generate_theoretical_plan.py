@@ -22,12 +22,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from intervals_client import IntervalsClient
 from claude_client import call_claude_json, SYSTEM_PROMPT
 from session_builder import compute_session
+from athlete_profile import PROFILE_PATH, load_profile
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 PLANS_FILE = DATA_DIR / "weekly_plans.json"
 PERIODIZATION_FILE = DATA_DIR / "periodization.json"
-ATHLETE_PROFILE_PATH = DATA_DIR / "athlete_profile.json"
 
 FR_WEEKDAYS = {
     "Monday": "Lundi", "Tuesday": "Mardi", "Wednesday": "Mercredi",
@@ -257,7 +257,7 @@ def generate_periodization(profile: dict, wellness: dict, week1_monday: date,
 def get_tss_target(week_monday: date) -> int | None:
     """Lit le TSS cible pour une semaine depuis periodization.json.
 
-    Fallback sur athlete_profile.json si le fichier n'existe pas.
+    Fallback sur config/athlete_profile.yaml si le fichier n'existe pas.
     Retourne None si introuvable.
     """
     monday_str = week_monday.isoformat()
@@ -272,17 +272,15 @@ def get_tss_target(week_monday: date) -> int | None:
         except Exception:
             pass
 
-    # 2. Fallback athlete_profile.json
-    if ATHLETE_PROFILE_PATH.exists():
-        try:
-            profile = json.loads(ATHLETE_PROFILE_PATH.read_text())
-            tss = profile.get("fitness_baseline", {}).get(
-                "weekly_tss_targets", {}
-            ).get(monday_str)
-            if tss:
-                return int(tss)
-        except Exception:
-            pass
+    # 2. Fallback config/athlete_profile.yaml
+    try:
+        tss = load_profile().get("fitness_baseline", {}).get(
+            "weekly_tss_targets", {}
+        ).get(monday_str)
+        if tss:
+            return int(tss)
+    except Exception:
+        pass
 
     return None
 
@@ -307,9 +305,9 @@ def generate_plans(dry_run: bool = False, force: bool = False) -> dict:
             return existing
 
     # Charger le profil athlète
-    if not ATHLETE_PROFILE_PATH.exists():
-        raise FileNotFoundError(f"Profil athlète introuvable : {ATHLETE_PROFILE_PATH}")
-    profile = json.loads(ATHLETE_PROFILE_PATH.read_text())
+    if not PROFILE_PATH.exists():
+        raise FileNotFoundError(f"Profil athlète introuvable : {PROFILE_PATH}")
+    profile = load_profile()
 
     # Données Intervals.icu
     client = IntervalsClient()
