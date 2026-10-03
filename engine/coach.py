@@ -1,13 +1,11 @@
 """Coach quotidien triathlon — analyse + plan hebdomadaire.
 
-Lit les données Intervals.icu (wellness, activités, profil, calendrier),
-calcule la forme du jour (CTL/ATL/TSB, ramp rate, HRV, sommeil),
-puis produit :
-  1) data/today.json — snapshot du jour, lu par index.html (seule sortie versionnée)
-  2) une copie locale dans data/cache/today.json (non versionnée)
-et synchronise les séances à venir sur Intervals.icu.
+Entrées : inputs/athlete_profile.yaml + imports Intervals.icu (inputs/intervals/,
+produits par jobs/import_intervals.py). Aucun appel réseau à Intervals.icu ici.
 
-Profil athlète : config/athlete_profile.yaml (via athlete_profile.load_profile).
+Calcule la forme du jour (CTL/ATL/TSB, ramp rate, HRV, sommeil), le plan
+adaptatif de la semaine et le message du coach, puis écrit docs/data/today.json
+(lu par le dashboard). Lancé par jobs/daily.py.
 
 Méthodologie :
   - Polarisée 80/20 (Seiler) : ~80% Z1-Z2 endurance, ~20% Z4-Z5 haute intensité,
@@ -20,46 +18,26 @@ Méthodologie :
 from __future__ import annotations
 
 import json
-import sys
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-# Permet d'importer le client quel que soit le cwd
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from intervals_client import IntervalsClient, pace_mps_to_minkm, pace_mps_to_per100m
-from session_builder import compute_session
-from athlete_profile import load_profile
-
-ROOT = Path(__file__).resolve().parent.parent
-SCRIPT_DIR = Path(__file__).resolve().parent
-REPORT_DIR = ROOT / "reports" / "daily"
-CACHE_DIR = ROOT / "data" / "cache"
-WEEKLY_PLANS_PATH = ROOT / "data" / "weekly_plans.json"
-PERIODIZATION_PATH = ROOT / "data" / "periodization.json"
-# data/today.json est la seule sortie versionnée — chargée par index.html via fetch()
-
-REPORT_DIR.mkdir(parents=True, exist_ok=True)
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-# Fichier de données public (chargé par index.html via fetch)
-DATA_DIR = ROOT / "data"
-TODAY_JSON_PUBLIC = DATA_DIR / "today.json"
+from connectors.intervals_client import pace_mps_to_minkm, pace_mps_to_per100m
+from engine.athlete_profile import load_profile
+from engine.intervals_inputs import IntervalsInputs
+from engine.paths import OUTPUT_DATA_DIR, PERIODIZATION_PATH, TODAY_PATH, WEEKLY_PLANS_PATH
+from engine.session_builder import compute_session
 
 
 def build_github_pages_dashboard(snapshot: dict) -> Path | None:
-    """Écrit data/today.json — chargé par index.html via fetch() au runtime.
-
-    index.html est désormais statique (code uniquement, pas de données embarquées).
-    GitHub Actions pousse uniquement data/today.json chaque matin.
-    """
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    TODAY_JSON_PUBLIC.write_text(
+    """Écrit docs/data/today.json — chargé par docs/index.html via fetch() au runtime."""
+    OUTPUT_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    TODAY_PATH.write_text(
         json.dumps(snapshot, indent=2, ensure_ascii=False, default=str),
         encoding="utf-8"
     )
-    return TODAY_JSON_PUBLIC
+    return TODAY_PATH
 
 
 
@@ -740,9 +718,9 @@ def get_tss_target_for_week(week_monday: date) -> int:
     """Retourne le TSS cible pour une semaine.
 
     Priorité :
-    1. data/periodization.json (généré par IA le dimanche)
+    1. docs/data/periodization.json (généré par IA le dimanche)
     2. weekly_plans.json (tss_target dans le plan)
-    3. config/athlete_profile.yaml (valeurs de base)
+    3. inputs/athlete_profile.yaml (valeurs de base)
     """
     monday_str = week_monday.isoformat()
 
@@ -768,7 +746,7 @@ def get_tss_target_for_week(week_monday: date) -> int:
         except Exception:
             pass
 
-    # 3. config/athlete_profile.yaml
+    # 3. inputs/athlete_profile.yaml
     try:
         tss = load_profile().get("fitness_baseline", {}).get(
             "weekly_tss_targets", {}
@@ -782,15 +760,15 @@ def get_tss_target_for_week(week_monday: date) -> int:
 
 
 def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, dict, dict, dict]:
-    """Charge les plans théoriques depuis data/weekly_plans.json.
+    """Charge les plans théoriques depuis docs/data/weekly_plans.json.
 
     Retourne (ideal_week_plan, next_week_plan, ideal_totals, next_totals).
     Si le fichier n'existe pas ou est obsolète, retourne des listes vides.
 
     Logique de correspondance :
-    - generate_theoretical_plan.py est exécuté le dimanche soir et génère les plans des
+    - engine/plans.py est exécuté le dimanche soir et génère les plans des
       2 semaines SUIVANTES (week1 = lundi prochain, week2 = lundi dans 14j).
-    - daily_coach.py tourne toute la semaine : il doit accepter week1 comme
+    - engine/coach.py tourne toute la semaine : il doit accepter week1 comme
       plan de la semaine en cours dès que week1.monday == lundi de cette semaine.
     - Le dimanche (dernier jour de la semaine passée), week1.monday est déjà
       le lundi suivant → on l'accepte aussi comme plan "en cours" pour que le
@@ -853,7 +831,7 @@ def load_theoretical_plans(today: date) -> tuple[list[dict], list[dict], dict, d
         next_totals = make_totals(w1)
         next_meta = make_meta(w1)
         # week2 devient la semaine d'après
-        # ideal_plan vide → daily_coach utilisera le fallback algo pour la semaine courante
+        # ideal_plan vide → le coach utilisera le fallback algo pour la semaine courante
         print(f"ℹ️  Plans IA pour la semaine prochaine disponibles ({w1_monday}). "
               f"Semaine en cours ({week_monday.isoformat()}) → fallback algorithmique.")
 
@@ -886,7 +864,7 @@ def generate_adaptive_plan_ia(
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         try:
-            from claude_client import load_api_key
+            from connectors.claude_client import load_api_key
             api_key = load_api_key()
         except Exception:
             pass
@@ -966,7 +944,7 @@ JSON: {{"adaptations":["..."],"days":[{{"date":"YYYY-MM-DD","weekday_fr":"...","
     try:
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
-        from claude_client import SYSTEM_PROMPT, _log_exchange
+        from connectors.claude_client import SYSTEM_PROMPT, _log_exchange
         response = client.messages.create(
             model="claude-sonnet-4-5",
             max_tokens=4096,
@@ -1307,11 +1285,15 @@ def generate_coach_message(snapshot: dict) -> str:
 
 # ---------- Main ----------
 
-def run() -> dict:
-    client = IntervalsClient()
+def run(data: IntervalsInputs | None = None) -> dict:
+    """Calcule le snapshot du jour et l'écrit dans docs/data/today.json.
+
+    `data` : données Intervals.icu importées (par défaut lues dans inputs/intervals/).
+    """
+    data = data or IntervalsInputs()
     today = date.today()
 
-    # Profil athlète (config/athlete_profile.yaml — source unique)
+    # Profil athlète (inputs/athlete_profile.yaml — source unique)
     athlete_profile = load_profile()
 
     # Date de course
@@ -1324,17 +1306,17 @@ def run() -> dict:
         except ValueError:
             race_date = None
 
-    # Données API
-    thresholds = client.get_thresholds()
+    # Données Intervals.icu importées
+    thresholds = data.get_thresholds()
     # 90j pour le graphique PMC ; 14j suffisent pour les métriques du jour
-    wellness_90d = client.wellness(today - timedelta(days=90))
+    wellness_90d = data.wellness(today - timedelta(days=90))
     wellness = [w for w in wellness_90d
                 if w.get("id", "") >= (today - timedelta(days=14)).isoformat()]
     # Récupère les activités depuis le début de saison (pour la frise) + 42j pour profil/croisement
     week_monday = today - timedelta(days=today.weekday())
     season_start = date(2026, 5, 4)  # lundi de la semaine du 5 mai = début frise saison
     oldest_fetch = min(today - timedelta(days=42), week_monday, season_start)
-    activities = client.activities(oldest_fetch)
+    activities = data.activities(oldest_fetch)
 
     # Métriques du jour
     today_w = next((w for w in wellness if w.get("id") == today.isoformat()),
@@ -1361,7 +1343,7 @@ def run() -> dict:
     session_profile = average_session_profile(activities, 28)
 
     # ── Plan théorique idéal ────────────────────────────────────────────────
-    # Source prioritaire : data/weekly_plans.json (généré par IA le dimanche).
+    # Source prioritaire : docs/data/weekly_plans.json (généré par IA le dimanche).
     # Fallback : génération algorithmique si le fichier est absent ou obsolète.
     next_week_monday = week_monday + timedelta(days=7)
     next_week_sunday = next_week_monday + timedelta(days=6)
@@ -1405,7 +1387,7 @@ def run() -> dict:
             }
             next_week_meta = {"coach_note": "", "phase": phase, "bloc_week": "", "is_recovery": False}
     else:
-        print("✅  Plans théoriques IA chargés depuis data/weekly_plans.json.")
+        print("✅  Plans théoriques IA chargés depuis docs/data/weekly_plans.json.")
         # Calcule weeks_to_race / phase (non disponibles quand plans IA sont chargés)
         _, weeks_to_race, phase = build_weekly_plan(today, form, session_profile,
                                                      thresholds, race_date)
@@ -1516,100 +1498,11 @@ def run() -> dict:
     # Message coach généré après le snapshot complet (a besoin du plan enrichi)
     snapshot["coach_message"] = generate_coach_message(snapshot)
 
-    # Sortie : data/today.json (public, chargé par index.html) + cache local
+    # Sortie : docs/data/today.json (chargé par le dashboard)
     today_json_path = build_github_pages_dashboard(snapshot)
-
-    cache_path = CACHE_DIR / "today.json"
-    cache_path.write_text(json.dumps(snapshot, indent=2, default=str))
-
     print(f"Données du jour : {today_json_path}")
-    print(f"Cache local     : {cache_path}")
-
-    # ── Synchronisation plan adaptatif → Intervals.icu ───────────────────────
-    # Pousse les séances FUTURES du plan adaptatif vers Intervals.icu
-    # en remplaçant les séances déjà planifiées sur ces jours.
-    try:
-        sync_adaptive_plan_to_intervals(client, plan, thresholds, today)
-    except Exception as e:
-        print(f"⚠️  Sync Intervals.icu échouée : {e}")
 
     return snapshot
-
-
-def sync_adaptive_plan_to_intervals(
-    client: "IntervalsClient",
-    plan: list[dict],
-    thresholds: dict,
-    today: date,
-) -> None:
-    """Supprime et recrée les séances planifiées (WORKOUT) sur les jours futurs
-    du plan adaptatif dans Intervals.icu.
-
-    - Ne touche PAS aux jours passés (status=done/past_missed) ni à aujourd'hui.
-    - Supprime uniquement les events de type WORKOUT (pas les activités réelles).
-    - Le titre de la séance dans Intervals.icu correspond au champ 'type' du plan.
-    """
-    # Import ici pour éviter la dépendance circulaire au niveau module
-    sys.path.insert(0, str(SCRIPT_DIR))
-    from push_workouts import plan_item_to_event
-
-    # Jours futurs uniquement (status=todo, pas aujourd'hui ni passé)
-    future_days = [
-        p for p in plan
-        if p.get("status") == "todo"
-        and p.get("sport") not in ("Repos", None, "Strength")
-    ]
-
-    if not future_days:
-        print("ℹ️  Aucune séance future à synchroniser sur Intervals.icu.")
-        return
-
-    # Dates concernées
-    future_dates = [date.fromisoformat(p["date"]) for p in future_days]
-    min_date = min(future_dates)
-    max_date = max(future_dates)
-
-    print(f"\n🔄 Sync Intervals.icu : {len(future_days)} séances futures "
-          f"({min_date.isoformat()} → {max_date.isoformat()})")
-
-    # Supprime les WORKOUT existants sur ces dates uniquement
-    existing_events = client.events(min_date, max_date)
-    deleted = 0
-    for ev in existing_events:
-        ev_date_str = (ev.get("start_date_local") or "")[:10]
-        if ev.get("category") == "WORKOUT" and ev_date_str >= today.isoformat():
-            try:
-                client.delete_event(ev["id"])
-                deleted += 1
-            except Exception as e:
-                print(f"  ⚠️  Suppression event {ev['id']} ({ev_date_str}) échouée : {e}")
-
-    if deleted:
-        print(f"  🗑️  {deleted} séances supprimées.")
-
-    # Crée les nouvelles séances
-    sent, errors = 0, 0
-    for item in future_days:
-        # Nom de la séance = type du plan adaptatif (ex: "Intervalles Z4", "Sweet Spot")
-        event = plan_item_to_event(item, thresholds)
-        if not event:
-            continue
-        # Remplace le nom générique par le titre exact du plan adaptatif
-        sport_prefix = {"Run": "RUN", "VirtualRide": "BIKE", "Ride": "BIKE", "Swim": "SWIM"}.get(
-            item.get("sport", ""), item.get("sport", "").upper()
-        )
-        dur = item.get("duration_min", 0)
-        event["name"] = f"{sport_prefix} {dur}' — {item.get('type', '')}"
-        try:
-            result = client.create_event(event)
-            print(f"  ✅ {item['date']} [{item.get('weekday_fr',''):>8}] {event['name']} "
-                  f"(id={result.get('id')})")
-            sent += 1
-        except Exception as e:
-            print(f"  ❌ {item['date']} {event['name']} : {e}")
-            errors += 1
-
-    print(f"  → {sent} séances créées, {errors} erreurs.")
 
 
 if __name__ == "__main__":

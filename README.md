@@ -9,15 +9,54 @@ Dashboard : <https://lecdav.github.io/triathlon_coach/>
 
 ---
 
+## Comment c'est organisé
+
+Le projet suit un flux en 4 étapes : **entrées → jobs → moteur → sorties**.
+
+```
+inputs/                          ① ENTRÉES
+  athlete_profile.yaml             ton profil : objectif, phases, seuils, préférences (édité à la main)
+  intervals/                       imports bruts Intervals.icu (non versionnés, recréés à chaque run)
+  credentials.env                  tes clés API en local (non versionné)
+
+jobs/                            ② JOBS — import / export, lancés par GitHub Actions
+  import_intervals.py              Intervals.icu → inputs/intervals/
+  daily.py                         import → moteur (coach) → export des séances vers Intervals.icu
+  weekly_plans.py                  import → moteur (plans IA du dimanche)
+  push_workouts.py                 docs/data/today.json → Intervals.icu → Garmin
+
+engine/                          ③ MOTEUR — calculs et IA, aucun appel à Intervals.icu
+  coach.py                         forme du jour, plan adaptatif, message du coach
+  plans.py                         plans IA des 2 semaines à venir + périodisation
+  session_builder.py               allures, watts, durées et TSS d'une séance
+  athlete_profile.py               lecture du profil
+  intervals_inputs.py              lecture des imports Intervals.icu
+  paths.py                         emplacement de tous les fichiers
+
+connectors/                      clients des API externes
+  intervals_client.py              Intervals.icu
+  claude_client.py                 Claude
+
+docs/                            ④ SORTIES — publiées par GitHub Pages
+  index.html                       le dashboard
+  data/today.json                  état du jour
+  data/weekly_plans.json           plans IA des 2 semaines à venir
+  data/periodization.json          TSS cibles par semaine ajustés par l'IA
+
+.github/workflows/               les 3 automatismes ci-dessous
+```
+
+---
+
 ## Ce qui tourne tout seul
 
 Trois workflows GitHub Actions, sur la branche `main` (heures de Paris, heure d'été) :
 
-| Quand | Workflow | Ce qu'il fait | Fichiers mis à jour |
+| Quand | Workflow | Job lancé | Sorties mises à jour |
 |---|---|---|---|
-| Chaque nuit, ~1h | `daily_coach.yml` | Forme du jour (CTL/ATL/TSB), plan adaptatif de la semaine, message du coach, synchro des séances à venir sur Intervals.icu | `data/today.json` |
-| Dimanche, ~23h | `generate_plans.yml` | L'IA ajuste les TSS cibles de la saison et génère les 2 semaines suivantes | `data/weekly_plans.json`, `data/periodization.json` |
-| Lundi, ~5h | `push_workouts.yml` | Envoie les séances de la semaine sur Intervals.icu → Garmin | — |
+| Chaque nuit, ~1h | `daily_coach.yml` | `jobs/daily.py` | `docs/data/today.json` + séances à venir sur Intervals.icu |
+| Dimanche, ~23h | `generate_plans.yml` | `jobs/weekly_plans.py` | `docs/data/weekly_plans.json`, `docs/data/periodization.json` |
+| Lundi, ~5h | `push_workouts.yml` | `jobs/push_workouts.py` | séances de la semaine sur Intervals.icu → Garmin |
 
 Chacun peut être lancé à la main : GitHub → onglet **Actions** → choisir le workflow → **Run workflow**.
 
@@ -27,35 +66,12 @@ Chacun peut être lancé à la main : GitHub → onglet **Actions** → choisir 
 
 | Je veux… | Fichier |
 |---|---|
-| Changer l'objectif, les phases de la saison, les seuils, mes préférences | **`config/athlete_profile.yaml`** (source unique) |
-| Changer la logique de coaching (plan, adaptation, message) | `scripts/daily_coach.py` |
-| Changer la génération IA des plans du dimanche | `scripts/generate_theoretical_plan.py` |
-| Changer l'affichage du dashboard | `index.html` |
+| Changer l'objectif, les phases de la saison, les seuils, mes préférences | **`inputs/athlete_profile.yaml`** |
+| Changer la logique de coaching (plan, adaptation, message) | `engine/coach.py` |
+| Changer la génération IA des plans du dimanche | `engine/plans.py` |
+| Changer l'affichage du dashboard | `docs/index.html` |
 
-**Ne pas modifier à la main** le contenu de `data/` : ces fichiers sont réécrits par les workflows.
-
----
-
-## Organisation du dépôt
-
-```
-config/
-  athlete_profile.yaml        ← TON profil (objectif, phases, seuils, préférences)
-data/                         ← généré automatiquement, ne pas éditer
-  today.json                    état du jour, lu par le dashboard
-  weekly_plans.json             plans IA des 2 semaines à venir
-  periodization.json            TSS cibles par semaine ajustés par l'IA
-scripts/
-  daily_coach.py              script principal (rapport quotidien)
-  generate_theoretical_plan.py  plans IA du dimanche
-  push_workouts.py            envoi des séances vers Intervals.icu / Garmin
-  session_builder.py          calcul des allures, watts, durées et TSS d'une séance
-  athlete_profile.py          lecture du profil
-  intervals_client.py         client API Intervals.icu
-  claude_client.py            client API Claude
-index.html                    dashboard (GitHub Pages), lit data/today.json
-.github/workflows/            les 3 automatismes ci-dessus
-```
+**Ne pas modifier à la main** `docs/data/` ni `inputs/intervals/` : ils sont réécrits automatiquement.
 
 ---
 
@@ -72,11 +88,13 @@ Ne pas pousser directement sur `main` : les workflows y commitent chaque jour.
 
 ## Lancer en local
 
+Toutes les commandes se lancent depuis la racine du dépôt.
+
 ```bash
 pip install -r requirements.txt
 ```
 
-Créer `config/credentials.env` (ignoré par git) :
+Créer `inputs/credentials.env` (ignoré par git ; l'ancien `config/credentials.env` marche encore) :
 
 ```
 INTERVALS_ATHLETE_ID=i406969
@@ -90,15 +108,19 @@ export ANTHROPIC_API_KEY=ta_clé_anthropic
 ```
 
 ```bash
-python scripts/intervals_client.py                      # tester la connexion Intervals.icu
-python scripts/daily_coach.py                           # rapport du jour → data/today.json
-python scripts/generate_theoretical_plan.py --dry-run   # voir le prompt IA sans l'appeler
-python scripts/push_workouts.py --dry-run               # voir les séances sans les envoyer
-python -m http.server 8080                              # dashboard sur http://localhost:8080
+python -m connectors.intervals_client           # tester la connexion Intervals.icu
+python jobs/import_intervals.py                 # importer les données → inputs/intervals/
+python -m engine.coach                          # moteur seul, sur le dernier import (sans réseau)
+python jobs/daily.py                            # job complet : import → moteur → export Intervals.icu
+python jobs/weekly_plans.py --dry-run --force   # voir les prompts IA sans appeler Claude
+python jobs/push_workouts.py --dry-run          # voir les séances sans les envoyer
+python -m http.server 8080 --directory docs     # dashboard sur http://localhost:8080
 ```
 
 Secrets GitHub nécessaires (Settings → Secrets and variables → Actions) :
 `INTERVALS_ATHLETE_ID`, `INTERVALS_API_KEY`, `ANTHROPIC_API_KEY`.
+
+GitHub Pages doit publier le dossier `/docs` : Settings → Pages → Branch `main`, dossier `/docs`.
 
 ---
 

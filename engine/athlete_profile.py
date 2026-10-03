@@ -1,15 +1,13 @@
-"""Chargement du profil athlète — source unique : config/athlete_profile.yaml.
+"""Chargement du profil athlète — source unique : inputs/athlete_profile.yaml.
 
-Utilisé par daily_coach.py et generate_theoretical_plan.py.
+Utilisé par engine/coach.py et engine/plans.py.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import yaml
 
-PROFILE_PATH = Path(__file__).resolve().parent.parent / "config" / "athlete_profile.yaml"
+from engine.paths import PROFILE_PATH
 
 
 def load_profile() -> dict:

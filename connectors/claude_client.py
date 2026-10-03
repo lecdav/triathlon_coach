@@ -1,12 +1,12 @@
 """claude_client.py — Wrapper pour l'API Anthropic (Claude Sonnet).
 
 Utilisé par :
-  - generate_theoretical_plan.py  : génération des plans théoriques (dimanche)
-  - daily_coach.py     : plan adaptatif mis à jour chaque jour
+  - engine/plans.py  : génération des plans théoriques (dimanche)
+  - engine/coach.py  : plan adaptatif mis à jour chaque jour
 
 Priorité clé API :
   1. Variable d'environnement ANTHROPIC_API_KEY (GitHub Actions Secrets)
-  2. Fichier config/credentials.env  (usage local, jamais commité)
+  2. Fichier inputs/credentials.env  (usage local, jamais commité)
 """
 
 from __future__ import annotations
@@ -15,12 +15,9 @@ import json
 import os
 import re
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parent.parent
-CREDENTIALS_FILE = ROOT / "config" / "credentials.env"
-LOG_DIR = ROOT / "logs"
+from engine.paths import LOG_DIR, credentials_file
 
 MODEL = "claude-sonnet-4-5"
 MAX_TOKENS = 8192
@@ -31,14 +28,14 @@ def load_api_key() -> str:
     key = os.environ.get("ANTHROPIC_API_KEY")
     if key:
         return key
-    if CREDENTIALS_FILE.exists():
-        for line in CREDENTIALS_FILE.read_text().splitlines():
+    if credentials_file().exists():
+        for line in credentials_file().read_text().splitlines():
             line = line.strip()
             if line.startswith("ANTHROPIC_API_KEY="):
                 return line.split("=", 1)[1].strip()
     raise RuntimeError(
         "Clé API Anthropic introuvable. "
-        "Ajoute ANTHROPIC_API_KEY dans config/credentials.env ou en variable d'environnement."
+        "Ajoute ANTHROPIC_API_KEY dans inputs/credentials.env ou en variable d'environnement."
     )
 
 

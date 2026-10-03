@@ -1,21 +1,15 @@
-# Credentials — NE JAMAIS COMMITER
+# ── Entrées non versionnées ──────────────────────────────────────────────────
+# Clés API locales — NE JAMAIS COMMITER
+inputs/credentials.env
 config/credentials.env
+# Imports bruts Intervals.icu (données de santé perso, recréés à chaque run)
+inputs/intervals/
 
-# Cache local (régénéré à chaque run, non versionné)
-data/cache/
-
-# data/today.json est versionné — c'est le seul fichier poussé par GitHub Actions
-
-# Dashboard HTML local (contient données perso, non versionné)
-reports/dashboard.html
-
-# Rapports daily supprimés — non versionnés
-reports/daily/
-
-# Logs des échanges Claude (contiennent les prompts complets — non versionnés)
+# ── Journaux ─────────────────────────────────────────────────────────────────
+# Échanges Claude (contiennent les prompts complets)
 logs/
 
-# OS / IDE
+# ── OS / IDE ─────────────────────────────────────────────────────────────────
 .DS_Store
 .venv/
 venv/

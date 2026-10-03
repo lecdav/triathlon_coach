@@ -2,8 +2,8 @@
 # PROFIL ATHLÈTE — source unique de vérité
 #
 # C'est LE fichier à modifier pour changer l'objectif, les phases de la
-# saison, les seuils ou les préférences. Tous les scripts le lisent
-# (daily_coach.py, generate_theoretical_plan.py).
+# saison, les seuils ou les préférences. Le moteur le lit
+# (engine/coach.py, engine/plans.py).
 #
 # Attention : garder les dates entre guillemets ('2027-05-02').
 # ════════════════════════════════════════════════════════════════════════

@@ -66,4 +66,4 @@ jobs:
             fi
           fi
 
-          python scripts/push_workouts.py $ARGS
+          python jobs/push_workouts.py $ARGS
