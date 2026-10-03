@@ -7,7 +7,7 @@ Ce module calcule :
   - Le TSS estimé
   - Le texte formaté final de la séance (champ `structure`)
 
-Utilisé par generate_plans.py et daily_coach.py après réception de la réponse Claude.
+Utilisé par generate_theoretical_plan.py et daily_coach.py après réception de la réponse Claude.
 """
 
 from __future__ import annotations
