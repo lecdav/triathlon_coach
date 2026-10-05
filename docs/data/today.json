@@ -1,20 +1,20 @@
 {
-  "today": "2026-10-04",
-  "generated_at": "2026-10-04T02:28:41",
-  "week_monday": "2026-09-28",
-  "week_sunday": "2026-10-04",
+  "today": "2026-10-05",
+  "generated_at": "2026-10-05T01:45:51",
+  "week_monday": "2026-10-05",
+  "week_sunday": "2026-10-11",
   "form": {
-    "label": "Frais",
-    "code": "FRAIS",
+    "label": "Neutre / productif",
+    "code": "NEUTRE",
     "color": "green",
     "emoji": "🟩",
-    "guidance": "Excellente fenêtre — séance clé recommandée (VO2max ou seuil)."
+    "guidance": "Bonne fenêtre pour entraînement de qualité (seuil/endurance)."
   },
   "metrics": {
-    "ctl": 28.344816,
-    "atl": 21.825964,
-    "tsb": 6.5188520000000025,
-    "ramp_rate": -2.3382587,
+    "ctl": 30.365955,
+    "atl": 32.422318,
+    "tsb": -2.0563629999999975,
+    "ramp_rate": 0.40480232,
     "resting_hr": 56,
     "sleep_hours": null,
     "hrv_status": null
@@ -67,12 +67,6 @@
     "threshold_pace_swim_str": "2:00/100m"
   },
   "pmc_history": [
-    {
-      "date": "2026-07-06",
-      "ctl": 38.59,
-      "atl": 38.22,
-      "tsb": 0.36
-    },
     {
       "date": "2026-07-07",
       "ctl": 39.37,
@@ -609,15 +603,27 @@
     },
     {
       "date": "2026-10-04",
-      "ctl": 28.34,
-      "atl": 21.83,
-      "tsb": 6.52
+      "ctl": 31.1,
+      "atl": 37.4,
+      "tsb": -6.3
+    },
+    {
+      "date": "2026-10-05",
+      "ctl": 30.37,
+      "atl": 32.42,
+      "tsb": -2.06
     }
   ],
   "load_7d": {
-    "total_load": 46,
-    "total_minutes": 55.4,
+    "total_load": 163,
+    "total_minutes": 149.95,
     "by_sport": {
+      "Ride": {
+        "count": 1,
+        "minutes": 94.55,
+        "load": 117,
+        "distance_km": 41.89188
+      },
       "VirtualRide": {
         "count": 1,
         "minutes": 55.4,
@@ -627,20 +633,20 @@
     }
   },
   "load_28d": {
-    "total_load": 624,
-    "total_minutes": 669.8166666666667,
+    "total_load": 682,
+    "total_minutes": 689.1,
     "by_sport": {
-      "VirtualRide": {
-        "count": 4,
-        "minutes": 248.18333333333334,
-        "load": 198,
-        "distance_km": 0.0
-      },
       "Ride": {
+        "count": 4,
+        "minutes": 331.8666666666667,
+        "load": 405,
+        "distance_km": 140.87979
+      },
+      "VirtualRide": {
         "count": 3,
-        "minutes": 237.31666666666666,
-        "load": 288,
-        "distance_km": 98.98791
+        "minutes": 172.91666666666669,
+        "load": 139,
+        "distance_km": 0.0
       },
       "Run": {
         "count": 4,
@@ -657,19 +663,19 @@
     }
   },
   "session_profile": {
-    "VirtualRide": {
+    "Ride": {
       "count_4w": 4,
       "per_week": 1.0,
-      "avg_minutes": 62,
-      "avg_distance_km": 0.0,
-      "avg_load": 50
+      "avg_minutes": 83,
+      "avg_distance_km": 35.2,
+      "avg_load": 101
     },
-    "Ride": {
+    "VirtualRide": {
       "count_4w": 3,
       "per_week": 0.8,
-      "avg_minutes": 79,
-      "avg_distance_km": 33.0,
-      "avg_load": 96
+      "avg_minutes": 58,
+      "avg_distance_km": 0.0,
+      "avg_load": 46
     },
     "Run": {
       "count_4w": 4,
@@ -687,124 +693,6 @@
     }
   },
   "ideal_week_plan": [
-    {
-      "date": "2026-09-28",
-      "weekday": "Monday",
-      "weekday_fr": "Lundi",
-      "rel_day": -6,
-      "sport": "Repos",
-      "type": "Récupération",
-      "duration_min": 0,
-      "structure": "Mobilité 15-20 min, étirements doux, marche.",
-      "zones": "",
-      "rationale": "Jour de repos défini dans ton profil — supercompensation.",
-      "tss_estimate": 0,
-      "status": "ideal",
-      "generated_by_ia": false
-    },
-    {
-      "date": "2026-09-29",
-      "weekday": "Tuesday",
-      "weekday_fr": "Mardi",
-      "rel_day": -5,
-      "sport": "Run",
-      "type": "VO2max — intervalles courts",
-      "duration_min": 45,
-      "structure": "20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot → 5' retour au calme trot léger.",
-      "zones": "Z5 — FC 92-97% FCmax",
-      "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
-      "tss_estimate": 54,
-      "status": "ideal",
-      "generated_by_ia": false
-    },
-    {
-      "date": "2026-09-30",
-      "weekday": "Wednesday",
-      "weekday_fr": "Mercredi",
-      "rel_day": -4,
-      "sport": "Swim",
-      "type": "Endurance + technique",
-      "duration_min": 50,
-      "structure": "400 m échauffement nage souple (50 crawl + 50 dos alternés) → 10×100 m (2:00/100m) r=20s → 200 m retour au calme nage souple. Total ~2000 m.",
-      "zones": "Z3-Z4 (CSS = 2:00/100m)",
-      "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
-      "tss_estimate": 39,
-      "status": "ideal",
-      "generated_by_ia": false
-    },
-    {
-      "date": "2026-10-01",
-      "weekday": "Thursday",
-      "weekday_fr": "Jeudi",
-      "rel_day": -3,
-      "sport": "VirtualRide",
-      "type": "Seuil — sweet spot",
-      "duration_min": 60,
-      "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
-      "zones": "Z4 (sweet spot 88-94% FTP)",
-      "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
-      "tss_estimate": 77,
-      "status": "ideal",
-      "generated_by_ia": false
-    },
-    {
-      "date": "2026-10-02",
-      "weekday": "Friday",
-      "weekday_fr": "Vendredi",
-      "rel_day": -2,
-      "sport": "Strength",
-      "type": "Renforcement musculaire",
-      "duration_min": 45,
-      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
-      "zones": "Force-endurance — pas de cardio",
-      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
-      "tss_estimate": 0,
-      "status": "ideal",
-      "generated_by_ia": false
-    },
-    {
-      "date": "2026-10-03",
-      "weekday": "Saturday",
-      "weekday_fr": "Samedi",
-      "rel_day": -1,
-      "sport": "Repos",
-      "type": "Récupération",
-      "duration_min": 0,
-      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
-      "zones": "",
-      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
-      "tss_estimate": 0,
-      "status": "ideal",
-      "generated_by_ia": false
-    },
-    {
-      "date": "2026-10-04",
-      "weekday": "Sunday",
-      "weekday_fr": "Dimanche",
-      "rel_day": 0,
-      "sport": "VirtualRide",
-      "type": "Sortie longue vélo",
-      "duration_min": 93,
-      "structure": "15' échauffement progressif Z1→Z2 → vélo 73' continu Z2 (140-188 W, cadence 85-90 rpm) → 5' retour au calme Z1 (<140 W).",
-      "zones": "Z2 — 140-188 W",
-      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
-      "tss_estimate": 80,
-      "status": "ideal",
-      "generated_by_ia": false
-    }
-  ],
-  "ideal_week_plan_totals": {
-    "total_minutes": 293,
-    "total_minutes_str": "~4h55",
-    "total_tss": 250
-  },
-  "ideal_week_coach_note": "",
-  "ideal_week_phase": "Préparation générale (base aérobie)",
-  "ideal_week_bloc_week": "",
-  "ideal_week_is_recovery": false,
-  "next_week_monday": "2026-10-05",
-  "next_week_sunday": "2026-10-11",
-  "next_week_plan": [
     {
       "date": "2026-10-05",
       "weekday": "Monday",
@@ -857,11 +745,11 @@
       "rel_day": 3,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
-      "duration_min": 60,
+      "duration_min": 58,
       "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
-      "tss_estimate": 77,
+      "tss_estimate": 75,
       "status": "ideal",
       "generated_by_ia": false
     },
@@ -911,17 +799,135 @@
       "generated_by_ia": false
     }
   ],
-  "next_week_plan_totals": {
-    "total_minutes": 260,
+  "ideal_week_plan_totals": {
+    "total_minutes": 258,
     "total_minutes_str": "~4h20",
-    "total_tss": 222
+    "total_tss": 220
+  },
+  "ideal_week_coach_note": "",
+  "ideal_week_phase": "Préparation générale (base aérobie)",
+  "ideal_week_bloc_week": "",
+  "ideal_week_is_recovery": false,
+  "next_week_monday": "2026-10-12",
+  "next_week_sunday": "2026-10-18",
+  "next_week_plan": [
+    {
+      "date": "2026-10-12",
+      "weekday": "Monday",
+      "weekday_fr": "Lundi",
+      "rel_day": 0,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Mobilité 15-20 min, étirements doux, marche.",
+      "zones": "",
+      "rationale": "Jour de repos défini dans ton profil — supercompensation.",
+      "tss_estimate": 0,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-10-13",
+      "weekday": "Tuesday",
+      "weekday_fr": "Mardi",
+      "rel_day": 1,
+      "sport": "Run",
+      "type": "VO2max — intervalles courts",
+      "duration_min": 45,
+      "structure": "20' échauffement : 10' trot Z1 progressif + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' accélérations progressives → 6 à 8 × 3' à allure 5km (5:02/km) r=2' trot → 5' retour au calme trot léger.",
+      "zones": "Z5 — FC 92-97% FCmax",
+      "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
+      "tss_estimate": 54,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-10-14",
+      "weekday": "Wednesday",
+      "weekday_fr": "Mercredi",
+      "rel_day": 2,
+      "sport": "Swim",
+      "type": "Endurance + technique",
+      "duration_min": 50,
+      "structure": "400 m échauffement nage souple (50 crawl + 50 dos alternés) → 10×100 m (2:00/100m) r=20s → 200 m retour au calme nage souple. Total ~2000 m.",
+      "zones": "Z3-Z4 (CSS = 2:00/100m)",
+      "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
+      "tss_estimate": 39,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-10-15",
+      "weekday": "Thursday",
+      "weekday_fr": "Jeudi",
+      "rel_day": 3,
+      "sport": "VirtualRide",
+      "type": "Seuil — sweet spot",
+      "duration_min": 58,
+      "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
+      "zones": "Z4 (sweet spot 88-94% FTP)",
+      "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
+      "tss_estimate": 75,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-10-16",
+      "weekday": "Friday",
+      "weekday_fr": "Vendredi",
+      "rel_day": 4,
+      "sport": "Strength",
+      "type": "Renforcement musculaire",
+      "duration_min": 45,
+      "structure": "Gainage 3×45s · Squats 3×12 · Fentes marchées 3×12/jambe · Hip hinge/RDL 3×10 · Élastiques épaules 2×15 · Planche latérale 2×30s/côté. Récup 60-90s entre séries.",
+      "zones": "Force-endurance — pas de cardio",
+      "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
+      "tss_estimate": 0,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-10-17",
+      "weekday": "Saturday",
+      "weekday_fr": "Samedi",
+      "rel_day": 5,
+      "sport": "Repos",
+      "type": "Récupération",
+      "duration_min": 0,
+      "structure": "Repos complet. Mobilité douce, étirements, marche légère si souhaité.",
+      "zones": "",
+      "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
+      "tss_estimate": 0,
+      "status": "ideal",
+      "generated_by_ia": false
+    },
+    {
+      "date": "2026-10-18",
+      "weekday": "Sunday",
+      "weekday_fr": "Dimanche",
+      "rel_day": 6,
+      "sport": "VirtualRide",
+      "type": "Sortie longue vélo",
+      "duration_min": 90,
+      "structure": "15' échauffement progressif Z1→Z2 → vélo 70' continu Z2 (140-188 W, cadence 85-90 rpm) → 5' retour au calme Z1 (<140 W).",
+      "zones": "Z2 — 140-188 W",
+      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
+      "tss_estimate": 78,
+      "status": "ideal",
+      "generated_by_ia": false
+    }
+  ],
+  "next_week_plan_totals": {
+    "total_minutes": 288,
+    "total_minutes_str": "~4h50",
+    "total_tss": 246
   },
   "weekly_plan": [
     {
-      "date": "2026-09-28",
+      "date": "2026-10-05",
       "weekday": "Monday",
       "weekday_fr": "Lundi",
-      "rel_day": -6,
+      "rel_day": 0,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -934,10 +940,10 @@
       "generated_by_ia": false
     },
     {
-      "date": "2026-09-29",
+      "date": "2026-10-06",
       "weekday": "Tuesday",
       "weekday_fr": "Mardi",
-      "rel_day": -5,
+      "rel_day": 1,
       "sport": "Run",
       "type": "VO2max — intervalles courts",
       "duration_min": 45,
@@ -945,15 +951,15 @@
       "zones": "Z5 — FC 92-97% FCmax",
       "rationale": "Bloc 80/20 : la séance dure du haut du spectre, stimulation VO2max (Helgerud 2007).",
       "tss_estimate": 54,
-      "status": "past_missed",
+      "status": "todo",
       "actual_activities": [],
       "generated_by_ia": false
     },
     {
-      "date": "2026-09-30",
+      "date": "2026-10-07",
       "weekday": "Wednesday",
       "weekday_fr": "Mercredi",
-      "rel_day": -4,
+      "rel_day": 2,
       "sport": "Swim",
       "type": "Endurance + technique",
       "duration_min": 50,
@@ -961,41 +967,31 @@
       "zones": "Z3-Z4 (CSS = 2:00/100m)",
       "rationale": "Séance natation hebdomadaire unique (~50 min). CSS bloc principal pour maintenir la technique et l'endurance spécifique.",
       "tss_estimate": 39,
-      "status": "past_missed",
+      "status": "todo",
       "actual_activities": [],
       "generated_by_ia": false
     },
     {
-      "date": "2026-10-01",
+      "date": "2026-10-08",
       "weekday": "Thursday",
       "weekday_fr": "Jeudi",
-      "rel_day": -3,
+      "rel_day": 3,
       "sport": "VirtualRide",
       "type": "Seuil — sweet spot",
-      "duration_min": 60,
+      "duration_min": 58,
       "structure": "15' échauffement progressif Z1→Z2 (cadence libre, finir avec 3×30s à 100 rpm) → 3×12' à 228-250 W r=4' Z1 → 5' retour au calme Z1 (<140 W, cadence souple).",
       "zones": "Z4 (sweet spot 88-94% FTP)",
       "rationale": "Travail seuil = pilier triathlon M. Sweet spot = bon ratio stimulus/coût (Seiler).",
-      "tss_estimate": 77,
-      "status": "done",
-      "actual_activities": [
-        {
-          "name": "Indoor Cycling",
-          "type": "VirtualRide",
-          "duration_min": 55,
-          "distance_km": 0.0,
-          "tss": 46
-        }
-      ],
-      "sport_match": "displaced",
-      "displacement_note": "Séance réalisée le 2026-09-30 (déplacée)",
+      "tss_estimate": 75,
+      "status": "todo",
+      "actual_activities": [],
       "generated_by_ia": false
     },
     {
-      "date": "2026-10-02",
+      "date": "2026-10-09",
       "weekday": "Friday",
       "weekday_fr": "Vendredi",
-      "rel_day": -2,
+      "rel_day": 4,
       "sport": "Strength",
       "type": "Renforcement musculaire",
       "duration_min": 45,
@@ -1003,15 +999,15 @@
       "zones": "Force-endurance — pas de cardio",
       "rationale": "Renforcement musculaire 1×/sem : réduit le risque blessure et améliore l'économie de course (Beattie 2017, Blagrove 2018). Vendredi = charge cardio nulle, laisse le week-end libre pour les séances aérobies longues.",
       "tss_estimate": 0,
-      "status": "past_missed",
+      "status": "todo",
       "actual_activities": [],
       "generated_by_ia": false
     },
     {
-      "date": "2026-10-03",
+      "date": "2026-10-10",
       "weekday": "Saturday",
       "weekday_fr": "Samedi",
-      "rel_day": -1,
+      "rel_day": 5,
       "sport": "Repos",
       "type": "Récupération",
       "duration_min": 0,
@@ -1019,37 +1015,37 @@
       "zones": "",
       "rationale": "Jour de repos samedi — récupération avant la sortie longue / brick du dimanche.",
       "tss_estimate": 0,
-      "status": "done",
+      "status": "todo",
       "actual_activities": [],
       "generated_by_ia": false
     },
     {
-      "date": "2026-10-04",
+      "date": "2026-10-11",
       "weekday": "Sunday",
       "weekday_fr": "Dimanche",
-      "rel_day": 0,
-      "sport": "VirtualRide",
-      "type": "Sortie longue vélo",
-      "duration_min": 93,
-      "structure": "15' échauffement progressif Z1→Z2 → vélo 73' continu Z2 (140-188 W, cadence 85-90 rpm) → 5' retour au calme Z1 (<140 W).",
-      "zones": "Z2 — 140-188 W",
-      "rationale": "Sortie longue vélo dominicale (semaine paire) — volume aérobie spécifique triathlon, développement du moteur lipidique à vélo.",
-      "tss_estimate": 80,
-      "status": "today",
+      "rel_day": 6,
+      "sport": "Run",
+      "type": "Sortie longue CAP",
+      "duration_min": 60,
+      "structure": "20' échauffement : 10' trot Z1 + 5' gammes (talons-fesses, montées genoux, foulées bondissantes) + 5' Z2 → 35' en Z2 (5:45/km) → optionnel : 5' à allure marathon (4:53/km) → 5' retour au calme trot Z1.",
+      "zones": "Z2 — FC 75-85% LTHR",
+      "rationale": "Sortie longue CAP dominicale (semaine impaire) — fondation aérobie, oxydation lipidique (Seiler). Unique sortie longue de la semaine.",
+      "tss_estimate": 52,
+      "status": "todo",
       "actual_activities": [],
       "generated_by_ia": false
     }
   ],
   "weekly_plan_totals": {
-    "total_minutes": 293,
-    "total_minutes_str": "~4h55",
-    "total_tss": 250
+    "total_minutes": 258,
+    "total_minutes_str": "~4h20",
+    "total_tss": 220
   },
   "week_adaptations": [],
   "ia_plans_source": "algo",
   "ia_adaptive_source": "algo",
-  "tss_target_week": 270,
-  "weeks_to_race": 30,
+  "tss_target_week": 190,
+  "weeks_to_race": 29,
   "phase": "Préparation générale (base aérobie)",
   "race_name": "Triathlon M TriAtBain — Bain-de-Bretagne",
   "race_date": "2027-05-02",
@@ -1075,7 +1071,8 @@
     "2026-09-07": 159,
     "2026-09-14": 177,
     "2026-09-21": 183,
-    "2026-09-28": 46
+    "2026-09-28": 163,
+    "2026-10-05": 0
   },
-  "coach_message": "David, tu arrives à cette séance avec un TSB de +6.5 — tu es frais, bien récupéré. C'est exactement la fenêtre qu'on cherche pour placer une séance clé. Profites-en !\n\nCette semaine, tu as déjà coché 1 séance (VirtualRide) pour environ 46 TSS réalisés. 3 séances ont été manquées (Mardi, Mercredi, Vendredi) — ça arrive, l'important c'est la régularité sur les semaines, pas la perfection sur chaque jour.\n\n**Tes points forts :**\n— Ta progression maîtrisée (ramp rate -2.3 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~0.2 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Solidifier le running** — La CAP est ta discipline qui supporte le plus de blessures si on monte trop vite. On va augmenter progressivement la fréquence des sorties courtes en Z1-Z2 avant d'ajouter du volume. Allure cible endurance : autour de 4:53/km −20%.\n\n**Construire la base CTL** — Avec une CTL à 28.3, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** On est à 30 semaines de Triathlon M TriAtBain — Bain-de-Bretagne. Phase de **Préparation générale (base aérobie)** : l'heure est à construire le moteur aérobie, pas à se presser. Chaque séance Z2 que tu poses maintenant sera du carburant en août. Le pic de charge est prévu dans ~24 semaines — on a le temps de faire les choses bien."
+  "coach_message": "TSB à -2.1 — tu es dans une zone neutre, ni surchargé ni sous-entraîné. C'est le quotidien du triathlete qui construit sérieusement. On continue.\n\n**Tes points forts :**\n— Ta progression maîtrisée (ramp rate +0.4 ctl/sem) : tu sais doser l'effort sans te cramer.\n— Ta régularité sur les trois disciplines — rare pour un amateur, c'est ce qui fait la différence en triathlon.\n\n**Axes de progression :**\n**Densifier la natation** — Tu tournes à ~0.2 séance nat/sem. Sur un Triathlon M avec 1500m de nage, c'est la discipline où on grignote le plus de temps sans coût physique élevé. On vise 2 séances/sem en build. La CSS cible reste 2:00/100m — les répétitions de 100m à CSS sont ta priorité.\n\n**Solidifier le running** — La CAP est ta discipline qui supporte le plus de blessures si on monte trop vite. On va augmenter progressivement la fréquence des sorties courtes en Z1-Z2 avant d'ajouter du volume. Allure cible endurance : autour de 4:53/km −20%.\n\n**Construire la base CTL** — Avec une CTL à 30.4, il y a de la marge pour progresser d'ici la course. L'objectif est d'atteindre CTL ≥ 55-60 au pic de charge, puis d'affûter. On y va méthodiquement : +3 à 4 CTL/sem max pour rester dans la zone verte.\n\n**Renforcement musculaire** — La séance de muscu du vendredi n'est pas du remplissage — c'est un pilier. Squats, fentes, hip hinge : ce sont les fondations qui protègent tes genoux sur le run et ta puissance sur le vélo (Beattie 2017). Ne la saute pas !\n\n**Là où on en est :** On est à 29 semaines de Triathlon M TriAtBain — Bain-de-Bretagne. Phase de **Préparation générale (base aérobie)** : l'heure est à construire le moteur aérobie, pas à se presser. Chaque séance Z2 que tu poses maintenant sera du carburant en août. Le pic de charge est prévu dans ~23 semaines — on a le temps de faire les choses bien."
 }
